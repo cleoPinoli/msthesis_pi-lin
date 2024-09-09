@@ -1,15 +1,18 @@
 
-open import Relation.Binary.PropositionalEquality as Eq
+open import Data.Nat using (ℕ; zero; suc)
+open import Data.Product using (_×_)
+import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
 open Eq.≡-Reasoning
+open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 
-open import Data.List
+open import Relation.Nullary using (¬_)
 
-data SessionType : Set where
-  Zero One Bot Top : SessionType
-  _&_ _⊕_ : SessionType -> SessionType -> SessionType
+data Type : Set where
+  Zero One Bot Top : Type
+  _&_ _⊕_ : Type -> Type -> Type
 
-data Dual : SessionType -> SessionType -> Set where
+data Dual : Type -> Type -> Set where
   dual-zero-top : Dual Zero Top
   dual-top-zero : Dual Top Zero
   dual-one-bot  : Dual One Bot
@@ -17,67 +20,118 @@ data Dual : SessionType -> SessionType -> Set where
   dual-with-plus : ∀{t s t' s'} -> Dual t t' -> Dual s s' -> Dual (t & s) (t' ⊕ s')
   dual-plus-with : ∀{t s t' s'} -> Dual t t' -> Dual s s' -> Dual (t ⊕ s) (t' & s')
 
-BoolST : SessionType
+BoolST : Type
 BoolST = One ⊕ One
 
-dual : SessionType -> SessionType
-dual Zero = Top
-dual One = Bot
-dual Bot = One
-dual Top = Zero
-dual (t & s) = dual t ⊕ dual s
-dual (t ⊕ s) = dual t & dual s
+Channel : Set
+Channel = ℕ
 
-dual-inv : (t : SessionType) -> t ≡ dual (dual t)
-dual-inv Zero = refl
-dual-inv One = refl
-dual-inv Bot = refl
-dual-inv Top = refl
-dual-inv (t & s) =
-  begin
-    (t & s)             ≡⟨ cong (_& s) (dual-inv t) ⟩
-    (dual (dual t) & s) ≡⟨ cong ((dual (dual t)) &_) (dual-inv s) ⟩
-    (dual (dual t) & dual (dual s))
-  ∎
-dual-inv (t ⊕ s) = {!!}
+data Maybe (A : Set) : Set where
+  none : Maybe A
+  some : A -> Maybe A
 
-Context : Set
-Context = List SessionType
+data Context : Set where
+  [] : Context
+  _::_ : (A : Type) (Γ : Context) -> Context
+
+[_] : Type -> Context
+[_] = _:: []
+
+_++_ : Context -> Context -> Context
+[] ++ Δ = Δ
+(mt :: Γ) ++ Δ = mt :: (Γ ++ Δ)
+
+infixr 5 _::_ _++_
+infix 4 _≃_+_
 
 data Empty : Context -> Set where
-  empty : Empty []
+  empty-[] : Empty []
 
--- data _~>_∘_ : Context -> Context -> Context -> Set where
---   empty : [] ~> [] ∘ []
---   left  : ∀{t Γ Δ₁ Δ₂} -> Γ ~> Δ₁ ∘ Δ₂ -> (t ∷ Γ) ~> (t ∷ Δ₁) ∘ Δ₂
---   right : ∀{t Γ Δ₁ Δ₂} -> Γ ~> Δ₁ ∘ Δ₂ -> (t ∷ Γ) ~> Δ₁ ∘ (t ∷ Δ₂)
+data _≃_+_ : Context -> Context -> Context -> Set where
+  split-e : [] ≃ [] + []
+  split-l : ∀{Γ Γ₁ Γ₂ A} -> Γ ≃ Γ₁ + Γ₂ -> A :: Γ ≃ A :: Γ₁ + Γ₂
+  split-r : ∀{Γ Γ₁ Γ₂ A} -> Γ ≃ Γ₁ + Γ₂ -> A :: Γ ≃ Γ₁ + A :: Γ₂
 
--- data _∈_ (t : SessionType) : Context -> Set where
---   here : t ∈ (t ∷ [])
+split-comm : ∀{Γ Γ₁ Γ₂} -> Γ ≃ Γ₁ + Γ₂ -> Γ ≃ Γ₂ + Γ₁
+split-comm split-e = split-e
+split-comm (split-l p) = split-r (split-comm p)
+split-comm (split-r p) = split-l (split-comm p)
 
--- data _∈_~>_∈_ (t : SessionType) : Context -> SessionType -> Context -> Set where
---   here : ∀{s Γ} -> t ∈ (t ∷ Γ) ~> s ∈ (s ∷ Γ)
---   next : ∀{s u Γ Δ} -> t ∈ Γ ~> s ∈ Δ -> t ∈ (u ∷ Γ) ~> s ∈ (u ∷ Δ)
+data Process : Context -> Set where
+   close : Process [ One ]
+   fail  : ∀{Γ Δ}
+           (p : Γ ≃ [ Top ] + Δ)
+           -> Process Γ
+   wait  : ∀{Γ Δ}
+           (p : Γ ≃ [ Bot ] + Δ)
+           -> Process Δ
+           -> Process Γ
+   left  : ∀{Γ Δ A B}
+           (p : Γ ≃ [ A ⊕ B ] + Δ)
+           -> Process (A :: Δ)
+           -> Process Γ
+   right : ∀{Γ Δ A B}
+           (p : Γ ≃ [ A ⊕ B ] + Δ)
+           -> Process (B :: Δ)
+           -> Process Γ
+   case_ : ∀{Γ Δ A B}
+           (p : Γ ≃ [ A & B ] + Δ)
+           -> Process (A :: Δ)
+           -> Process (B :: Δ)
+           -> Process Γ
+   cut    : ∀{Γ Γ₁ Γ₂ A B}
+            (d : Dual A B)
+            (p : Γ ≃ Γ₁ + Γ₂)
+            -> Process (A :: Γ₁)
+            -> Process (B :: Γ₂)
+            -> Process Γ
 
--- data _/_∈_/_ (t s : SessionType) : Context -> Context -> Set where
---   here : ∀{Γ} -> t / s ∈ (t ∷ Γ) / (s ∷ Γ)
---   next : ∀{u Γ Δ} -> t / s ∈ Γ / Δ -> t / s ∈ (u ∷ Γ) / (u ∷ Δ)
-
-data _∈_~>_ (t : SessionType) : Context -> Context -> Set where
-  here : ∀{Γ} -> t ∈ (t ∷ Γ) ~> Γ
-  next : ∀{s Γ Δ} -> t ∈ Γ ~> Δ -> t ∈ (s ∷ Γ) ~> (s ∷ Δ)
-
-data Process Γ : Set where
-  close : One ∈ Γ ~> [] -> Process Γ
-  wait : ∀{Δ} -> Bot ∈ Γ ~> Δ -> Process Δ -> Process Γ
-  left : ∀{t s Δ} -> (t ⊕ s) ∈ Γ ~> Δ -> Process (t ∷ Δ) -> Process Γ
-  right : ∀{t s Δ} -> (t ⊕ s) ∈ Γ ~> Δ -> Process (s ∷ Δ) -> Process Γ
-  switch : ∀{t s Δ} -> (t & s) ∈ Γ ~> Δ -> Process (t ∷ Δ) -> Process (s ∷ Δ) -> Process Γ
-  cut : ∀{t s} -> Dual t s -> Process (t ∷ Γ) -> Process (s ∷ Γ) -> Process Γ
-
-dual-symm : ∀{t s} -> Dual t s -> Dual s t
+dual-symm : ∀{A B} -> Dual A B -> Dual B A
 dual-symm dual-zero-top = dual-top-zero
-dual-symm dual-top-zero = {!!}
+dual-symm dual-top-zero = dual-zero-top
+dual-symm dual-one-bot = dual-bot-one
+dual-symm dual-bot-one = dual-one-bot
+dual-symm (dual-with-plus p q) = dual-plus-with (dual-symm p) (dual-symm q)
+dual-symm (dual-plus-with p q) = dual-with-plus (dual-symm p) (dual-symm q)
+
+split-assoc : ∀{Γ Γ₁ Γ₂ Δ₁ Δ₂} -> Γ ≃ Γ₁ + Γ₂ -> Γ₂ ≃ Δ₁ + Δ₂ ->
+              ∃[ Δ ] (Δ ≃ Γ₁ + Δ₁) × (Γ ≃ Δ + Δ₂)
+split-assoc split-e split-e = [] , split-e , split-e
+split-assoc (split-l p) q = {!!}
+split-assoc (split-r p) q = {!!}
+
+split-unit-l : ∀{Γ} -> Γ ≃ [] + Γ
+split-unit-l {[]} = split-e
+split-unit-l {A :: Γ} = split-r split-unit-l
+
+split-sing-l : ∀{A B Γ} -> [ A ] ≃ [ B ] + Γ -> A ≡ B × Γ ≡ []
+split-sing-l (split-l split-e) = refl , refl
+
+split-sing : ∀{A B Γ Δ Δ'} -> Γ ≃ [ A ] + Δ -> Γ ≃ [ B ] + Δ' -> (A ≡ B × Δ ≡ Δ') ∨ 
+
+top : ∀{Γ Δ A} -> Γ ≃ [ A ] + Δ -> Process Γ -> Process (A :: Δ)
+top p close with split-sing-l p
+... | refl , refl = close
+top p (fail q) = {!!}
+top p (wait p₁ P) = {!!}
+top p (left p₁ P) = {!!}
+top p (right p₁ P) = {!!}
+top p ((case p₁) P P₁) = {!!}
+top p (cut d p₁ P P₁) = {!!}
 
 data _⊒_ {Γ} : Process Γ -> Process Γ -> Set where
-  comm : ∀{t s P Q} (d : Dual t s) -> cut d P Q ⊒ cut (dual-symm d) Q P
+  s-comm : ∀{Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
+           -> cut d p P Q ⊒ cut (dual-symm d) (split-comm p) Q P
+
+  s-assoc : ∀{Γ₁ Γ₂ Δ₁ Δ₂ A A' B B'}
+            {P : Process (A :: Γ₁)}
+            {Q : Process (B :: A' :: Δ₁)}
+            {R : Process (B' :: Δ₂)}
+            (d : Dual A A') (e : Dual B B')
+            (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₂ ≃ Δ₁ + Δ₂) ->
+            let Δ , p' , q' = split-assoc p q in
+            cut d p P (cut e (split-l q) Q R) ⊒ cut e q' (cut d (split-r p') P (top (split-r (split-l split-unit-l)) Q)) R
+
+--   s-fail : ∀{Γ₁ Γ₂ Γ₃ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ ++ some Top :: Γ₂ + Γ₃)
+--            -> let Δ₁ , Δ₂ , eq = split-not-empty p in
+--               cut d p (fail {some A :: Γ₁} {Γ₂}) P ⊒ subst Process eq (fail {Δ₁} {Δ₂})
