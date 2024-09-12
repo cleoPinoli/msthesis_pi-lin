@@ -1,6 +1,7 @@
 
 open import Data.Nat using (ℕ; zero; suc)
 open import Data.Product using (_×_)
+open import Data.Sum
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
 open Eq.≡-Reasoning
@@ -37,15 +38,25 @@ data Context : Set where
 [_] : Type -> Context
 [_] = _:: []
 
+data _#_ : Context -> Context -> Set where
+  #refl : ∀{Γ} -> Γ # Γ
+  #tran : ∀{Γ Δ Θ} -> Γ # Δ -> Δ # Θ -> Γ # Θ
+  #push : ∀{Γ Δ A} -> Γ # Δ -> (A :: Γ) # (A :: Δ)
+  #swap : ∀{Γ A B} -> (A :: B :: Γ) # (B :: A :: Γ)
+
 _++_ : Context -> Context -> Context
 [] ++ Δ = Δ
 (mt :: Γ) ++ Δ = mt :: (Γ ++ Δ)
 
 infixr 5 _::_ _++_
-infix 4 _≃_+_
+infix 4 _≃_+_ _≃_,_
 
 data Empty : Context -> Set where
   empty-[] : Empty []
+
+data _≃_,_ : Context -> Type -> Context -> Set where
+  here : ∀{Γ A} -> A :: Γ ≃ A , Γ
+  next : ∀{Γ Δ A B} -> Γ ≃ A , Δ -> B :: Γ ≃ A , B :: Δ
 
 data _≃_+_ : Context -> Context -> Context -> Set where
   split-e : [] ≃ [] + []
@@ -67,15 +78,15 @@ data Process : Context -> Set where
            -> Process Δ
            -> Process Γ
    left  : ∀{Γ Δ A B}
-           (p : Γ ≃ [ A ⊕ B ] + Δ)
+           (p : Γ ≃ A ⊕ B , Δ)
            -> Process (A :: Δ)
            -> Process Γ
    right : ∀{Γ Δ A B}
-           (p : Γ ≃ [ A ⊕ B ] + Δ)
+           (p : Γ ≃ A ⊕ B , Δ)
            -> Process (B :: Δ)
            -> Process Γ
    case_ : ∀{Γ Δ A B}
-           (p : Γ ≃ [ A & B ] + Δ)
+           (p : Γ ≃ A & B , Δ)
            -> Process (A :: Δ)
            -> Process (B :: Δ)
            -> Process Γ
@@ -107,17 +118,47 @@ split-unit-l {A :: Γ} = split-r split-unit-l
 split-sing-l : ∀{A B Γ} -> [ A ] ≃ [ B ] + Γ -> A ≡ B × Γ ≡ []
 split-sing-l (split-l split-e) = refl , refl
 
-split-sing : ∀{A B Γ Δ Δ'} -> Γ ≃ [ A ] + Δ -> Γ ≃ [ B ] + Δ' -> (A ≡ B × Δ ≡ Δ') ∨ 
+split-sing : ∀{A Γ Δ Δ₁ Δ₂} -> Γ ≃ A , Δ -> Γ ≃ Δ₁ + Δ₂ -> ∃[ Δ' ] (Δ₁ ≃ A , Δ' ⊎ Δ₂ ≃ A , Δ')
+split-sing = {!!}
 
-top : ∀{Γ Δ A} -> Γ ≃ [ A ] + Δ -> Process Γ -> Process (A :: Δ)
-top p close with split-sing-l p
-... | refl , refl = close
-top p (fail q) = {!!}
-top p (wait p₁ P) = {!!}
-top p (left p₁ P) = {!!}
-top p (right p₁ P) = {!!}
-top p ((case p₁) P P₁) = {!!}
-top p (cut d p₁ P P₁) = {!!}
+#+ : ∀{Γ Γ₁ Γ₂ Δ} -> Γ # Δ -> Γ ≃ Γ₁ + Γ₂ -> ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ # Δ₁ × Γ₂ # Δ₂)
+#+ #refl p = _ , _ , p , #refl , #refl
+#+ (#tran π π') p with #+ π p
+... | Θ₁ , Θ₂ , p' , π₁ , π₂ with #+ π' p'
+... | Δ₁ , Δ₂ , q , π₁' , π₂' = Δ₁ , Δ₂ , q , #tran π₁ π₁' , #tran π₂ π₂'
+#+ (#push π) (split-l p) with #+ π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂  = _ :: Δ₁ , Δ₂ , split-l q , #push π₁ , π₂
+#+ (#push π) (split-r p) with #+ π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = Δ₁ , _ :: Δ₂ , split-r q , π₁ , #push π₂
+#+ #swap (split-l (split-l p)) = _ , _ , split-l (split-l p) , #swap , #refl
+#+ #swap (split-l (split-r p)) = _ , _ , split-r (split-l p) , #refl , #refl
+#+ #swap (split-r (split-l p)) = _ , _ , split-l (split-r p) , #refl , #refl
+#+ #swap (split-r (split-r p)) = _ , _ , split-r (split-r p) , #refl , #swap
+
+#empty : ∀{Γ} -> [] # Γ -> Γ ≡ []
+#empty #refl = refl
+#empty (#tran π π') rewrite #empty π | #empty π' = refl
+
+#singleton : ∀{Γ A} -> [ A ] # Γ -> Γ ≡ [ A ]
+#singleton #refl = refl
+#singleton (#tran π π') rewrite #singleton π | #singleton π' = refl
+#singleton (#push π) rewrite #empty π = refl
+
+#singleton+ : ∀{Γ Γ' Δ A} -> Γ # Δ -> Γ ≃ [ A ] + Γ' -> ∃[ Δ' ] (Δ ≃ [ A ] + Δ' × Γ' # Δ')
+#singleton+ π p with #+ π p
+... | Θ , Δ' , q , π₁ , π₂ rewrite #singleton π₁ = Δ' , q , π₂
+
+permute : ∀{Γ Δ} -> Γ # Δ -> Process Γ -> Process Δ
+permute π close rewrite #singleton π = close
+permute π (fail p) with #singleton+ π p
+... | Δ' , q , π' = fail q
+permute π (wait p P) with #singleton+ π p
+... | Δ' , q , π' = wait q (permute π' P)
+permute π (left p P) = {!!}
+permute π (right p P) = {!!}
+permute π ((case p) P Q) = {!!}
+permute π (cut d p P Q) with #+ π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (permute (#push π₁) P) (permute (#push π₂) Q)
 
 data _⊒_ {Γ} : Process Γ -> Process Γ -> Set where
   s-comm : ∀{Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
@@ -130,8 +171,7 @@ data _⊒_ {Γ} : Process Γ -> Process Γ -> Set where
             (d : Dual A A') (e : Dual B B')
             (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₂ ≃ Δ₁ + Δ₂) ->
             let Δ , p' , q' = split-assoc p q in
-            cut d p P (cut e (split-l q) Q R) ⊒ cut e q' (cut d (split-r p') P (top (split-r (split-l split-unit-l)) Q)) R
+            cut d p P (cut e (split-l q) Q R) ⊒ cut e q' (cut d (split-r p') P (permute #swap Q)) R
 
---   s-fail : ∀{Γ₁ Γ₂ Γ₃ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ ++ some Top :: Γ₂ + Γ₃)
---            -> let Δ₁ , Δ₂ , eq = split-not-empty p in
---               cut d p (fail {some A :: Γ₁} {Γ₂}) P ⊒ subst Process eq (fail {Δ₁} {Δ₂})
+  s-fail : ∀{Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ)
+           -> cut d p (fail (split-r q)) P ⊒ fail {!!}
