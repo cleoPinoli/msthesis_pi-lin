@@ -1,0 +1,307 @@
+
+%%%%%%%%%%%%%%%%%%%%
+%%% CONDITIONALS %%%
+%%%%%%%%%%%%%%%%%%%%
+
+\newif\ifcomments
+\commentstrue
+%\commentsfalse
+
+\newif\ifslotserver
+\slotservertrue
+
+%%%%%%%%%%%%%%%%
+%%% NOTATION %%%
+%%%%%%%%%%%%%%%%
+
+\newcommand{\Calculus}{LinearCP\xspace}
+
+\newcommand{\eg}{\textit{e.g.}\xspace}
+\newcommand{\ie}{\textit{i.e.}\xspace}
+\newcommand{\cf}{\textit{cf.}\xspace}
+
+\newcommand{\mktag}[1]{\mathsf{\color{teal}#1}}
+\newcommand{\mkkeyword}[1]{\mathsf{\color{blue}#1}}
+\newcommand{\mkfunction}[1]{\mathsf{#1}}
+
+\newcommand{\parens}[1]{(#1)}
+\newcommand{\braces}[1]{\{#1\}}
+\newcommand{\bracks}[1]{[#1]}
+\newcommand{\angles}[1]{\langle#1\rangle}
+
+\newcommand{\set}[1]{\braces{#1}}
+\newcommand{\seqof}[1]{\overline{#1}}
+\newcommand{\emptybag}{\bag\!}
+\newcommand{\bag}[1]{\mathopen\lbag#1\mathclose\rbag}
+\newcommand{\bigbag}[1]{%
+  \lbag\begin{array}[t]{@{}l@{}}
+    #1 \rbag
+  \end{array}
+}
+
+\newcommand{\rulename}[1]{\textnormal{\textsc{\small[#1]}}\xspace}
+
+\newcommand{\defrule}[2][]{\hypertarget{rule:\ifblank{#1}{#2}{#1}}{\rulename{#2}}}
+%\newcommand{\refrule}[2][]{\hyperlink{rule:\ifblank{#1}{#2}{#1}}{\rulename{#2}}}
+\newcommand{\refrule}[2][]{\rulename{#2}\xspace}
+
+\newcommand{\infercorule}[3][]{%
+  {\mprset{fraction={===}}\inferrule[#1]{#2}{#3}}%
+}
+
+% \newcommand{\defrule}[2][]{\rulename{#1}}
+% \newcommand{\refrule}[2][]{\rulename{#1}}
+
+\newcommand{\proofcase}[1]{\textbf{Case #1.}\xspace}
+
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\RealP}{\Real_{\geq0}}
+\newcommand{\CSLL}{\textsf{CSLL}\xspace}
+\newcommand{\CoreCSLL}{\texorpdfstring{$\textsf{\upshape CSLL}^\infty$}{coreCSLL}\xspace}
+\newcommand{\isdet}{\textsf{\upshape det}}
+\newcommand{\DetCSLL}{$\textsf{\upshape CSLL}^\infty_{\isdet}$\xspace}
+\newcommand{\muMALL}{\texorpdfstring{$\mu\textsf{\upshape MALL}^\infty$}{muMALL}\xspace}
+\newcommand{\piLIN}{\texorpdfstring{$\pi\textsf{LIN}$}{piLIN}\xspace}
+\newcommand{\CP}{$\textsf{CP}$\xspace}
+\newcommand{\muCP}{$\mu\textsf{CP}$\xspace}
+\newcommand{\piDILL}{$\pi\textsf{DILL}$\xspace}
+\newcommand{\SILLS}{$\textsf{SILL}_{\textsf{S}}$\xspace}
+\newcommand{\HCPND}{$\textsf{HCP}_{\textsf{ND}}$\xspace}
+\newcommand{\picalculus}{\texorpdfstring{$\pi$-calculus}{pi-calculus}\xspace}
+
+\newcommand\eoe{\hfill$\lrcorner$}
+
+\setlength{\marginparsep}{5mm}
+\setlength{\marginparwidth}{2cm}
+\newcommand{\marginnote}[2]{%
+  \ifcomments%
+    $^{\color{magenta}\mathclap\star}$%
+    \marginpar[
+        \flushright\tiny\sf\textbf{#1}: #2
+    ]{
+        \flushleft\tiny\sf\textbf{#1}: #2
+    }%
+  \fi%
+}
+\newcommand{\Luca}[1]{\marginnote{Luca}{\color{blue}#1}}
+\newcommand{\Ugo}[1]{\marginnote{Ugo}{\color{red}#1}}
+\newcommand{\BEGINREVISION}{\color{magenta}}
+\newcommand{\REVISION}[1]{{\color{magenta}#1}}
+%\newcommand{\REVISION}[1]{#1}
+
+\newcommand{\TODO}{\textsf{\textbf{\color{red}TODO}}\xspace}
+
+%%%%%%%%%%%%%%%%%
+%%% PROCESSES %%%
+%%%%%%%%%%%%%%%%%
+
+\newcommand\A{\mathsf{A}}
+\newcommand\B{\mathsf{B}}
+\newcommand\C{\mathsf{C}}
+\newcommand\D{\mathsf{D}}
+
+\newcommand\Run{\rho}
+
+\newcommand{\VarSet}{\mathcal{V}}
+\newcommand{\ProcessSet}{\mathcal{P}}
+
+\newcommand{\InTag}{\mktag{in}}
+\newcommand{\LeftTag}{\InTag_1}
+\newcommand{\RightTag}{\InTag_2}
+\newcommand{\AddTag}{\mktag{add}}
+\newcommand{\PayTag}{\mktag{pay}}
+\newcommand{\PlayTag}{\mktag{play}}
+\newcommand{\QuitTag}{\mktag{quit}}
+\newcommand{\WinTag}{\mktag{win}}
+\newcommand{\LoseTag}{\mktag{lose}}
+
+\newcommand{\x}{x}
+\newcommand{\y}{y}
+\newcommand{\z}{z}
+\renewcommand{\u}{u}
+\renewcommand{\v}{v}
+
+\newcommand{\out}[1]{#1}
+\newcommand{\inp}[1]{#1}
+\newcommand{\parop}{\mathbin|}
+
+\newcommand{\Def}[2]{#1\ifblank{#2}{}{\parens{#2}}}
+\newcommand{\Call}[2]{#1\ifblank{#2}{}{\angles{#2}}}
+\newcommand{\Link}[2]{#1\leftrightarrow#2}
+\newcommand{\Close}[1]{\mkkeyword{close}\,#1}
+\newcommand{\Wait}[1]{\mkkeyword{wait}\,#1}
+\newcommand{\Fail}[1]{\mkkeyword{fail}\,#1}
+\newcommand{\Select}[3]{#1 \triangleleft #2\parens{#3}}
+\newcommand{\Left}[2]{\Select{#1}{\InTag_1}{#2}}
+\newcommand{\Right}[2]{\Select{#1}{\InTag_2}{#2}}
+\newcommand{\Choice}[3][p]{#2 \mathbin{\ifblank{#1}{}{_{#1}}\boxplus} #3}
+\newcommand{\OneCase}[3]{\mkkeyword{case}\,#1\parens{#2}#3}
+\newcommand{\Case}[4]{\OneCase{#1}{#2}{\braces{#3,#4}}}
+\newcommand{\BigCase}[2]{\OneCase{#1}{\left\{\begin{array}{@{}r@{~:~}l@{}}#2\end{array}\right\}}}
+\newcommand{\Fork}[5]{#1\angles{#2,#3}\braces{#4,#5}}
+\renewcommand{\Join}[3]{#1\parens{#2,#3}}
+\newcommand{\Client}[2]{{?}#1\bracks{#2}}
+\newcommand{\Server}[2]{{!}#1\parens{#2}}
+\newcommand{\Cut}[3]{\parens{#1}\parens{#2\parop#3}}
+\newcommand{\BigCut}[3]{\parens{#1}\left(#2\,\middle|\,#3\right)}
+
+\newcommand{\Hole}{\bracks\,}
+\newcommand{\RC}{\mathcal{C}}
+\newcommand{\RD}{\mathcal{D}}
+
+\newcommand{\Dist}{\DistM}
+\newcommand{\DistM}{M}
+\newcommand{\DistN}{N}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% FORMULAS AND TYPES %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\Type}{\TypeT}
+\newcommand{\TypeT}{T}
+\newcommand{\TypeS}{S}
+
+\newcommand{\X}{X}
+\newcommand{\Y}{Y}
+
+\newcommand{\Bot}{\bot}
+\newcommand{\Top}{\top}
+\newcommand{\One}{\mathbf{1}}
+\newcommand{\Zero}{\mathbf{0}}
+\newcommand{\Plus}{\mathbin\oplus}
+\newcommand{\With}{\mathbin\binampersand}
+\newcommand{\Ten}{\mathbin\otimes}
+\newcommand{\Par}{\mathbin\bindnasrepma}
+\newcommand{\OfCourse}[1][]{\ifblank{#1}{{!}}{\ann{{!}}{#1}}}
+\newcommand{\WhyNot}[1][]{\ifblank{#1}{{?}}{\ann{{?}}{#1}}}
+
+\newcommand{\ann}[2]{#1^{{\color{purple}#2}}}
+
+\newcommand{\Sequent}{\SequentS}
+\newcommand{\SequentS}{\Sigma}
+\newcommand{\SequentT}{\Theta}
+
+\newcommand{\SCall}{\rulename{s-call}}
+\newcommand{\SCut}{\rulename{s-cut}}
+\newcommand{\SFail}{\rulename{s-fail}}
+\newcommand{\SWait}{\rulename{s-wait}}
+\newcommand{\SSelect}{\rulename{s-select}}
+\newcommand{\SCase}{\rulename{s-case}}
+\newcommand{\SForkL}{\rulename{s-fork-l}}
+\newcommand{\SForkR}{\rulename{s-fork-r}}
+\newcommand{\SJoin}{\rulename{s-join}}
+\newcommand{\SClient}{\rulename{s-client}}
+\newcommand{\SServer}{\rulename{s-server}}
+\newcommand{\SWeak}{\rulename{s-weak}}
+\newcommand{\SLink}{\rulename{s-link}}
+
+\newcommand{\RLink}{\rulename{r-link}}
+\newcommand{\RChoice}{\rulename{r-choice}}
+\newcommand{\RClose}{\rulename{r-close}}
+\newcommand{\RFork}{\rulename{r-fork}}
+\newcommand{\RSelect}{\rulename{r-select}}
+\newcommand{\RConnect}{\rulename{r-connect}}
+\newcommand{\RErase}{\rulename{r-erase}}
+\newcommand{\RCut}{\rulename{r-cut}}
+\newcommand{\RCong}{\rulename{r-cong}}
+
+\newcommand{\RDrop}{\rulename{r-drop}}
+\newcommand{\RStep}{\rulename{r-step}}
+\newcommand{\RComb}{\rulename{r-comb}}
+
+%%%%%%%%%%%%%%%%%%%
+%%% TYPE SYSTEM %%%
+%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\EmptyContext}{\emptyset}
+\newcommand{\Context}{\ContextC}
+\newcommand{\ContextC}{\Upgamma}
+\newcommand{\ContextD}{\Updelta}
+\newcommand{\un}{{?}}
+
+\newcommand{\Tag}[1][a]{\mathsf{\color{teal}#1}}
+
+\newcommand{\wtp}[3][]{#2 \vdash\ifblank{#1}{}{^{\color{purple}#1}} #3}
+
+\newcommand{\CallRule}{\rulename{call}}
+\newcommand{\LinkRule}{\rulename{link}}
+\newcommand{\CutRule}{\rulename{cut}}
+\newcommand{\FailRule}{\rulename{$\Top$}}
+\newcommand{\CloseRule}{\rulename{$\One$}}
+\newcommand{\WaitRule}{\rulename{$\Bot$}}
+\newcommand{\ForkRule}{\rulename{$\Ten$}}
+\newcommand{\JoinRule}{\rulename{$\Par$}}
+\newcommand{\SelectRule}{\rulename{$\Plus$}}
+\newcommand{\CaseRule}{\rulename{$\With$}}
+\newcommand{\ServerRule}{\rulename{server}}
+\newcommand{\ClientRule}{\rulename{client}}
+\newcommand{\WeakRule}{\rulename{weak}}
+\newcommand{\ChoiceRule}{\rulename{$\Choice[]{}{}$}}
+\newcommand{\ChoiceRuleAST}{\rulename{$\Choice[]{}{}$-ast}}
+\newcommand{\DistRule}{\rulename{distribution}}
+
+\newcommand{\Length}{\ell}
+
+%%%%%%%%%%%%%%%%%
+%%% RELATIONS %%%
+%%%%%%%%%%%%%%%%%
+
+\newcommand{\pcong}{\sqsupseteq}
+\newcommand{\red}{\rightarrow}
+\newcommand{\reds}{\Rightarrow}
+\newcommand{\wred}{\Rightarrow}
+\newcommand{\nred}{\arrownot\red}
+\newcommand{\eqdef}{\stackrel{\smash{\textsf{\upshape\tiny def}}}=}
+
+\newcommand{\prefix}{\sqsubseteq}
+\newcommand{\subf}{\preceq}
+\newcommand{\tred}{\leadsto}
+\newcommand{\rtred}{\tred^?}
+
+%%%%%%%%%%%%%%%%%
+%%% FUNCTIONS %%%
+%%%%%%%%%%%%%%%%%
+
+\newcommand{\fn}[1]{\mkfunction{fn}\parens{#1}}
+\newcommand{\bn}[1]{\mkfunction{bn}\parens{#1}}
+\newcommand{\subst}[2]{\braces{#1/#2}}
+\newcommand{\dual}[1]{#1^{\bot}}
+\newcommand{\dom}[1]{\mkfunction{dom}\parens{#1}}
+\newcommand{\InfOften}[1]{\mkfunction{inf}\parens{#1}}
+\newcommand{\minf}{\mkfunction{min}\,}
+\newcommand{\strip}[1]{\overline{#1}}
+\newcommand{\depth}[1]{\mathsf{depth}\parens{#1}}
+\newcommand{\rankof}[1]{|#1|}
+\newcommand{\fc}[2]{\mathsf{fc}(#1,#2)}
+\newcommand{\dsup}{\sqcup}
+
+\newcommand{\prob}[1]{|#1|}
+\newcommand{\trunc}[1]{\lfloor#1\rfloor}
+\newcommand{\edl}[1]{\mathsf{edl}\parens{#1}}
+\newcommand{\edh}[1]{\mathsf{edh}\parens{#1}}
+
+%%%%%%%%%%%%%%%%%%%%
+%%% ENVIRONMENTS %%%
+%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{corollary}{Corollary}[section]
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}{Example}[section]
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]
+
+\theoremstyle{remark}
+\newtheorem{notation}[theorem]{Notation}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

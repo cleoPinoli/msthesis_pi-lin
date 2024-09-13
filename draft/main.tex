@@ -1,0 +1,157 @@
+\documentclass[a4paper]{article}
+
+\usepackage{a4wide}
+\usepackage{Alegreya}
+\usepackage{amsmath,amsthm}
+\usepackage{xcolor}
+\usepackage{xspace}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{mathtools}
+\usepackage{stmaryrd}
+\usepackage{upgreek}
+\usepackage{mathpartir}
+
+\input{macros}
+
+\title{\Calculus}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\paragraph{Sintassi dei processi}
+
+\[
+    \begin{array}{rcll}
+        P, Q & ::= & \Link\x\y \\
+            & | & \Close\x \\
+            & | & \Fail\x \\
+            & | & \Wait\x.P \\
+            & | & \Select\x{\InTag_i}\y.P \\
+            & | & \Case\x\y{P}{Q} \\
+            & | & \Fork\x\y\z{P}{Q} \\
+            & | & \Join\x\y\z.P \\
+            & | & \Cut\x{P}{Q} \\
+    \end{array}
+\]
+
+\paragraph{Precongruenza strutturale}
+
+\[
+    \begin{array}{rrcll}
+        \defrule{s-comm} &
+        \Cut\x{P}{Q} & \pcong & \Cut\x{Q}{P} \\
+        \defrule{s-assoc} &
+        \Cut\x{P}{\Cut\y{Q}{R}} & \pcong & \Cut\y{\Cut\x{P}{Q}}{R} & x\in\fn{Q} \\
+        \defrule{s-link} &
+        \Link\x\y & \pcong & \Link\y\x \\
+        \defrule{s-fail} &
+        \Cut\x{\Fail\y}{P} & \pcong & \Fail\y & x \ne y \\
+        \defrule{s-wait} &
+        \Cut\x{\Wait\y.P}{Q} & \pcong & \Wait\y.\Cut\x{P}{Q} & x \ne y \\
+        \defrule{s-select} &
+        \Cut\x{\Select\y{\InTag_i}\z.P}{Q} & \pcong & \Select\y{\InTag_i}\z.\Cut\x{P}{Q} & x \ne y,z \\
+        \defrule{s-case} &
+        \Cut\x{\Case\y\z{P}{Q}}{R} & \pcong & \Case\y\z{\Cut\x{P}{R}}{\Cut\x{Q}{R}} & x \ne y,z \\
+        \defrule{s-fork-l} &
+        \Cut\x{\Fork\y\u\v{P}{Q}}{R} & \pcong & \Fork\y\u\v{\Cut\x{P}{R}}{Q} & x \in \fn{P}\setminus\set{y,u,v} \\
+        \defrule{s-fork-r} &
+        \Cut\x{\Fork\y\u\v{P}{Q}}{R} & \pcong & \Fork\y\u\v{P}{\Cut\x{Q}{R}} & x \in \fn{Q}\setminus\set{y,u,v} \\
+        \defrule{s-join} &
+        \Cut\x{\Join\y\u\v.P}{Q} & \pcong & \Join\y\u\v.\Cut\x{P}{Q} & x \ne y,u,v \\
+    \end{array}
+\]
+
+\paragraph{Riduzione}
+
+\[
+    \begin{array}{rrcll}
+        \defrule{r-link} &
+        \Cut\x{\Link\x\y}{P} & \red & P\subst\y\x \\
+        \defrule{r-close} &
+        \Cut\x{\Close\x}{\Wait\x.P} & \red & P \\
+        \defrule{r-left} &
+        \Cut\x{\Left\x\y.P}{\Case\x\y{Q}{R}} & \red & \Cut\y{P}{Q} \\
+        \defrule{r-right} &
+        \Cut\x{\Right\x\y.P}{\Case\x\y{Q}{R}} & \red & \Cut\y{P}{R} \\
+        \defrule{r-fork} &
+        \Cut\x{\Fork\x\y\z{P}{Q}}{\Join\x\y\z.R} & \red & \Cut\y{P}{\Cut\z{Q}{R}} \\
+        \defrule{r-cut} &
+        \Cut\x{P}{R} & \red & \Cut\x{Q}{R} & P \red Q \\
+        \defrule{r-cong} &
+        P & \red & Q & P \pcong R \red Q \\
+    \end{array}
+\]
+
+\paragraph{Sintassi dei tipi}
+
+\[
+    \begin{array}{rclcl}
+        A, B, C & ::= & \Zero & | & \Top \\
+            & | & \One & | & \Bot \\
+            & | & A \Plus B & | & A \With B \\
+            & | & A \Ten B & | & A \Par B \\
+    \end{array}
+\]
+
+\paragraph{Regole di tipo}
+
+\begin{mathpar}
+    \inferrule[\FailRule]{~}{
+        \wtp{\Fail\x}{\Context, x : \Top}
+    }
+    \and
+    \inferrule[\CloseRule]{~}{
+        \wtp{\Close\x}{x : \One}
+    }
+    \and
+    \inferrule[\WaitRule]{
+        \wtp{P}{\Context}
+    }{
+        \wtp{\Wait\x.P}{\Context, x : \Bot}
+    }
+    \and
+    \inferrule[\SelectRule]{
+        \wtp{P}{\Context, y : A_i}
+    }{
+        \wtp{\Select\x{\InTag_i}\y.P}{\Context, x : A_1 \Plus A_2}
+    }
+    \and
+    \inferrule[\CaseRule]{
+        \wtp{P}{\Context, y : A}
+        \\
+        \wtp{Q}{\Context, z : B}
+    }{
+        \wtp{\Case\x\y{P}{Q}}{\Context, x : A \With B}
+    }
+    \and
+    \inferrule[\ForkRule]{
+        \wtp{P}{\ContextC, y : A}
+        \\
+        \wtp{Q}{\ContextD, z : B}
+    }{
+        \wtp{\Fork\x\y\z{P}{Q}}{\ContextC, \ContextD, x : A \Ten B}
+    }
+    \and
+    \inferrule[\JoinRule]{
+        \wtp{P}{\Context, y : A, z : B}
+    }{
+        \wtp{\Join\x\y\z.P}{\Context, x : A \Par B}
+    }
+    \and
+    \inferrule[\LinkRule]{~}{
+        \wtp{\Link\x\y}{x : A, y : \dual{A}}
+    }
+    \and
+    \inferrule[\CutRule]{
+        \wtp{P}{\ContextC, x : A}
+        \\
+        \wtp{Q}{\ContextD, x : \dual{A}}
+    }{
+        \wtp{\Cut\x{P}{Q}}{\ContextC, \ContextD}
+    }
+\end{mathpar}
+
+\end{document}
