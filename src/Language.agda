@@ -46,25 +46,21 @@ data Context : Set where
 [_] : Type -> Context
 [_] = _:: []
 
+_++_ : Context -> Context -> Context
+[] ++ Δ = Δ
+(mt :: Γ) ++ Δ = mt :: (Γ ++ Δ)
+
 data _#_ : Context -> Context -> Set where
   #refl : ∀{Γ} -> Γ # Γ
   #tran : ∀{Γ Δ Θ} -> Γ # Δ -> Δ # Θ -> Γ # Θ
   #push : ∀{Γ Δ A} -> Γ # Δ -> (A :: Γ) # (A :: Δ)
   #swap : ∀{Γ A B} -> (A :: B :: Γ) # (B :: A :: Γ)
 
-_++_ : Context -> Context -> Context
-[] ++ Δ = Δ
-(mt :: Γ) ++ Δ = mt :: (Γ ++ Δ)
-
 infixr 5 _::_ _++_
-infix 4 _≃_+_ _≃_,_
+infix 4 _≃_+_
 
 data Empty : Context -> Set where
   empty-[] : Empty []
-
-data _≃_,_ : Context -> Type -> Context -> Set where
-  here : ∀{Γ A} -> A :: Γ ≃ A , Γ
-  next : ∀{Γ Δ A B} -> Γ ≃ A , Δ -> B :: Γ ≃ A , B :: Δ
 
 data _≃_+_ : Context -> Context -> Context -> Set where
   split-e : [] ≃ [] + []
@@ -81,15 +77,15 @@ data Process : Context -> Set where
            -> Process Δ
            -> Process Γ
    left  : ∀{Γ Δ A B}
-           (p : Γ ≃ A ⊕ B , Δ)
+           (p : Γ ≃ [ A ⊕ B ] + Δ)
            -> Process (A :: Δ)
            -> Process Γ
    right : ∀{Γ Δ A B}
-           (p : Γ ≃ A ⊕ B , Δ)
+           (p : Γ ≃ [ A ⊕ B ] + Δ)
            -> Process (B :: Δ)
            -> Process Γ
    case_ : ∀{Γ Δ A B}
-           (p : Γ ≃ A & B , Δ)
+           (p : Γ ≃ [ A & B ] + Δ)
            -> Process (A :: Δ)
            -> Process (B :: Δ)
            -> Process Γ
@@ -175,5 +171,6 @@ data _⊒_ {Γ} : Process Γ -> Process Γ -> Set where
             let Δ , p' , q' = +-assoc-r p q in
             cut d p P (cut e (split-l q) Q R) ⊒ cut e q' (cut d (split-r p') P (#process #swap Q)) R
 
-  s-fail : ∀{Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ)
-           -> cut d p (fail (split-r q)) P ⊒ fail {!!}
+  s-fail : ∀{Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ) ->
+           let _ , _ , q' = +-assoc-l p q in
+           cut d p (fail (split-r q)) P ⊒ fail q'
