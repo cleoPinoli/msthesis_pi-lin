@@ -162,15 +162,39 @@ data _⊒_ {Γ} : Process Γ -> Process Γ -> Set where
   s-comm : ∀{Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
            -> cut d p P Q ⊒ cut (dual-symm d) (+-comm p) Q P
 
-  s-assoc : ∀{Γ₁ Γ₂ Δ₁ Δ₂ A A' B B'}
-            {P : Process (A :: Γ₁)}
-            {Q : Process (B :: A' :: Δ₁)}
-            {R : Process (B' :: Δ₂)}
-            (d : Dual A A') (e : Dual B B')
-            (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₂ ≃ Δ₁ + Δ₂) ->
-            let Δ , p' , q' = +-assoc-r p q in
-            cut d p P (cut e (split-l q) Q R) ⊒ cut e q' (cut d (split-r p') P (#process #swap Q)) R
+  s-assoc-r : ∀{Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
+              {P : Process (A :: Γ₁)}
+              {Q : Process (B :: A' :: Δ₁)}
+              {R : Process (B' :: Δ₂)}
+              (d : Dual A A') (e : Dual B B')
+              (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₂ ≃ Δ₁ + Δ₂)
+              (p' : Δ ≃ Γ₁ + Δ₁) (q' : Γ ≃ Δ + Δ₂) ->
+              cut d p P (cut e (split-l q) Q R) ⊒ cut e q' (cut d (split-r p') P (#process #swap Q)) R
 
   s-fail : ∀{Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ) ->
            let _ , _ , q' = +-assoc-l p q in
            cut d p (fail (split-r q)) P ⊒ fail q'
+
+  s-refl : {P : Process Γ} -> P ⊒ P
+  s-tran : {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
+  s-cong : ∀{Γ₁ Γ₂ A A'}
+           {P Q : Process (A :: Γ₁)}
+           {R : Process (A' :: Γ₂)}
+           (d : Dual A A')
+           (p : Γ ≃ Γ₁ + Γ₂) ->
+           P ⊒ Q -> cut d p P R ⊒ cut d p Q R
+
+s-assoc-l : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
+            {P : Process (B :: Δ₁)}
+            {Q : Process (B' :: A :: Δ₂)}
+            {R : Process (A' :: Γ₂)}
+            (d : Dual A A') (e : Dual B B')
+            (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ Δ₁ + Δ₂)
+            (p' : Δ ≃ Δ₂ + Γ₂) (q' : Γ ≃ Δ₁ + Δ) ->
+            cut d p (cut e (split-r q) P Q) R ⊒ cut (dual-symm (dual-symm e)) (+-comm (+-comm q')) P (cut (dual-symm (dual-symm d)) (split-l (+-comm (+-comm p'))) (#process #swap Q) R)
+s-assoc-l d e p q p' q' =
+  s-tran (s-cong d p (s-comm e (split-r q)))
+  (s-tran (s-comm d p)
+  (s-tran (s-assoc-r (dual-symm d) (dual-symm e) (+-comm p) (+-comm q) (+-comm p') (+-comm q'))
+  (s-tran (s-cong (dual-symm e) (+-comm q') (s-comm (dual-symm d) (split-r (+-comm p'))))
+  (s-comm (dual-symm e) (+-comm q')))))
