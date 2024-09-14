@@ -37,6 +37,19 @@
     \end{array}
 \]
 
+\paragraph{Nomi liberi}
+
+\begin{align*}
+    \fn{\Link\x\y} & = \set{x,y} \\
+    \fn{\Close\x} = \fn{\Fail\x} & = \set\x \\
+    \fn{\Wait\x.P} & = \set\x \cup \fn{P} \\
+    \fn{\Select\x{\InTag_i}\y.P} & = \set\x \cup (\fn{P} \setminus \set\y) \\
+    \fn{\Case\x\y{P}{Q}} & = \set\x \cup ((\fn{P} \cup \fn{Q}) \setminus \set\y) \\
+    \fn{\Fork\x\y\z{P}{Q}} & = \set\x \cup (\fn{P} \setminus \set\y) \cup (\fn{Q} \setminus \set\z) \\
+    \fn{\Join\x\y\z.P} & = \set\x \cup (\fn{P} \setminus \set{y,z}) \\
+    \fn{\Cut\x{P}{Q}} & = (\fn{P} \cup \fn{Q}) \setminus \set\x \\
+\end{align*}
+
 \paragraph{Precongruenza strutturale}
 
 \[
@@ -122,7 +135,7 @@
     \inferrule[\CaseRule]{
         \wtp{P}{\Context, y : A}
         \\
-        \wtp{Q}{\Context, z : B}
+        \wtp{Q}{\Context, y : B}
     }{
         \wtp{\Case\x\y{P}{Q}}{\Context, x : A \With B}
     }
