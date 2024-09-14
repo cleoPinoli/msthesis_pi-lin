@@ -74,6 +74,10 @@ data _≃_+_ : Context -> Context -> Context -> Set where
 
 data Process : Context -> Set where
    close : Process [ One ]
+   link  : ∀{Γ A B}
+           (d : Dual A B)
+           (p : Γ ≃ [ A ] + [ B ])
+           -> Process Γ
    fail  : ∀{Γ Δ}
            (p : Γ ≃ [ Top ] + Δ)
            -> Process Γ
@@ -164,11 +168,23 @@ data Process : Context -> Set where
 #singleton (#tran π π') rewrite #singleton π | #singleton π' = refl
 #singleton (#push π) rewrite #empty π = refl
 
+#duo : ∀{Γ A B} -> (A :: B :: []) # Γ -> Γ ≡ (A :: B :: []) ⊎ Γ ≡ (B :: A :: [])
+#duo #refl = inj₁ refl
+#duo (#tran p q) with #duo p
+... | inj₁ refl = #duo q
+... | inj₂ refl with #duo q
+... | inj₁ refl = inj₂ refl
+... | inj₂ refl = inj₁ refl
+#duo (#push p) with #singleton p
+... | refl = inj₁ refl
+#duo #swap = inj₂ refl
+
 #singleton+ : ∀{Γ Γ' Δ A} -> Γ # Δ -> Γ ≃ [ A ] + Γ' -> ∃[ Δ' ] (Δ ≃ [ A ] + Δ' × Γ' # Δ')
 #singleton+ π p with #+ π p
 ... | Θ , Δ' , q , π₁ , π₂ rewrite #singleton π₁ = Δ' , q , π₂
 
 #process : ∀{Γ Δ} -> Γ # Δ -> Process Γ -> Process Δ
+#process π (link d p) = {!!}
 #process π close rewrite #singleton π = close
 #process π (fail p) with #singleton+ π p
 ... | Δ' , q , π' = fail q
@@ -180,11 +196,11 @@ data Process : Context -> Set where
 #process π (cut d p P Q) with #+ π p
 ... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (#process (#push π₁) P) (#process (#push π₂) Q)
 
-data _⊒_ {Γ} : Process Γ -> Process Γ -> Set where
-  s-comm : ∀{Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
+data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
+  s-comm : ∀{Γ Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
            -> cut d p P Q ⊒ cut (dual-symm d) (+-comm p) Q P
 
-  s-assoc-r : ∀{Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
+  s-assoc-r : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
               {P : Process (A :: Γ₁)}
               {Q : Process (B :: A' :: Δ₁)}
               {R : Process (B' :: Δ₂)}
@@ -193,13 +209,18 @@ data _⊒_ {Γ} : Process Γ -> Process Γ -> Set where
               (p' : Δ ≃ Γ₁ + Δ₁) (q' : Γ ≃ Δ + Δ₂) ->
               cut d p P (cut e (split-l q) Q R) ⊒ cut e q' (cut d (split-r p') P (#process #swap Q)) R
 
-  s-fail : ∀{Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ) ->
+  s-link : ∀{Γ A B}
+           (d : Dual A B)
+           (p : Γ ≃ [ A ] + [ B ]) ->
+           link d p ⊒ link (dual-symm d) (+-comm p)
+
+  s-fail : ∀{Γ Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ) ->
            let _ , _ , q' = +-assoc-l p q in
            cut d p (fail (split-r q)) P ⊒ fail q'
 
-  s-refl : {P : Process Γ} -> P ⊒ P
-  s-tran : {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
-  s-cong : ∀{Γ₁ Γ₂ A A'}
+  s-refl : ∀{Γ} {P : Process Γ} -> P ⊒ P
+  s-tran : ∀{Γ} {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
+  s-cong : ∀{Γ Γ₁ Γ₂ A A'}
            {P Q : Process (A :: Γ₁)}
            {R : Process (A' :: Γ₂)}
            (d : Dual A A')
