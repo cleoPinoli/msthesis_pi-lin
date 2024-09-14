@@ -1,4 +1,5 @@
 
+open import Data.Bool using (Bool; if_then_else_)
 open import Data.Nat using (ℕ; zero; suc; _+_)
 import Data.Nat.Properties as NatProp
 open import Data.Product using (_×_)
@@ -30,26 +31,12 @@ dual-symm dual-bot-one = dual-one-bot
 dual-symm (dual-with-plus p q) = dual-plus-with (dual-symm p) (dual-symm q)
 dual-symm (dual-plus-with p q) = dual-with-plus (dual-symm p) (dual-symm q)
 
-BoolST : Type
-BoolST = One ⊕ One
-
-Channel : Set
-Channel = ℕ
-
-data Maybe (A : Set) : Set where
-  none : Maybe A
-  some : A -> Maybe A
-
 data Context : Set where
   [] : Context
   _::_ : (A : Type) (Γ : Context) -> Context
 
 [_] : Type -> Context
 [_] = _:: []
-
-_++_ : Context -> Context -> Context
-[] ++ Δ = Δ
-(mt :: Γ) ++ Δ = mt :: (Γ ++ Δ)
 
 length : Context -> ℕ
 length [] = 0
@@ -61,7 +48,7 @@ data _#_ : Context -> Context -> Set where
   #push : ∀{Γ Δ A} -> Γ # Δ -> (A :: Γ) # (A :: Δ)
   #swap : ∀{Γ A B} -> (A :: B :: Γ) # (B :: A :: Γ)
 
-infixr 5 _::_ _++_
+infixr 5 _::_
 infix 4 _≃_+_
 
 data Empty : Context -> Set where
@@ -73,32 +60,29 @@ data _≃_+_ : Context -> Context -> Context -> Set where
   split-r : ∀{Γ Γ₁ Γ₂ A} -> Γ ≃ Γ₁ + Γ₂ -> A :: Γ ≃ Γ₁ + A :: Γ₂
 
 data Process : Context -> Set where
-   close : Process [ One ]
-   link  : ∀{Γ A B}
+   Close : Process [ One ]
+   Link  : ∀{Γ A B}
            (d : Dual A B)
            (p : Γ ≃ [ A ] + [ B ])
            -> Process Γ
-   fail  : ∀{Γ Δ}
+   Fail  : ∀{Γ Δ}
            (p : Γ ≃ [ Top ] + Δ)
            -> Process Γ
-   wait  : ∀{Γ Δ}
+   Wait  : ∀{Γ Δ}
            (p : Γ ≃ [ Bot ] + Δ)
            -> Process Δ
            -> Process Γ
-   left  : ∀{Γ Δ A B}
-           (p : Γ ≃ [ A ⊕ B ] + Δ)
-           -> Process (A :: Δ)
-           -> Process Γ
-   right : ∀{Γ Δ A B}
-           (p : Γ ≃ [ A ⊕ B ] + Δ)
-           -> Process (B :: Δ)
-           -> Process Γ
-   case_ : ∀{Γ Δ A B}
+   Select : ∀{Γ Δ A B}
+            (x : Bool)
+            (p : Γ ≃ [ A ⊕ B ] + Δ)
+            -> Process ((if x then A else B) :: Δ)
+            -> Process Γ
+   Case  : ∀{Γ Δ A B}
            (p : Γ ≃ [ A & B ] + Δ)
            -> Process (A :: Δ)
            -> Process (B :: Δ)
            -> Process Γ
-   cut   : ∀{Γ Γ₁ Γ₂ A B}
+   Cut   : ∀{Γ Γ₁ Γ₂ A B}
            (d : Dual A B)
            (p : Γ ≃ Γ₁ + Γ₂)
            -> Process (A :: Γ₁)
@@ -184,21 +168,20 @@ data Process : Context -> Set where
 ... | Θ , Δ' , q , π₁ , π₂ rewrite #singleton π₁ = Δ' , q , π₂
 
 #process : ∀{Γ Δ} -> Γ # Δ -> Process Γ -> Process Δ
-#process π (link d p) = {!!}
-#process π close rewrite #singleton π = close
-#process π (fail p) with #singleton+ π p
-... | Δ' , q , π' = fail q
-#process π (wait p P) with #singleton+ π p
-... | Δ' , q , π' = wait q (#process π' P)
-#process π (left p P) = {!!}
-#process π (right p P) = {!!}
-#process π ((case p) P Q) = {!!}
-#process π (cut d p P Q) with #+ π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (#process (#push π₁) P) (#process (#push π₂) Q)
+#process π (Link d p) = {!!}
+#process π Close rewrite #singleton π = Close
+#process π (Fail p) with #singleton+ π p
+... | Δ' , q , π' = Fail q
+#process π (Wait p P) with #singleton+ π p
+... | Δ' , q , π' = Wait q (#process π' P)
+#process π (Select x p P) = {!!}
+#process π (Case p P Q) = {!!}
+#process π (Cut d p P Q) with #+ π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = Cut d q (#process (#push π₁) P) (#process (#push π₂) Q)
 
 data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   s-comm : ∀{Γ Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
-           -> cut d p P Q ⊒ cut (dual-symm d) (+-comm p) Q P
+           -> Cut d p P Q ⊒ Cut (dual-symm d) (+-comm p) Q P
 
   s-assoc-r : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
               {P : Process (A :: Γ₁)}
@@ -207,16 +190,16 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
               (d : Dual A A') (e : Dual B B')
               (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₂ ≃ Δ₁ + Δ₂)
               (p' : Δ ≃ Γ₁ + Δ₁) (q' : Γ ≃ Δ + Δ₂) ->
-              cut d p P (cut e (split-l q) Q R) ⊒ cut e q' (cut d (split-r p') P (#process #swap Q)) R
+              Cut d p P (Cut e (split-l q) Q R) ⊒ Cut e q' (Cut d (split-r p') P (#process #swap Q)) R
 
   s-link : ∀{Γ A B}
            (d : Dual A B)
            (p : Γ ≃ [ A ] + [ B ]) ->
-           link d p ⊒ link (dual-symm d) (+-comm p)
+           Link d p ⊒ Link (dual-symm d) (+-comm p)
 
   s-fail : ∀{Γ Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ) ->
            let _ , _ , q' = +-assoc-l p q in
-           cut d p (fail (split-r q)) P ⊒ fail q'
+           Cut d p (Fail (split-r q)) P ⊒ Fail q'
 
   s-refl : ∀{Γ} {P : Process Γ} -> P ⊒ P
   s-tran : ∀{Γ} {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
@@ -225,7 +208,7 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
            {R : Process (A' :: Γ₂)}
            (d : Dual A A')
            (p : Γ ≃ Γ₁ + Γ₂) ->
-           P ⊒ Q -> cut d p P R ⊒ cut d p Q R
+           P ⊒ Q -> Cut d p P R ⊒ Cut d p Q R
 
 s-assoc-l : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
             {P : Process (B :: Δ₁)}
@@ -234,7 +217,7 @@ s-assoc-l : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
             (d : Dual A A') (e : Dual B B')
             (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ Δ₁ + Δ₂)
             (p' : Δ ≃ Δ₂ + Γ₂) (q' : Γ ≃ Δ₁ + Δ) ->
-            cut d p (cut e (split-r q) P Q) R ⊒ cut (dual-symm (dual-symm e)) (+-comm (+-comm q')) P (cut (dual-symm (dual-symm d)) (split-l (+-comm (+-comm p'))) (#process #swap Q) R)
+            Cut d p (Cut e (split-r q) P Q) R ⊒ Cut (dual-symm (dual-symm e)) (+-comm (+-comm q')) P (Cut (dual-symm (dual-symm d)) (split-l (+-comm (+-comm p'))) (#process #swap Q) R)
 s-assoc-l d e p q p' q' =
   s-tran (s-cong d p (s-comm e (split-r q)))
   (s-tran (s-comm d p)
