@@ -1,5 +1,6 @@
 
-open import Data.Nat using (ℕ; zero; suc)
+open import Data.Nat using (ℕ; zero; suc; _+_)
+import Data.Nat.Properties as NatProp
 open import Data.Product using (_×_)
 open import Data.Sum
 import Relation.Binary.PropositionalEquality as Eq
@@ -49,6 +50,10 @@ data Context : Set where
 _++_ : Context -> Context -> Context
 [] ++ Δ = Δ
 (mt :: Γ) ++ Δ = mt :: (Γ ++ Δ)
+
+length : Context -> ℕ
+length [] = 0
+length (_ :: Γ) = suc (length Γ)
 
 data _#_ : Context -> Context -> Set where
   #refl : ∀{Γ} -> Γ # Γ
@@ -116,8 +121,25 @@ data Process : Context -> Set where
 +-unit-l {[]} = split-e
 +-unit-l {A :: Γ} = split-r +-unit-l
 
++-unit-r : ∀{Γ} -> Γ ≃ Γ + []
++-unit-r = +-comm +-unit-l
+
 +-sing-l : ∀{A B Γ} -> [ A ] ≃ [ B ] + Γ -> A ≡ B × Γ ≡ []
 +-sing-l (split-l split-e) = refl , refl
+
++-length : ∀{Γ Γ₁ Γ₂} -> Γ ≃ Γ₁ + Γ₂ -> length Γ ≡ length Γ₁ + length Γ₂
++-length split-e = refl
++-length (split-l p) = Eq.cong suc (+-length p)
++-length {Γ} {Γ₁} {Γ₂} (split-r {Γ'} {_} {Γ₂'} {A} p) =
+  begin
+    length Γ ≡⟨⟩
+    suc (length Γ') ≡⟨ Eq.cong suc (+-length p) ⟩
+    suc (length Γ₁ + length Γ₂') ≡⟨ Eq.cong suc (NatProp.+-comm (length Γ₁) (length Γ₂')) ⟩
+    suc (length Γ₂' + length Γ₁) ≡⟨⟩
+    suc (length Γ₂') + length Γ₁ ≡⟨ NatProp.+-comm (suc (length Γ₂')) (length Γ₁) ⟩
+    length Γ₁ + suc (length Γ₂') ≡⟨⟩
+    length Γ₁ + length Γ₂
+  ∎
 
 #+ : ∀{Γ Γ₁ Γ₂ Δ} -> Γ # Δ -> Γ ≃ Γ₁ + Γ₂ -> ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ # Δ₁ × Γ₂ # Δ₂)
 #+ #refl p = _ , _ , p , #refl , #refl
