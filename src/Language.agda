@@ -45,8 +45,8 @@ length (_ :: Γ) = suc (length Γ)
 data _#_ : Context -> Context -> Set where
   #refl : ∀{Γ} -> Γ # Γ
   #tran : ∀{Γ Δ Θ} -> Γ # Δ -> Δ # Θ -> Γ # Θ
-  #push : ∀{Γ Δ A} -> Γ # Δ -> (A :: Γ) # (A :: Δ)
-  #swap : ∀{Γ A B} -> (A :: B :: Γ) # (B :: A :: Γ)
+  #next : ∀{Γ Δ A} -> Γ # Δ -> (A :: Γ) # (A :: Δ)
+  #here : ∀{Γ A B} -> (A :: B :: Γ) # (B :: A :: Γ)
 
 infixr 5 _::_
 infix 4 _≃_+_
@@ -59,30 +59,30 @@ data _≃_+_ : Context -> Context -> Context -> Set where
   split-l : ∀{Γ Γ₁ Γ₂ A} -> Γ ≃ Γ₁ + Γ₂ -> A :: Γ ≃ A :: Γ₁ + Γ₂
   split-r : ∀{Γ Γ₁ Γ₂ A} -> Γ ≃ Γ₁ + Γ₂ -> A :: Γ ≃ Γ₁ + A :: Γ₂
 
-data Process : Context -> Set where
-   Close : Process [ One ]
-   Link  : ∀{Γ A B}
+data Process (Γ : Context) : Set where
+   Close : Γ ≃ [ One ] + [] -> Process Γ
+   Link  : ∀{A B}
            (d : Dual A B)
            (p : Γ ≃ [ A ] + [ B ])
            -> Process Γ
-   Fail  : ∀{Γ Δ}
+   Fail  : ∀{Δ}
            (p : Γ ≃ [ Top ] + Δ)
            -> Process Γ
-   Wait  : ∀{Γ Δ}
+   Wait  : ∀{Δ}
            (p : Γ ≃ [ Bot ] + Δ)
            -> Process Δ
            -> Process Γ
-   Select : ∀{Γ Δ A B}
+   Select : ∀{Δ A B}
             (x : Bool)
             (p : Γ ≃ [ A ⊕ B ] + Δ)
             -> Process ((if x then A else B) :: Δ)
             -> Process Γ
-   Case  : ∀{Γ Δ A B}
+   Case  : ∀{Δ A B}
            (p : Γ ≃ [ A & B ] + Δ)
            -> Process (A :: Δ)
            -> Process (B :: Δ)
            -> Process Γ
-   Cut   : ∀{Γ Γ₁ Γ₂ A B}
+   Cut   : ∀{Γ₁ Γ₂ A B}
            (d : Dual A B)
            (p : Γ ≃ Γ₁ + Γ₂)
            -> Process (A :: Γ₁)
@@ -129,55 +129,48 @@ data Process : Context -> Set where
     length Γ₁ + length Γ₂
   ∎
 
-#+ : ∀{Γ Γ₁ Γ₂ Δ} -> Γ # Δ -> Γ ≃ Γ₁ + Γ₂ -> ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ # Δ₁ × Γ₂ # Δ₂)
-#+ #refl p = _ , _ , p , #refl , #refl
-#+ (#tran π π') p with #+ π p
-... | Θ₁ , Θ₂ , p' , π₁ , π₂ with #+ π' p'
+#split : ∀{Γ Γ₁ Γ₂ Δ} -> Γ # Δ -> Γ ≃ Γ₁ + Γ₂ -> ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ # Δ₁ × Γ₂ # Δ₂)
+#split #refl p = _ , _ , p , #refl , #refl
+#split (#tran π π') p with #split π p
+... | Θ₁ , Θ₂ , p' , π₁ , π₂ with #split π' p'
 ... | Δ₁ , Δ₂ , q , π₁' , π₂' = Δ₁ , Δ₂ , q , #tran π₁ π₁' , #tran π₂ π₂'
-#+ (#push π) (split-l p) with #+ π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂  = _ :: Δ₁ , Δ₂ , split-l q , #push π₁ , π₂
-#+ (#push π) (split-r p) with #+ π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = Δ₁ , _ :: Δ₂ , split-r q , π₁ , #push π₂
-#+ #swap (split-l (split-l p)) = _ , _ , split-l (split-l p) , #swap , #refl
-#+ #swap (split-l (split-r p)) = _ , _ , split-r (split-l p) , #refl , #refl
-#+ #swap (split-r (split-l p)) = _ , _ , split-l (split-r p) , #refl , #refl
-#+ #swap (split-r (split-r p)) = _ , _ , split-r (split-r p) , #refl , #swap
+#split (#next π) (split-l p) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂  = _ :: Δ₁ , Δ₂ , split-l q , #next π₁ , π₂
+#split (#next π) (split-r p) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = Δ₁ , _ :: Δ₂ , split-r q , π₁ , #next π₂
+#split #here (split-l (split-l p)) = _ , _ , split-l (split-l p) , #here , #refl
+#split #here (split-l (split-r p)) = _ , _ , split-r (split-l p) , #refl , #refl
+#split #here (split-r (split-l p)) = _ , _ , split-l (split-r p) , #refl , #refl
+#split #here (split-r (split-r p)) = _ , _ , split-r (split-r p) , #refl , #here
 
-#empty : ∀{Γ} -> [] # Γ -> Γ ≡ []
-#empty #refl = refl
-#empty (#tran π π') rewrite #empty π | #empty π' = refl
+#nil : ∀{Γ} -> [] # Γ -> Γ ≡ []
+#nil #refl = refl
+#nil (#tran π π') rewrite #nil π | #nil π' = refl
 
-#singleton : ∀{Γ A} -> [ A ] # Γ -> Γ ≡ [ A ]
-#singleton #refl = refl
-#singleton (#tran π π') rewrite #singleton π | #singleton π' = refl
-#singleton (#push π) rewrite #empty π = refl
+#one : ∀{Γ A} -> [ A ] # Γ -> Γ ≡ [ A ]
+#one #refl = refl
+#one (#tran π π') rewrite #one π | #one π' = refl
+#one (#next π) rewrite #nil π = refl
 
-#duo : ∀{Γ A B} -> (A :: B :: []) # Γ -> Γ ≡ (A :: B :: []) ⊎ Γ ≡ (B :: A :: [])
-#duo #refl = inj₁ refl
-#duo (#tran p q) with #duo p
-... | inj₁ refl = #duo q
-... | inj₂ refl with #duo q
-... | inj₁ refl = inj₂ refl
-... | inj₂ refl = inj₁ refl
-#duo (#push p) with #singleton p
-... | refl = inj₁ refl
-#duo #swap = inj₂ refl
-
-#singleton+ : ∀{Γ Γ' Δ A} -> Γ # Δ -> Γ ≃ [ A ] + Γ' -> ∃[ Δ' ] (Δ ≃ [ A ] + Δ' × Γ' # Δ')
-#singleton+ π p with #+ π p
-... | Θ , Δ' , q , π₁ , π₂ rewrite #singleton π₁ = Δ' , q , π₂
+#one+ : ∀{Γ Γ' Δ A} -> Γ # Δ -> Γ ≃ [ A ] + Γ' -> ∃[ Δ' ] (Δ ≃ [ A ] + Δ' × Γ' # Δ')
+#one+ π p with #split π p
+... | Θ , Δ' , q , π₁ , π₂ rewrite #one π₁ = Δ' , q , π₂
 
 #process : ∀{Γ Δ} -> Γ # Δ -> Process Γ -> Process Δ
-#process π (Link d p) = {!!}
-#process π Close rewrite #singleton π = Close
-#process π (Fail p) with #singleton+ π p
+#process π (Link d p) with #one+ π p
+... | Δ' , q , π' with #one π'
+... | refl = Link d q
+#process π (Close p) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ with #one π₁ | #nil π₂
+... | refl | refl = Close q
+#process π (Fail p) with #one+ π p
 ... | Δ' , q , π' = Fail q
-#process π (Wait p P) with #singleton+ π p
+#process π (Wait p P) with #one+ π p
 ... | Δ' , q , π' = Wait q (#process π' P)
 #process π (Select x p P) = {!!}
 #process π (Case p P Q) = {!!}
-#process π (Cut d p P Q) with #+ π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = Cut d q (#process (#push π₁) P) (#process (#push π₂) Q)
+#process π (Cut d p P Q) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = Cut d q (#process (#next π₁) P) (#process (#next π₂) Q)
 
 data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   s-comm : ∀{Γ Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
@@ -190,7 +183,7 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
               (d : Dual A A') (e : Dual B B')
               (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₂ ≃ Δ₁ + Δ₂)
               (p' : Δ ≃ Γ₁ + Δ₁) (q' : Γ ≃ Δ + Δ₂) ->
-              Cut d p P (Cut e (split-l q) Q R) ⊒ Cut e q' (Cut d (split-r p') P (#process #swap Q)) R
+              Cut d p P (Cut e (split-l q) Q R) ⊒ Cut e q' (Cut d (split-r p') P (#process #here Q)) R
 
   s-link : ∀{Γ A B}
            (d : Dual A B)
@@ -217,7 +210,7 @@ s-assoc-l : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
             (d : Dual A A') (e : Dual B B')
             (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ Δ₁ + Δ₂)
             (p' : Δ ≃ Δ₂ + Γ₂) (q' : Γ ≃ Δ₁ + Δ) ->
-            Cut d p (Cut e (split-r q) P Q) R ⊒ Cut (dual-symm (dual-symm e)) (+-comm (+-comm q')) P (Cut (dual-symm (dual-symm d)) (split-l (+-comm (+-comm p'))) (#process #swap Q) R)
+            Cut d p (Cut e (split-r q) P Q) R ⊒ Cut (dual-symm (dual-symm e)) (+-comm (+-comm q')) P (Cut (dual-symm (dual-symm d)) (split-l (+-comm (+-comm p'))) (#process #here Q) R)
 s-assoc-l d e p q p' q' =
   s-tran (s-cong d p (s-comm e (split-r q)))
   (s-tran (s-comm d p)
