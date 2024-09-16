@@ -21,19 +21,47 @@
 
 \maketitle
 
-\paragraph{Sintassi dei processi}
+\paragraph{Sintassi dei processi (con sessioni a sinistra, con canali lineari a destra)}
 
 \[
-    \begin{array}{rcll}
+    \begin{array}[t]{rcll}
         P, Q & ::= & \Link\x\y \\
             & | & \Close\x \\
             & | & \Fail\x \\
             & | & \Wait\x.P \\
-            & | & \Select\x{\InTag_i}\y.P \\
-            & | & \Case\x\y{P}{Q} \\
+            & | & \Select\x{\InTag_i}{}.P \\
+            & | & \Case\x{}{P}{Q} \\
+            & | & \Fork\x\y{}{P}{Q} \\
+            & | & \Join\x\y{}.P \\
+            & | & \Cut\x{P}{Q} \\
+    \end{array}
+    \qquad
+    \begin{array}[t]{rcll}
+        P, Q & ::= & \Link\x\y \\
+            & | & \Close\x \\
+            & | & \Fail\x \\
+            & | & \Wait\x.P \\
+            & | & \Select\x{\InTag_i}\z.P \\
+            & | & \Case\x\z{P}{Q} \\
             & | & \Fork\x\y\z{P}{Q} \\
             & | & \Join\x\y\z.P \\
             & | & \Cut\x{P}{Q} \\
+    \end{array}
+\]
+
+\paragraph{Desugaring dei processi}
+
+\[
+    \begin{array}[t]{rcll}
+        \sem{\Link\x\y} & = & \Link\x\y \\
+        \sem{\Close\x} & = & \Close\x \\
+        \sem{\Fail\x} & = & \Fail\x \\
+        \sem{\Wait\x.P} & = & \Wait\x.\sem{P} \\
+        \sem{\Select\x{\InTag_i}{}.P} & = & \Select\x{\InTag_i}\x.\sem{P} & x \ne y \\
+        \sem{\Case\x{}{P}{Q}} & = & \Case\x\x{\sem{P}}{\sem{Q}} \\
+        \sem{\Fork\x\y{}{P}{Q}} & = & \Fork\x\y\x{\sem{P}}{\sem{Q}} & x \ne y \\
+        \sem{\Join\x\y{}.P} & = & \Join\x\y\x.\sem{P} & x \ne y \\
+        \sem{\Cut\x{P}{Q}} & = & \Cut\x{\sem{P}}{\sem{Q}} \\
     \end{array}
 \]
 

@@ -132,15 +132,15 @@
 \newcommand{\Close}[1]{\mkkeyword{close}\,#1}
 \newcommand{\Wait}[1]{\mkkeyword{wait}\,#1}
 \newcommand{\Fail}[1]{\mkkeyword{fail}\,#1}
-\newcommand{\Select}[3]{#1 \triangleleft #2\parens{#3}}
+\newcommand{\Select}[3]{#1 \triangleleft #2\ifblank{#3}{}{\parens{#3}}}
 \newcommand{\Left}[2]{\Select{#1}{\InTag_1}{#2}}
 \newcommand{\Right}[2]{\Select{#1}{\InTag_2}{#2}}
 \newcommand{\Choice}[3][p]{#2 \mathbin{\ifblank{#1}{}{_{#1}}\boxplus} #3}
-\newcommand{\OneCase}[3]{\mkkeyword{case}\,#1\parens{#2}#3}
+\newcommand{\OneCase}[3]{\mkkeyword{case}\,#1\ifblank{#2}{}{\parens{#2}}#3}
 \newcommand{\Case}[4]{\OneCase{#1}{#2}{\braces{#3,#4}}}
 \newcommand{\BigCase}[2]{\OneCase{#1}{\left\{\begin{array}{@{}r@{~:~}l@{}}#2\end{array}\right\}}}
-\newcommand{\Fork}[5]{#1\angles{#2,#3}\braces{#4,#5}}
-\renewcommand{\Join}[3]{#1\parens{#2,#3}}
+\newcommand{\Fork}[5]{#1\angles{#2\ifblank{#3}{}{,#3}}\braces{#4,#5}}
+\renewcommand{\Join}[3]{#1\parens{#2\ifblank{#3}{}{,#3}}}
 \newcommand{\Client}[2]{{?}#1\bracks{#2}}
 \newcommand{\Server}[2]{{!}#1\parens{#2}}
 \newcommand{\Cut}[3]{\parens{#1}\parens{#2\parop#3}}
@@ -275,6 +275,7 @@
 \newcommand{\rankof}[1]{|#1|}
 \newcommand{\fc}[2]{\mathsf{fc}(#1,#2)}
 \newcommand{\dsup}{\sqcup}
+\newcommand{\sem}[1]{\llbracket#1\rrbracket}
 
 \newcommand{\prob}[1]{|#1|}
 \newcommand{\trunc}[1]{\lfloor#1\rfloor}
