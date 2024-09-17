@@ -11,53 +11,9 @@ open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 
 open import Relation.Nullary using (¬_)
 
-data Type : Set where
-  Zero One Bot Top : Type
-  _&_ _⊕_ : Type -> Type -> Type
-
-data Dual : Type -> Type -> Set where
-  dual-zero-top : Dual Zero Top
-  dual-top-zero : Dual Top Zero
-  dual-one-bot  : Dual One Bot
-  dual-bot-one  : Dual Bot One
-  dual-with-plus : ∀{t s t' s'} -> Dual t t' -> Dual s s' -> Dual (t & s) (t' ⊕ s')
-  dual-plus-with : ∀{t s t' s'} -> Dual t t' -> Dual s s' -> Dual (t ⊕ s) (t' & s')
-
-dual-symm : ∀{A B} -> Dual A B -> Dual B A
-dual-symm dual-zero-top = dual-top-zero
-dual-symm dual-top-zero = dual-zero-top
-dual-symm dual-one-bot = dual-bot-one
-dual-symm dual-bot-one = dual-one-bot
-dual-symm (dual-with-plus p q) = dual-plus-with (dual-symm p) (dual-symm q)
-dual-symm (dual-plus-with p q) = dual-with-plus (dual-symm p) (dual-symm q)
-
-data Context : Set where
-  [] : Context
-  _::_ : (A : Type) (Γ : Context) -> Context
-
-[_] : Type -> Context
-[_] = _:: []
-
-length : Context -> ℕ
-length [] = 0
-length (_ :: Γ) = suc (length Γ)
-
-data _#_ : Context -> Context -> Set where
-  #refl : ∀{Γ} -> Γ # Γ
-  #tran : ∀{Γ Δ Θ} -> Γ # Δ -> Δ # Θ -> Γ # Θ
-  #next : ∀{Γ Δ A} -> Γ # Δ -> (A :: Γ) # (A :: Δ)
-  #here : ∀{Γ A B} -> (A :: B :: Γ) # (B :: A :: Γ)
-
-infixr 5 _::_
-infix 4 _≃_+_
-
-data Empty : Context -> Set where
-  empty-[] : Empty []
-
-data _≃_+_ : Context -> Context -> Context -> Set where
-  split-e : [] ≃ [] + []
-  split-l : ∀{Γ Γ₁ Γ₂ A} -> Γ ≃ Γ₁ + Γ₂ -> A :: Γ ≃ A :: Γ₁ + Γ₂
-  split-r : ∀{Γ Γ₁ Γ₂ A} -> Γ ≃ Γ₁ + Γ₂ -> A :: Γ ≃ Γ₁ + A :: Γ₂
+open import List
+open import Type
+open import Context
 
 data Process (Γ : Context) : Set where
    Close : Γ ≃ [ One ] + [] -> Process Γ
@@ -82,52 +38,22 @@ data Process (Γ : Context) : Set where
            -> Process (A :: Δ)
            -> Process (B :: Δ)
            -> Process Γ
+   -- Fork  : ∀{Δ Γ₁ Γ₂ A B}
+   --         (p : Γ ≃ [ A ⊗ B ] + Δ)
+   --         (q : Δ ≃ Γ₁ + Γ₂)
+   --         -> Process (A :: Γ₁)
+   --         -> Process (B :: Γ₂)
+   --         -> Process Γ
+   -- Join  : ∀{Δ A B}
+   --         (p : Γ ≃ [ A ⅋ B ] + Δ)
+   --         -> Process (B :: A :: Δ)
+   --         -> Process Γ
    Cut   : ∀{Γ₁ Γ₂ A B}
            (d : Dual A B)
            (p : Γ ≃ Γ₁ + Γ₂)
            -> Process (A :: Γ₁)
            -> Process (B :: Γ₂)
            -> Process Γ
-
-+-comm : ∀{Γ Γ₁ Γ₂} -> Γ ≃ Γ₁ + Γ₂ -> Γ ≃ Γ₂ + Γ₁
-+-comm split-e = split-e
-+-comm (split-l p) = split-r (+-comm p)
-+-comm (split-r p) = split-l (+-comm p)
-
-+-assoc-r : ∀{Γ Γ₁ Γ₂ Δ₁ Δ₂} -> Γ ≃ Γ₁ + Γ₂ -> Γ₂ ≃ Δ₁ + Δ₂ ->
-            ∃[ Δ ] (Δ ≃ Γ₁ + Δ₁) × (Γ ≃ Δ + Δ₂)
-+-assoc-r split-e split-e = [] , split-e , split-e
-+-assoc-r (split-l p) q = {!!}
-+-assoc-r (split-r p) q = {!!}
-
-+-assoc-l : ∀{Γ Γ₁ Γ₂ Δ₁ Δ₂} -> Γ ≃ Γ₁ + Γ₂ -> Γ₁ ≃ Δ₁ + Δ₂ ->
-            ∃[ Δ ] (Δ ≃ Δ₂ + Γ₂) × (Γ ≃ Δ₁ + Δ)
-+-assoc-l p q with +-assoc-r (+-comm p) (+-comm q)
-... | Δ , r , p' = Δ , +-comm r , +-comm p'
-
-+-unit-l : ∀{Γ} -> Γ ≃ [] + Γ
-+-unit-l {[]} = split-e
-+-unit-l {A :: Γ} = split-r +-unit-l
-
-+-unit-r : ∀{Γ} -> Γ ≃ Γ + []
-+-unit-r = +-comm +-unit-l
-
-+-sing-l : ∀{A B Γ} -> [ A ] ≃ [ B ] + Γ -> A ≡ B × Γ ≡ []
-+-sing-l (split-l split-e) = refl , refl
-
-+-length : ∀{Γ Γ₁ Γ₂} -> Γ ≃ Γ₁ + Γ₂ -> length Γ ≡ length Γ₁ + length Γ₂
-+-length split-e = refl
-+-length (split-l p) = Eq.cong suc (+-length p)
-+-length {Γ} {Γ₁} {Γ₂} (split-r {Γ'} {_} {Γ₂'} {A} p) =
-  begin
-    length Γ ≡⟨⟩
-    suc (length Γ') ≡⟨ Eq.cong suc (+-length p) ⟩
-    suc (length Γ₁ + length Γ₂') ≡⟨ Eq.cong suc (NatProp.+-comm (length Γ₁) (length Γ₂')) ⟩
-    suc (length Γ₂' + length Γ₁) ≡⟨⟩
-    suc (length Γ₂') + length Γ₁ ≡⟨ NatProp.+-comm (suc (length Γ₂')) (length Γ₁) ⟩
-    length Γ₁ + suc (length Γ₂') ≡⟨⟩
-    length Γ₁ + length Γ₂
-  ∎
 
 #split : ∀{Γ Γ₁ Γ₂ Δ} -> Γ # Δ -> Γ ≃ Γ₁ + Γ₂ -> ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ # Δ₁ × Γ₂ # Δ₂)
 #split #refl p = _ , _ , p , #refl , #refl
@@ -143,18 +69,12 @@ data Process (Γ : Context) : Set where
 #split #here (split-r (split-l p)) = _ , _ , split-l (split-r p) , #refl , #refl
 #split #here (split-r (split-r p)) = _ , _ , split-r (split-r p) , #refl , #here
 
-#nil : ∀{Γ} -> [] # Γ -> Γ ≡ []
-#nil #refl = refl
-#nil (#tran π π') rewrite #nil π | #nil π' = refl
-
-#one : ∀{Γ A} -> [ A ] # Γ -> Γ ≡ [ A ]
-#one #refl = refl
-#one (#tran π π') rewrite #one π | #one π' = refl
-#one (#next π) rewrite #nil π = refl
-
 #one+ : ∀{Γ Γ' Δ A} -> Γ # Δ -> Γ ≃ [ A ] + Γ' -> ∃[ Δ' ] (Δ ≃ [ A ] + Δ' × Γ' # Δ')
 #one+ π p with #split π p
 ... | Θ , Δ' , q , π₁ , π₂ rewrite #one π₁ = Δ' , q , π₂
+
+#cons : ∀{Γ Δ A} -> Γ ≃ [ A ] + Δ -> (A :: Δ) # Γ
+#cons p = {!!}
 
 #process : ∀{Γ Δ} -> Γ # Δ -> Process Γ -> Process Δ
 #process π (Link d p) with #one+ π p
@@ -194,6 +114,13 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
            let _ , _ , q' = +-assoc-l p q in
            Cut d p (Fail (split-r q)) P ⊒ Fail q'
 
+  s-wait : ∀{Γ Γ₁ Γ₂ Δ A B}
+           {P : Process (A :: Δ)}
+           {Q : Process (B :: Γ₂)}
+           (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Bot ] + Δ) ->
+           let _ , p' , q' = +-assoc-l p q in
+           Cut d p (Wait (split-r q) P) Q ⊒ Wait q' (Cut d p' P Q)
+
   s-refl : ∀{Γ} {P : Process Γ} -> P ⊒ P
   s-tran : ∀{Γ} {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
   s-cong : ∀{Γ Γ₁ Γ₂ A A'}
@@ -217,3 +144,16 @@ s-assoc-l d e p q p' q' =
   (s-tran (s-assoc-r (dual-symm d) (dual-symm e) (+-comm p) (+-comm q) (+-comm p') (+-comm q'))
   (s-tran (s-cong (dual-symm e) (+-comm q') (s-comm (dual-symm d) (split-r (+-comm p'))))
   (s-comm (dual-symm e) (+-comm q')))))
+
+data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
+  r-link :
+    ∀{Γ Δ A B}
+    {P : Process (B :: Δ)}
+    (d : Dual A B)
+    (p : Γ ≃ [ B ] + Δ) ->
+    Cut d p (Link d (split-l (split-r split-e))) P ~> #process (#cons p) P
+
+  r-close :
+    ∀{Γ}
+    {P : Process Γ} ->
+    Cut dual-one-bot +-unit-l (Close (split-l split-e)) (Wait (split-l +-unit-l) P) ~> P
