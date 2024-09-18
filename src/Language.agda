@@ -55,27 +55,6 @@ data Process (Γ : Context) : Set where
            -> Process (B :: Γ₂)
            -> Process Γ
 
-#split : ∀{Γ Γ₁ Γ₂ Δ} -> Γ # Δ -> Γ ≃ Γ₁ + Γ₂ -> ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ # Δ₁ × Γ₂ # Δ₂)
-#split #refl p = _ , _ , p , #refl , #refl
-#split (#tran π π') p with #split π p
-... | Θ₁ , Θ₂ , p' , π₁ , π₂ with #split π' p'
-... | Δ₁ , Δ₂ , q , π₁' , π₂' = Δ₁ , Δ₂ , q , #tran π₁ π₁' , #tran π₂ π₂'
-#split (#next π) (split-l p) with #split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂  = _ :: Δ₁ , Δ₂ , split-l q , #next π₁ , π₂
-#split (#next π) (split-r p) with #split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = Δ₁ , _ :: Δ₂ , split-r q , π₁ , #next π₂
-#split #here (split-l (split-l p)) = _ , _ , split-l (split-l p) , #here , #refl
-#split #here (split-l (split-r p)) = _ , _ , split-r (split-l p) , #refl , #refl
-#split #here (split-r (split-l p)) = _ , _ , split-l (split-r p) , #refl , #refl
-#split #here (split-r (split-r p)) = _ , _ , split-r (split-r p) , #refl , #here
-
-#one+ : ∀{Γ Γ' Δ A} -> Γ # Δ -> Γ ≃ [ A ] + Γ' -> ∃[ Δ' ] (Δ ≃ [ A ] + Δ' × Γ' # Δ')
-#one+ π p with #split π p
-... | Θ , Δ' , q , π₁ , π₂ rewrite #one π₁ = Δ' , q , π₂
-
-#cons : ∀{Γ Δ A} -> Γ ≃ [ A ] + Δ -> (A :: Δ) # Γ
-#cons p = {!!}
-
 #process : ∀{Γ Δ} -> Γ # Δ -> Process Γ -> Process Δ
 #process π (Link d p) with #one+ π p
 ... | Δ' , q , π' with #one π'
