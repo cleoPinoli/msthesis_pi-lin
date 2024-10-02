@@ -1,4 +1,3 @@
-
 open import Data.Bool using (Bool; if_then_else_)
 open import Data.Nat using (ℕ; zero; suc; _+_)
 import Data.Nat.Properties as NatProp
@@ -100,6 +99,12 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
            let _ , p' , q' = +-assoc-l p q in
            Cut d p (Wait (split-r q) P) Q ⊒ Wait q' (Cut d p' P Q)
 
+
+  -- (x)(case y(z){P|Q} | R) ⊒ case y(z){(x)(P|R), (x)(Q|R)} , x ≠ y,z
+  s-case : ∀{Γ}
+         {P : Process Γ} ->
+         Cut {!!} {!!} (Case {!!} {!!} {!!}) {!!} ⊒ {!!}
+  
   s-refl : ∀{Γ} {P : Process Γ} -> P ⊒ P
   s-tran : ∀{Γ} {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
   s-cong : ∀{Γ Γ₁ Γ₂ A A'}
@@ -108,6 +113,18 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
            (d : Dual A A')
            (p : Γ ≃ Γ₁ + Γ₂) ->
            P ⊒ Q -> Cut d p P R ⊒ Cut d p Q R
+
+
+
+  
+
+
+  -- (x)(y◃inᵢ(z).P|Q) ⊒ y◃inᵢ(z).(x)(P|Q)  , x ≠ y,z
+  -- s-select-l :
+  -- s-select-r :
+
+
+
 
 s-assoc-l : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
             {P : Process (B :: Δ₁)}
@@ -118,8 +135,7 @@ s-assoc-l : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
             (p' : Δ ≃ Δ₂ + Γ₂) (q' : Γ ≃ Δ₁ + Δ) ->
             Cut d p (Cut e (split-r q) P Q) R ⊒ Cut (dual-symm (dual-symm e)) (+-comm (+-comm q')) P (Cut (dual-symm (dual-symm d)) (split-l (+-comm (+-comm p'))) (#process #here Q) R)
 s-assoc-l d e p q p' q' =
-  s-tran (s-cong d p (s-comm e (split-r q)))
-  (s-tran (s-comm d p)
+  s-tran (s-cong d p (s-comm e (split-r q)))  (s-tran (s-comm d p)
   (s-tran (s-assoc-r (dual-symm d) (dual-symm e) (+-comm p) (+-comm q) (+-comm p') (+-comm q'))
   (s-tran (s-cong (dual-symm e) (+-comm q') (s-comm (dual-symm d) (split-r (+-comm p'))))
   (s-comm (dual-symm e) (+-comm q')))))
@@ -136,3 +152,31 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     ∀{Γ}
     {P : Process Γ} ->
     Cut dual-one-bot +-unit-l (Close (split-l split-e)) (Wait (split-l +-unit-l) P) ~> P
+
+
+  r-left :
+    ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A B A' B'}
+    {P : Process (A' :: Δ₁)}
+    {Q : Process (B' :: Δ₂)}
+    (d' : Dual A' B') (q' : Δ ≃ Δ₁ + Δ₂)
+    ->
+    Cut (dual-with-plus {!!} {!!}) {!!} (Select Bool.true {!!} {!!}) (Case {!!} {!Q!} {!_!}) ~> Cut d' q' P Q
+
+
+  r-right :
+    ∀{Δ Δ₁ Δ₂ A' B'}
+    {P : Process (A' :: Δ₁)}
+    {R : Process (B' :: Δ₂)}
+    (d' : Dual A' B') (q' : Δ ≃ Δ₁ + Δ₂) ->
+    Cut (dual-with-plus {!!} {!!}) {!!} (Select Bool.false {!!} {!!}) (Case {!!} {!!} {!!}) ~> Cut d' q' P R
+  
+ -- r-cut :
+ --   ∀{Γ Γ₁ Γ₂ A A' B} (I'll need some p : P ~> Q)
+ --   Cut {!!} {!!} {!!} {!!} ~> Cut {!!} {!!} {!!} {!!}
+
+
+-- provided that P ⊒ R and R ~> Q then P ~> Q
+  r-cong :
+    ∀{Γ}
+    {P R Q : Process Γ}
+    (p : P ⊒ Q) (q : R ~> Q) -> P ~> Q

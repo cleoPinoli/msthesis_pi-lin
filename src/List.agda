@@ -49,7 +49,7 @@ data _≃_+_ {A} : List A -> List A -> List A -> Set where
   ∀{A}{xs ys zs us vs : List A} ->
   xs ≃ ys + zs ->
   zs ≃ us + vs ->
-  ∃[ ws ] (ws ≃ ys + us) × (xs ≃ ws + vs)
+  ∃[ ws ] ((ws ≃ ys + us) × (xs ≃ ws + vs))
 +-assoc-r split-e split-e = [] , split-e , split-e
 +-assoc-r (split-l p) q with +-assoc-r p q
 ... | _ , p' , q' = _ , split-l p' , split-l q'
@@ -62,7 +62,7 @@ data _≃_+_ {A} : List A -> List A -> List A -> Set where
   ∀{A}{xs ys zs us vs : List A} ->
   xs ≃ ys + zs ->
   ys ≃ us + vs ->
-  ∃[ ws ] (ws ≃ vs + zs) × (xs ≃ us + ws)
+  ∃[ ws ] ((ws ≃ vs + zs) × (xs ≃ us + ws))
 +-assoc-l p q with +-assoc-r (+-comm p) (+-comm q)
 ... | Δ , r , p' = Δ , +-comm r , +-comm p'
 
