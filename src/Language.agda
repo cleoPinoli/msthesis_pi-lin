@@ -101,9 +101,16 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
 
 
   -- (x)(case y(z){P|Q} | R) ⊒ case y(z){(x)(P|R), (x)(Q|R)} , x ≠ y,z
-  s-case : ∀{Γ}
-         {P : Process Γ} ->
-         Cut {!!} {!!} (Case {!!} {!!} {!!}) {!!} ⊒ {!!}
+  s-case : ∀{Γ A B A₁ A₂ Γ₁ Γ₂ Δ}
+         {P : Process (A₁ :: Γ₁)}
+         {Q : Process (A₂ :: Γ₁)}
+         {R : Process (B :: Γ₂)}
+         (d : Dual A B)
+         (p : Γ ≃ Γ₁ + Γ₂)
+         (q : Γ₁ ≃ [ A₁ & A₂ ] + Δ) ->
+         Cut d p (Case {!!} P Q) R ⊒ Case {!!}
+                                   (Cut {!!} {!!} P R)
+                                   (Cut {!!} {!!} Q R)
   
   s-refl : ∀{Γ} {P : Process Γ} -> P ⊒ P
   s-tran : ∀{Γ} {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
@@ -170,9 +177,14 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     (d' : Dual A' B') (q' : Δ ≃ Δ₁ + Δ₂) ->
     Cut (dual-with-plus {!!} {!!}) {!!} (Select Bool.false {!!} {!!}) (Case {!!} {!!} {!!}) ~> Cut d' q' P R
   
- -- r-cut :
- --   ∀{Γ Γ₁ Γ₂ A A' B} (I'll need some p : P ~> Q)
- --   Cut {!!} {!!} {!!} {!!} ~> Cut {!!} {!!} {!!} {!!}
+  r-cut :
+    ∀{Γ Γ₁ Γ₂ A B}
+    {P Q : Process (A :: Γ₁)}
+    {R : Process (B :: Γ₂)}
+    (d : Dual A B)
+    (q : Γ ≃ Γ₁ + Γ₂)
+    (r : P ~> Q) ->
+    Cut d q P R ~> Cut d q Q R
 
 
 -- provided that P ⊒ R and R ~> Q then P ~> Q
