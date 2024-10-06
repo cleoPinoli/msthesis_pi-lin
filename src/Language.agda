@@ -192,4 +192,4 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   r-cong :
     ∀{Γ}
     {P R Q : Process Γ}
-    (p : P ⊒ Q) (q : R ~> Q) -> P ~> Q
+    (p : P ⊒ R) (q : R ~> Q) -> P ~> Q
