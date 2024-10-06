@@ -102,16 +102,17 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
 
   -- (x)(case y(z){P|Q} | R) ⊒ case y(z){(x)(P|R), (x)(Q|R)} , x ≠ y,z
   s-case : ∀{Γ A B A₁ A₂ Γ₁ Γ₂ Δ}
-         {P : Process (A₁ :: Γ₁)}
-         {Q : Process (A₂ :: Γ₁)}
+         {P : Process (A₁ :: A :: Δ)}
+         {Q : Process (A₂ :: A :: Δ)}
          {R : Process (B :: Γ₂)}
          (d : Dual A B)
          (p : Γ ≃ Γ₁ + Γ₂)
          (q : Γ₁ ≃ [ A₁ & A₂ ] + Δ) ->
-         Cut d p (Case {!!} P Q) R ⊒ Case {!!}
-                                   (Cut {!!} {!!} P R)
-                                   (Cut {!!} {!!} Q R)
-  
+         let _ , p' , q' = +-assoc-l p q in
+         Cut d p (Case (split-r q) P Q) R ⊒
+         Case q' (Cut d (split-l p') (#process #here P) R)
+                 (Cut d (split-l p') (#process #here Q) R)
+
   s-refl : ∀{Γ} {P : Process Γ} -> P ⊒ P
   s-tran : ∀{Γ} {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
   s-cong : ∀{Γ Γ₁ Γ₂ A A'}
