@@ -1,4 +1,7 @@
+
+
 open import Data.Bool using (Bool; if_then_else_)
+open Bool using (true; false)
 open import Data.Nat using (ℕ; zero; suc; _+_)
 import Data.Nat.Properties as NatProp
 open import Data.Product using (_×_)
@@ -99,7 +102,6 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
            let _ , p' , q' = +-assoc-l p q in
            Cut d p (Wait (split-r q) P) Q ⊒ Wait q' (Cut d p' P Q)
 
-
   -- (x)(case y(z){P|Q} | R) ⊒ case y(z){(x)(P|R), (x)(Q|R)} , x ≠ y,z
   s-case : ∀{Γ A B A₁ A₂ Γ₁ Γ₂ Δ}
          {P : Process (A₁ :: A :: Δ)}
@@ -122,17 +124,27 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
            (p : Γ ≃ Γ₁ + Γ₂) ->
            P ⊒ Q -> Cut d p P R ⊒ Cut d p Q R
 
+  s-select-l :
+    ∀{Γ Γ₁ Γ₂ Δ A B A₁ A₂}
+    {P : Process (A₁ :: A :: Δ)}
+    {Q : Process (B :: Γ₂)}
+    (d : Dual A B)
+    (p : Γ ≃ Γ₁ + Γ₂)
+    (q : Γ₁ ≃ [ A₁ ⊕ A₂ ] + Δ) ->
+    let _ , p' , q' = +-assoc-l p q in
+    Cut d p (Select true (split-r q) P) Q ⊒
+    Select true q' (Cut d (split-l p') (#process #here P) Q)
 
-
-  
-
-
-  -- (x)(y◃inᵢ(z).P|Q) ⊒ y◃inᵢ(z).(x)(P|Q)  , x ≠ y,z
-  -- s-select-l :
-  -- s-select-r :
-
-
-
+  s-select-r :
+    ∀{Γ Γ₁ Γ₂ Δ A B A₁ A₂}
+    {P : Process (A₂ :: A :: Δ)}
+    {Q : Process (B :: Γ₂)}
+    (d : Dual A B)
+    (p : Γ ≃ Γ₁ + Γ₂)
+    (q : Γ₁ ≃ [ A₁ ⊕ A₂ ] + Δ) ->
+    let _ , p' , q' = +-assoc-l p q in
+    Cut d p (Select false (split-r q) P) Q ⊒
+    Select false q' (Cut d (split-l p') (#process #here P) Q)
 
 s-assoc-l : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
             {P : Process (B :: Δ₁)}
