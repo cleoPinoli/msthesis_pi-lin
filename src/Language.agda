@@ -1,5 +1,3 @@
-
-
 open import Data.Bool using (Bool; if_then_else_)
 open Bool using (true; false)
 open import Data.Nat using (ℕ; zero; suc; _+_)
@@ -70,6 +68,7 @@ data Process (Γ : Context) : Set where
 ... | Δ' , q , π' = Wait q (#process π' P)
 #process π (Select x p P) = {!!}
 #process π (Case p P Q) = {!!}
+
 #process π (Cut d p P Q) with #split π p
 ... | Δ₁ , Δ₂ , q , π₁ , π₂ = Cut d q (#process (#next π₁) P) (#process (#next π₂) Q)
 
@@ -175,21 +174,19 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
 
 
   r-left :
-    ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A B A' B'}
-    {P : Process (A' :: Δ₁)}
-    {Q : Process (B' :: Δ₂)}
-    (d' : Dual A' B') (q' : Δ ≃ Δ₁ + Δ₂)
+    ∀{Γ Γ₁ Γ₂ Δ₁ Δ₂ A A₁ A₂ B B₂}
+    {P : Process (A :: Δ₁)}
+    {Q : Process (B :: Δ₂)}
+    {R : Process (B :: Δ₂)}
+    (d : Dual A B) (d₁ : Dual A₁ B) (d₂ : Dual A₂ B₂) -- è il caso che A ≡ A₁ altrimenti non sarebbe possibile l'opzione r-right, ma non so quanto ci interessi
+    (q₁ : Γ₁ ≃ [ A ⊕ A₁ ] + Δ₁) (q₂ : Γ₂ ≃ [ B & B ] + Δ₂) -- dati [B₁ & B₂], entrambi devono essere duali di A, dove A=inl(A,A₁). Ergo B₁ = B₂ = B
+    (p : Γ ≃ Γ₁ + Γ₂) 
     ->
-    Cut (dual-with-plus {!!} {!!}) {!!} (Select Bool.true {!!} {!!}) (Case {!!} {!Q!} {!_!}) ~> Cut d' q' P Q
+    Cut (dual-with-plus d d₁) p (Select true {!!} P) (Case {!!} Q R) ~> Cut d {!!} P Q
+
+  -- r-right :
 
 
-  r-right :
-    ∀{Δ Δ₁ Δ₂ A' B'}
-    {P : Process (A' :: Δ₁)}
-    {R : Process (B' :: Δ₂)}
-    (d' : Dual A' B') (q' : Δ ≃ Δ₁ + Δ₂) ->
-    Cut (dual-with-plus {!!} {!!}) {!!} (Select Bool.false {!!} {!!}) (Case {!!} {!!} {!!}) ~> Cut d' q' P R
-  
   r-cut :
     ∀{Γ Γ₁ Γ₂ A B}
     {P Q : Process (A :: Γ₁)}
