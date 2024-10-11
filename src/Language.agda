@@ -172,17 +172,16 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     {P : Process Γ} ->
     Cut dual-one-bot +-unit-l (Close (split-l split-e)) (Wait (split-l +-unit-l) P) ~> P
 
-
   r-left :
-    ∀{Γ Γ₁ Γ₂ Δ₁ Δ₂ A A₁ A₂ B B₂}
-    {P : Process (A :: Δ₁)}
-    {Q : Process (B :: Δ₂)}
-    {R : Process (B :: Δ₂)}
-    (d : Dual A B) (d₁ : Dual A₁ B) (d₂ : Dual A₂ B₂) -- è il caso che A ≡ A₁ altrimenti non sarebbe possibile l'opzione r-right, ma non so quanto ci interessi
-    (q₁ : Γ₁ ≃ [ A ⊕ A₁ ] + Δ₁) (q₂ : Γ₂ ≃ [ B & B ] + Δ₂) -- dati [B₁ & B₂], entrambi devono essere duali di A, dove A=inl(A,A₁). Ergo B₁ = B₂ = B
-    (p : Γ ≃ Γ₁ + Γ₂) 
+    ∀{Γ Γ₁ Γ₂ A₁ A₂ B₁ B₂}
+    {P : Process (A₁ :: Γ₁)}
+    {Q : Process (B₁ :: Γ₂)}
+    {R : Process (B₂ :: Γ₂)}
+    (d₁ : Dual A₁ B₁) (d₂ : Dual A₂ B₂) -- è il caso che A ≡ A₁ altrimenti non sarebbe possibile l'opzione r-right, ma non so quanto ci interessi
+    (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂) -- dati [B₁ & B₂], entrambi devono essere duali di A, dove A=inl(A,A₁). Ergo B₁ = B₂ = B
+    (p : Γ ≃ Γ₁ + Γ₂)
     ->
-    Cut (dual-with-plus d d₁) p (Select true {!!} P) (Case {!!} Q R) ~> Cut d {!!} P Q
+    Cut (dual-plus-with d₁ d₂) p (Select true (split-l q₁) P) (Case (split-l q₂) Q R) ~> Cut d₁ p P Q
 
   -- r-right :
 
