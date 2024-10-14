@@ -177,14 +177,22 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     {P : Process (A₁ :: Γ₁)}
     {Q : Process (B₁ :: Γ₂)}
     {R : Process (B₂ :: Γ₂)}
-    (d₁ : Dual A₁ B₁) (d₂ : Dual A₂ B₂) -- è il caso che A ≡ A₁ altrimenti non sarebbe possibile l'opzione r-right, ma non so quanto ci interessi
-    (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂) -- dati [B₁ & B₂], entrambi devono essere duali di A, dove A=inl(A,A₁). Ergo B₁ = B₂ = B
+    (d₁ : Dual A₁ B₁) (d₂ : Dual A₂ B₂)
+    (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂)
     (p : Γ ≃ Γ₁ + Γ₂)
     ->
     Cut (dual-plus-with d₁ d₂) p (Select true (split-l q₁) P) (Case (split-l q₂) Q R) ~> Cut d₁ p P Q
 
-  -- r-right :
-
+  r-right :
+    ∀{Γ Γ₁ Γ₂ A₁ A₂ B₁ B₂}
+    {P : Process (A₂ :: Γ₁)}
+    {Q : Process (B₁ :: Γ₂)}
+    {R : Process (B₂ :: Γ₂)}
+    (d₁ : Dual A₁ B₁) (d₂ : Dual A₂ B₂)
+    (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂)
+    (p : Γ ≃ Γ₁ + Γ₂)
+    ->
+    Cut (dual-plus-with d₁ d₂) p (Select false (split-l q₁) P) (Case (split-l q₂) Q R) ~> Cut d₂ p P R
 
   r-cut :
     ∀{Γ Γ₁ Γ₂ A B}
@@ -201,3 +209,14 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     ∀{Γ}
     {P R Q : Process Γ}
     (p : P ⊒ R) (q : R ~> Q) -> P ~> Q
+
+size : ∀{Γ} -> Process Γ -> ℕ
+size (Close _) = zero 
+size (Link _ _) = suc zero
+size (Fail _ ) = zero -- or..?
+size (Wait p P) = suc (size P) -- or just P?
+size (Select _ _ P) = suc (size P)
+size (Case _ P Q) = suc (size P) -- = suc size Q, se ho capito bene la definizione di Case, ma scriverlo così mi fa un po' prudere le mani 
+-- sizeFork
+-- sizeJoin
+size (Cut _ _ P Q) = suc (size P + size Q)
