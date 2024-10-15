@@ -66,7 +66,9 @@ data Process (Γ : Context) : Set where
 ... | Δ' , q , π' = Fail q
 #process π (Wait p P) with #one+ π p
 ... | Δ' , q , π' = Wait q (#process π' P)
-#process π (Select x p P) = {!!}
+#process π (Select x p P) with #one+ π p
+... | Δ' , q , π' = Select x q (#process (#next π') P)
+
 #process π (Case p P Q) = {!!}
 
 #process π (Cut d p P Q) with #split π p
@@ -211,12 +213,21 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     (p : P ⊒ R) (q : R ~> Q) -> P ~> Q
 
 size : ∀{Γ} -> Process Γ -> ℕ
-size (Close _) = zero 
+size (Close _) = zero
 size (Link _ _) = suc zero
-size (Fail _ ) = zero -- or..?
+size (Fail _ ) = zero
 size (Wait p P) = suc (size P) -- or just P?
 size (Select _ _ P) = suc (size P)
 size (Case _ P Q) = suc (size P) -- = suc size Q, se ho capito bene la definizione di Case, ma scriverlo così mi fa un po' prudere le mani 
 -- sizeFork
 -- sizeJoin
 size (Cut _ _ P Q) = suc (size P + size Q)
+
+-- @TODO precongruence preserves process size 
+-- size-⊒ : {P Q : Process Γ} -> P ⊒ Q -> size P ≤ size Q
+
+-- @TODO redux always decreases process size
+-- size-r : {P Q : Process Γ} -> P ~> Q -> size P < size Q
+
+-- @TODO if a process P has size n, then it can't redux with more than n steps (specifically I'd say that if P is well typed it will redux *exactly* n times)
+-- size-n : {P : Process Γ} -> size P is always non-negative?
