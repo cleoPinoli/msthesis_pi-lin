@@ -1,12 +1,11 @@
 open import Data.Bool using (Bool; if_then_else_)
 open Bool using (true; false)
-open import Data.Nat using (ℕ; zero; suc; _+_)
+open import Data.Nat
 import Data.Nat.Properties as NatProp
 open import Data.Product using (_×_)
 open import Data.Sum
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl)
-open Eq.≡-Reasoning
+open Eq using (_≡_; refl; cong)
 open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 
 open import Relation.Nullary using (¬_)
@@ -171,8 +170,10 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
 
   r-close :
     ∀{Γ}
-    {P : Process Γ} ->
-    Cut dual-one-bot +-unit-l (Close (split-l split-e)) (Wait (split-l +-unit-l) P) ~> P
+    {P : Process Γ} (p : Γ ≃ [] + Γ) (q : Γ ≃ [] + Γ) ->
+    Cut dual-one-bot p (Close (split-l split-e)) (Wait (split-l q) P) ~> P
+
+  -- (x)(select true x(y).P | case x(y){Q,R}) ~> (y)(P | Q)
 
   r-left :
     ∀{Γ Γ₁ Γ₂ A₁ A₂ B₁ B₂}
@@ -212,22 +213,56 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     {P R Q : Process Γ}
     (p : P ⊒ R) (q : R ~> Q) -> P ~> Q
 
+data _=>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
+  refl : ∀{Γ} {P : Process Γ} -> P => P
+  tran : ∀{Γ} {P Q R : Process Γ} -> P ~> R -> R => Q -> P => Q
+
 size : ∀{Γ} -> Process Γ -> ℕ
 size (Close _) = zero
-size (Link _ _) = suc zero
+size (Link _ _) = zero
 size (Fail _ ) = zero
-size (Wait p P) = suc (size P) -- or just P?
+size (Wait _ P) = suc (size P) -- or just P?
 size (Select _ _ P) = suc (size P)
-size (Case _ P Q) = suc (size P) -- = suc size Q, se ho capito bene la definizione di Case, ma scriverlo così mi fa un po' prudere le mani 
--- sizeFork
--- sizeJoin
+size (Case _ P Q) = suc (size P ⊔ size Q) -- = suc size Q, se ho capito bene la definizione di Case, ma scriverlo così mi fa un po' prudere le mani 
 size (Cut _ _ P Q) = suc (size P + size Q)
+-- size (Fork _ _ P Q) = suc (size P + size Q)
+-- size (Join _ P) = suc (size P)
 
--- @TODO precongruence preserves process size 
--- size-⊒ : {P Q : Process Γ} -> P ⊒ Q -> size P ≤ size Q
+#size : ∀{Γ Δ} (P : Process Γ) (π : Γ # Δ) -> size (#process π P) ≡ size P
+#size = {!!}
+
+-- @TODO precongruence preserves process size
+size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≤ size P
+size-⊒ {_} {Cut _ _ P Q} (s-comm d p)
+  rewrite NatProp.+-comm (size P) (size Q) = NatProp.≤-refl
+size-⊒ {_} {Cut _ _ P (Cut _ _ Q R)} (s-assoc-r d e p q p' q') = begin
+  suc (suc ((size P + size (#process #here Q)) + size R))
+    ≡⟨ cong suc (cong suc (cong (_+ size R) (cong (size P +_) (#size Q #here)))) ⟩
+  suc ((suc (size P + size Q) + size R))
+    ≡⟨ cong suc (cong (_+ size R) (Eq.sym (NatProp.+-suc (size P) (size Q)))) ⟩
+  suc ((size P + suc (size Q)) + size R)
+    ≡⟨ cong suc (NatProp.+-assoc (size P) (suc (size Q)) (size R)) ⟩
+  suc (size P + (suc (size Q) + size R)) ∎ -- \qed
+  where open NatProp.≤-Reasoning
+size-⊒ {_} (s-link d p) = NatProp.≤-refl
+size-⊒ {_} (s-fail d p q) = z≤n
+size-⊒ {_} (s-wait d p q) = NatProp.≤-refl
+size-⊒ {_} {Cut _ _ (Case _ P Q) R} (s-case d p q)
+  rewrite #size P #here |
+          #size Q #here |
+          NatProp.+-distribʳ-⊔ (size R) (size P) (size Q) = NatProp.≤-refl
+size-⊒ {_} s-refl = NatProp.≤-refl
+size-⊒ {_} (s-tran pc₁ pc₂) = NatProp.≤-trans (size-⊒ pc₂) (size-⊒ pc₁)
+size-⊒ {_} (s-cong d p pc) = {!!}
+size-⊒ {_} (s-select-l d p q) = {!!}
+size-⊒ {_} (s-select-r d p q) = {!!}
 
 -- @TODO redux always decreases process size
--- size-r : {P Q : Process Γ} -> P ~> Q -> size P < size Q
+size-r : ∀{Γ} {P Q : Process Γ} -> P ~> Q -> size Q < size P
+size-r red = {!!}
+
+-- termination : ∀{Γ} (P : Process Γ) -> ∃[ Q ] P => Q × Observable Q
+-- termination P = ?
 
 -- @TODO if a process P has size n, then it can't redux with more than n steps (specifically I'd say that if P is well typed it will redux *exactly* n times)
 -- size-n : {P : Process Γ} -> size P is always non-negative?
