@@ -68,6 +68,7 @@ data Process (Γ : Context) : Set where
 #process π (Select x p P) with #one+ π p
 ... | Δ' , q , π' = Select x q (#process (#next π') P)
 
+
 #process π (Case p P Q) = {!!}
 
 #process π (Cut d p P Q) with #split π p
@@ -221,9 +222,9 @@ size : ∀{Γ} -> Process Γ -> ℕ
 size (Close _) = zero
 size (Link _ _) = zero
 size (Fail _ ) = zero
-size (Wait _ P) = suc (size P) -- or just P?
+size (Wait _ P) = suc (size P)
 size (Select _ _ P) = suc (size P)
-size (Case _ P Q) = suc (size P ⊔ size Q) -- = suc size Q, se ho capito bene la definizione di Case, ma scriverlo così mi fa un po' prudere le mani 
+size (Case _ P Q) = suc (size P ⊔ size Q) 
 size (Cut _ _ P Q) = suc (size P + size Q)
 -- size (Fork _ _ P Q) = suc (size P + size Q)
 -- size (Join _ P) = suc (size P)
@@ -236,26 +237,28 @@ size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≤ size P
 size-⊒ {_} {Cut _ _ P Q} (s-comm d p)
   rewrite NatProp.+-comm (size P) (size Q) = NatProp.≤-refl
 size-⊒ {_} {Cut _ _ P (Cut _ _ Q R)} (s-assoc-r d e p q p' q') = begin
-  suc (suc ((size P + size (#process #here Q)) + size R))
-    ≡⟨ cong suc (cong suc (cong (_+ size R) (cong (size P +_) (#size Q #here)))) ⟩
+  suc (suc (size P + size (#process #here Q) + size R))
+    ≡⟨ cong suc (cong suc (cong (_+ size R) (cong (size P +_) ((#size Q #here))))) ⟩
   suc ((suc (size P + size Q) + size R))
-    ≡⟨ cong suc (cong (_+ size R) (Eq.sym (NatProp.+-suc (size P) (size Q)))) ⟩
-  suc ((size P + suc (size Q)) + size R)
-    ≡⟨ cong suc (NatProp.+-assoc (size P) (suc (size Q)) (size R)) ⟩
-  suc (size P + (suc (size Q) + size R)) ∎ -- \qed
+    ≡⟨ cong suc (cong (_+ size R) (Eq.sym (NatProp.+-suc (size P) (size Q) ))) ⟩
+  suc ((size P + suc (size Q) + size R))
+    ≡⟨ cong suc ((NatProp.+-assoc (size P) (suc (size Q)) (size R)) ) ⟩
+  suc (size P + suc (size Q + size R)) ∎
   where open NatProp.≤-Reasoning
 size-⊒ {_} (s-link d p) = NatProp.≤-refl
-size-⊒ {_} (s-fail d p q) = z≤n
+size-⊒ {_} (s-fail d p q) = z≤n 
 size-⊒ {_} (s-wait d p q) = NatProp.≤-refl
 size-⊒ {_} {Cut _ _ (Case _ P Q) R} (s-case d p q)
   rewrite #size P #here |
           #size Q #here |
-          NatProp.+-distribʳ-⊔ (size R) (size P) (size Q) = NatProp.≤-refl
+          NatProp.+-distribʳ-⊔ ((size R)) (size P) (size Q) = NatProp.≤-refl
 size-⊒ {_} s-refl = NatProp.≤-refl
 size-⊒ {_} (s-tran pc₁ pc₂) = NatProp.≤-trans (size-⊒ pc₂) (size-⊒ pc₁)
-size-⊒ {_} (s-cong d p pc) = {!!}
-size-⊒ {_} (s-select-l d p q) = {!!}
-size-⊒ {_} (s-select-r d p q) = {!!}
+size-⊒ {_} {Cut _ _ P R} (s-cong d p pc) = {!!}
+size-⊒ {_} {Cut _ _ (Select _ _ P) Q}(s-select-l d p q)
+  rewrite #size P #here = NatProp.≤-refl
+size-⊒ {_} {Cut _ _ (Select _ _ P) Q} (s-select-r d p q)
+  rewrite #size P #here = NatProp.≤-refl
 
 -- @TODO redux always decreases process size
 size-r : ∀{Γ} {P Q : Process Γ} -> P ~> Q -> size Q < size P
@@ -263,6 +266,3 @@ size-r red = {!!}
 
 -- termination : ∀{Γ} (P : Process Γ) -> ∃[ Q ] P => Q × Observable Q
 -- termination P = ?
-
--- @TODO if a process P has size n, then it can't redux with more than n steps (specifically I'd say that if P is well typed it will redux *exactly* n times)
--- size-n : {P : Process Γ} -> size P is always non-negative?
