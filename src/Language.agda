@@ -15,39 +15,39 @@ open import Type
 open import Context
 
 data Process (Γ : Context) : Set where
-   Close : Γ ≃ [ One ] + [] -> Process Γ
-   Link  : ∀{A B}
+   close : Γ ≃ [ One ] + [] -> Process Γ
+   link  : ∀{A B}
            (d : Dual A B)
            (p : Γ ≃ [ A ] + [ B ])
            -> Process Γ
-   Fail  : ∀{Δ}
+   fail  : ∀{Δ}
            (p : Γ ≃ [ Top ] + Δ)
            -> Process Γ
-   Wait  : ∀{Δ}
+   wait  : ∀{Δ}
            (p : Γ ≃ [ Bot ] + Δ)
            -> Process Δ
            -> Process Γ
-   Select : ∀{Δ A B}
+   select : ∀{Δ A B}
             (x : Bool)
             (p : Γ ≃ [ A ⊕ B ] + Δ)
             -> Process ((if x then A else B) :: Δ)
             -> Process Γ
-   Case  : ∀{Δ A B}
+   case  : ∀{Δ A B}
            (p : Γ ≃ [ A & B ] + Δ)
            -> Process (A :: Δ)
            -> Process (B :: Δ)
            -> Process Γ
-   -- Fork  : ∀{Δ Γ₁ Γ₂ A B}
+   -- fork  : ∀{Δ Γ₁ Γ₂ A B}
    --         (p : Γ ≃ [ A ⊗ B ] + Δ)
    --         (q : Δ ≃ Γ₁ + Γ₂)
    --         -> Process (A :: Γ₁)
    --         -> Process (B :: Γ₂)
    --         -> Process Γ
-   -- Join  : ∀{Δ A B}
+   -- join  : ∀{Δ A B}
    --         (p : Γ ≃ [ A ⅋ B ] + Δ)
    --         -> Process (B :: A :: Δ)
    --         -> Process Γ
-   Cut   : ∀{Γ₁ Γ₂ A B}
+   cut   : ∀{Γ₁ Γ₂ A B}
            (d : Dual A B)
            (p : Γ ≃ Γ₁ + Γ₂)
            -> Process (A :: Γ₁)
@@ -55,28 +55,26 @@ data Process (Γ : Context) : Set where
            -> Process Γ
 
 #process : ∀{Γ Δ} -> Γ # Δ -> Process Γ -> Process Δ
-#process π (Link d p) with #one+ π p
+#process π (link d p) with #one+ π p
 ... | Δ' , q , π' with #one π'
-... | refl = Link d q
-#process π (Close p) with #split π p
+... | refl = link d q
+#process π (close p) with #split π p
 ... | Δ₁ , Δ₂ , q , π₁ , π₂ with #one π₁ | #nil π₂
-... | refl | refl = Close q
-#process π (Fail p) with #one+ π p
-... | Δ' , q , π' = Fail q
-#process π (Wait p P) with #one+ π p
-... | Δ' , q , π' = Wait q (#process π' P)
-#process π (Select x p P) with #one+ π p
-... | Δ' , q , π' = Select x q (#process (#next π') P)
-
-
-#process π (Case p P Q) = {!!}
-
-#process π (Cut d p P Q) with #split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = Cut d q (#process (#next π₁) P) (#process (#next π₂) Q)
+... | refl | refl = close q
+#process π (fail p) with #one+ π p
+... | Δ' , q , π' = fail q
+#process π (wait p P) with #one+ π p
+... | Δ' , q , π' = wait q (#process π' P)
+#process π (select x p P) with #one+ π p
+... | Δ' , q , π' = select x q (#process (#next π') P)
+#process π (case p P Q) with #one+ π p
+... | Δ' , q , π' = case q (#process (#next π') P) (#process (#next π') Q)
+#process π (cut d p P Q) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (#process (#next π₁) P) (#process (#next π₂) Q)
 
 data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   s-comm : ∀{Γ Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
-           -> Cut d p P Q ⊒ Cut (dual-symm d) (+-comm p) Q P
+           -> cut d p P Q ⊒ cut (dual-symm d) (+-comm p) Q P
 
   s-assoc-r : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
               {P : Process (A :: Γ₁)}
@@ -85,23 +83,23 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
               (d : Dual A A') (e : Dual B B')
               (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₂ ≃ Δ₁ + Δ₂)
               (p' : Δ ≃ Γ₁ + Δ₁) (q' : Γ ≃ Δ + Δ₂) ->
-              Cut d p P (Cut e (split-l q) Q R) ⊒ Cut e q' (Cut d (split-r p') P (#process #here Q)) R
+              cut d p P (cut e (split-l q) Q R) ⊒ cut e q' (cut d (split-r p') P (#process #here Q)) R
 
   s-link : ∀{Γ A B}
            (d : Dual A B)
            (p : Γ ≃ [ A ] + [ B ]) ->
-           Link d p ⊒ Link (dual-symm d) (+-comm p)
+           link d p ⊒ link (dual-symm d) (+-comm p)
 
   s-fail : ∀{Γ Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ) ->
            let _ , _ , q' = +-assoc-l p q in
-           Cut d p (Fail (split-r q)) P ⊒ Fail q'
+           cut d p (fail (split-r q)) P ⊒ fail q'
 
   s-wait : ∀{Γ Γ₁ Γ₂ Δ A B}
            {P : Process (A :: Δ)}
            {Q : Process (B :: Γ₂)}
            (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Bot ] + Δ) ->
            let _ , p' , q' = +-assoc-l p q in
-           Cut d p (Wait (split-r q) P) Q ⊒ Wait q' (Cut d p' P Q)
+           cut d p (wait (split-r q) P) Q ⊒ wait q' (cut d p' P Q)
 
   -- (x)(case y(z){P|Q} | R) ⊒ case y(z){(x)(P|R), (x)(Q|R)} , x ≠ y,z
   s-case : ∀{Γ A B A₁ A₂ Γ₁ Γ₂ Δ}
@@ -112,9 +110,9 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
          (p : Γ ≃ Γ₁ + Γ₂)
          (q : Γ₁ ≃ [ A₁ & A₂ ] + Δ) ->
          let _ , p' , q' = +-assoc-l p q in
-         Cut d p (Case (split-r q) P Q) R ⊒
-         Case q' (Cut d (split-l p') (#process #here P) R)
-                 (Cut d (split-l p') (#process #here Q) R)
+         cut d p (case (split-r q) P Q) R ⊒
+         case q' (cut d (split-l p') (#process #here P) R)
+                 (cut d (split-l p') (#process #here Q) R)
 
   s-refl : ∀{Γ} {P : Process Γ} -> P ⊒ P
   s-tran : ∀{Γ} {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
@@ -123,7 +121,7 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
            {R : Process (A' :: Γ₂)}
            (d : Dual A A')
            (p : Γ ≃ Γ₁ + Γ₂) ->
-           P ⊒ Q -> Cut d p P R ⊒ Cut d p Q R
+           P ⊒ Q -> cut d p P R ⊒ cut d p Q R
 
   s-select-l :
     ∀{Γ Γ₁ Γ₂ Δ A B A₁ A₂}
@@ -133,8 +131,8 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     (p : Γ ≃ Γ₁ + Γ₂)
     (q : Γ₁ ≃ [ A₁ ⊕ A₂ ] + Δ) ->
     let _ , p' , q' = +-assoc-l p q in
-    Cut d p (Select true (split-r q) P) Q ⊒
-    Select true q' (Cut d (split-l p') (#process #here P) Q)
+    cut d p (select true (split-r q) P) Q ⊒
+    select true q' (cut d (split-l p') (#process #here P) Q)
 
   s-select-r :
     ∀{Γ Γ₁ Γ₂ Δ A B A₁ A₂}
@@ -144,8 +142,8 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     (p : Γ ≃ Γ₁ + Γ₂)
     (q : Γ₁ ≃ [ A₁ ⊕ A₂ ] + Δ) ->
     let _ , p' , q' = +-assoc-l p q in
-    Cut d p (Select false (split-r q) P) Q ⊒
-    Select false q' (Cut d (split-l p') (#process #here P) Q)
+    cut d p (select false (split-r q) P) Q ⊒
+    select false q' (cut d (split-l p') (#process #here P) Q)
 
 s-assoc-l : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
             {P : Process (B :: Δ₁)}
@@ -154,7 +152,7 @@ s-assoc-l : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
             (d : Dual A A') (e : Dual B B')
             (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ Δ₁ + Δ₂)
             (p' : Δ ≃ Δ₂ + Γ₂) (q' : Γ ≃ Δ₁ + Δ) ->
-            Cut d p (Cut e (split-r q) P Q) R ⊒ Cut (dual-symm (dual-symm e)) (+-comm (+-comm q')) P (Cut (dual-symm (dual-symm d)) (split-l (+-comm (+-comm p'))) (#process #here Q) R)
+            cut d p (cut e (split-r q) P Q) R ⊒ cut (dual-symm (dual-symm e)) (+-comm (+-comm q')) P (cut (dual-symm (dual-symm d)) (split-l (+-comm (+-comm p'))) (#process #here Q) R)
 s-assoc-l d e p q p' q' =
   s-tran (s-cong d p (s-comm e (split-r q)))  (s-tran (s-comm d p)
   (s-tran (s-assoc-r (dual-symm d) (dual-symm e) (+-comm p) (+-comm q) (+-comm p') (+-comm q'))
@@ -167,12 +165,12 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     {P : Process (B :: Δ)}
     (d : Dual A B)
     (p : Γ ≃ [ B ] + Δ) ->
-    Cut d p (Link d (split-l (split-r split-e))) P ~> #process (#cons p) P
+    cut d p (link d (split-l (split-r split-e))) P ~> #process (#cons p) P
 
   r-close :
     ∀{Γ}
     {P : Process Γ} (p : Γ ≃ [] + Γ) (q : Γ ≃ [] + Γ) ->
-    Cut dual-one-bot p (Close (split-l split-e)) (Wait (split-l q) P) ~> P
+    cut dual-one-bot p (close (split-l split-e)) (wait (split-l q) P) ~> P
 
   -- (x)(select true x(y).P | case x(y){Q,R}) ~> (y)(P | Q)
 
@@ -185,7 +183,7 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂)
     (p : Γ ≃ Γ₁ + Γ₂)
     ->
-    Cut (dual-plus-with d₁ d₂) p (Select true (split-l q₁) P) (Case (split-l q₂) Q R) ~> Cut d₁ p P Q
+    cut (dual-plus-with d₁ d₂) p (select true (split-l q₁) P) (case (split-l q₂) Q R) ~> cut d₁ p P Q
 
   r-right :
     ∀{Γ Γ₁ Γ₂ A₁ A₂ B₁ B₂}
@@ -196,7 +194,7 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂)
     (p : Γ ≃ Γ₁ + Γ₂)
     ->
-    Cut (dual-plus-with d₁ d₂) p (Select false (split-l q₁) P) (Case (split-l q₂) Q R) ~> Cut d₂ p P R
+    cut (dual-plus-with d₁ d₂) p (select false (split-l q₁) P) (case (split-l q₂) Q R) ~> cut d₂ p P R
 
   r-cut :
     ∀{Γ Γ₁ Γ₂ A B}
@@ -205,7 +203,7 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     (d : Dual A B)
     (q : Γ ≃ Γ₁ + Γ₂)
     (r : P ~> Q) ->
-    Cut d q P R ~> Cut d q Q R
+    cut d q P R ~> cut d q Q R
 
 
 -- provided that P ⊒ R and R ~> Q then P ~> Q
@@ -219,24 +217,30 @@ data _=>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   tran : ∀{Γ} {P Q R : Process Γ} -> P ~> R -> R => Q -> P => Q
 
 size : ∀{Γ} -> Process Γ -> ℕ
-size (Close _) = zero
-size (Link _ _) = zero
-size (Fail _ ) = zero
-size (Wait _ P) = suc (size P)
-size (Select _ _ P) = suc (size P)
-size (Case _ P Q) = suc (size P ⊔ size Q) 
-size (Cut _ _ P Q) = suc (size P + size Q)
--- size (Fork _ _ P Q) = suc (size P + size Q)
--- size (Join _ P) = suc (size P)
+size (close _) = zero
+size (link _ _) = zero
+size (fail _ ) = zero
+size (wait _ P) = suc (size P)
+size (select _ _ P) = suc (size P)
+size (case _ P Q) = suc (size P ⊔ size Q) 
+size (cut _ _ P Q) = suc (size P + size Q)
+-- size (fork _ _ P Q) = suc (size P + size Q)
+-- size (join _ P) = suc (size P)
 
 #size : ∀{Γ Δ} (P : Process Γ) (π : Γ # Δ) -> size (#process π P) ≡ size P
-#size = {!!}
+#size (close x) π = {!!}
+#size (link d p) π = {!!}
+#size (fail p) π = refl
+#size (wait p p₁) π = {!!}
+#size (select x p p₁) π = {!!}
+#size (case p p₁ p₂) π = {!!}
+#size (cut d p p₁ p₂) π = {!!}
 
 -- @TODO precongruence preserves process size
 size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≤ size P
-size-⊒ {_} {Cut _ _ P Q} (s-comm d p)
+size-⊒ {_} {cut _ _ P Q} (s-comm d p)
   rewrite NatProp.+-comm (size P) (size Q) = NatProp.≤-refl
-size-⊒ {_} {Cut _ _ P (Cut _ _ Q R)} (s-assoc-r d e p q p' q') = begin
+size-⊒ {_} {cut _ _ P (cut _ _ Q R)} (s-assoc-r d e p q p' q') = begin
   suc (suc (size P + size (#process #here Q) + size R))
     ≡⟨ cong suc (cong suc (cong (_+ size R) (cong (size P +_) ((#size Q #here))))) ⟩
   suc ((suc (size P + size Q) + size R))
@@ -248,21 +252,30 @@ size-⊒ {_} {Cut _ _ P (Cut _ _ Q R)} (s-assoc-r d e p q p' q') = begin
 size-⊒ {_} (s-link d p) = NatProp.≤-refl
 size-⊒ {_} (s-fail d p q) = z≤n 
 size-⊒ {_} (s-wait d p q) = NatProp.≤-refl
-size-⊒ {_} {Cut _ _ (Case _ P Q) R} (s-case d p q)
+size-⊒ {_} {cut _ _ (case _ P Q) R} (s-case d p q)
   rewrite #size P #here |
           #size Q #here |
           NatProp.+-distribʳ-⊔ ((size R)) (size P) (size Q) = NatProp.≤-refl
 size-⊒ {_} s-refl = NatProp.≤-refl
 size-⊒ {_} (s-tran pc₁ pc₂) = NatProp.≤-trans (size-⊒ pc₂) (size-⊒ pc₁)
-size-⊒ {_} {Cut _ _ P R} (s-cong d p pc) = {!!}
-size-⊒ {_} {Cut _ _ (Select _ _ P) Q}(s-select-l d p q)
+size-⊒ {_} {cut _ _ P R} (s-cong d p pc) = {!!}
+
+size-⊒ {_} {cut _ _ (select _ _ P) Q}(s-select-l d p q)
   rewrite #size P #here = NatProp.≤-refl
-size-⊒ {_} {Cut _ _ (Select _ _ P) Q} (s-select-r d p q)
+size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-r d p q)
   rewrite #size P #here = NatProp.≤-refl
 
--- @TODO redux always decreases process size
+-- redux always decreases process size
 size-r : ∀{Γ} {P Q : Process Γ} -> P ~> Q -> size Q < size P
-size-r red = {!!}
+size-r {_} (r-link d p) = {!!}
+size-r {_} (r-close p q) = {!!} -- ∀n, n < 2+n 
+size-r (r-left d₁ d₂ q₁ q₂ p) = {!!} -- 
+size-r (r-right d₁ d₂ q₁ q₂ p) = {!!}
+size-r (r-cut d q red) = {!!} -- same issue as s-cong, if Q < P then Q+R < P+R
+size-r (r-cong p red) = size-r {!!} -- 
+
 
 -- termination : ∀{Γ} (P : Process Γ) -> ∃[ Q ] P => Q × Observable Q
 -- termination P = ?
+
+-- aaaaaaaaaaaaaaaa
