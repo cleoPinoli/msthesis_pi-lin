@@ -228,15 +228,12 @@ size (cut _ _ P Q) = suc (size P + size Q)
 -- size (join _ P) = suc (size P)
 
 #size : ∀{Γ Δ} (P : Process Γ) (π : Γ # Δ) -> size (#process π P) ≡ size P
-#size (close x) π = {!!}
-#size (link d p) π = {!!}
-#size (fail p) π = refl
-#size (wait p p₁) π = {!!}
-#size (select x p p₁) π = {!!}
-#size (case p p₁ p₂) π = {!!}
-#size (cut d p p₁ p₂) π = {!!}
+#size P #refl = {!!} -- I first thought of refining by case analysis on P, but π feels like a better choice?
+#size P (#tran π π') = {!!}
+#size P (#next π) = {!!}
+#size P #here = {!!}
 
--- @TODO precongruence preserves process size
+-- precongruence preserves process size
 size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≤ size P
 size-⊒ {_} {cut _ _ P Q} (s-comm d p)
   rewrite NatProp.+-comm (size P) (size Q) = NatProp.≤-refl
@@ -258,7 +255,7 @@ size-⊒ {_} {cut _ _ (case _ P Q) R} (s-case d p q)
           NatProp.+-distribʳ-⊔ ((size R)) (size P) (size Q) = NatProp.≤-refl
 size-⊒ {_} s-refl = NatProp.≤-refl
 size-⊒ {_} (s-tran pc₁ pc₂) = NatProp.≤-trans (size-⊒ pc₂) (size-⊒ pc₁)
-size-⊒ {_} {cut _ _ P R} (s-cong d p pc) = {!!}
+size-⊒ {_} {cut _ _ P R} (s-cong d p pc) = {!!} -- I'd like to make a recursive call like: cong ( _+ size R) (size-⊒ pc)
 
 size-⊒ {_} {cut _ _ (select _ _ P) Q}(s-select-l d p q)
   rewrite #size P #here = NatProp.≤-refl
@@ -267,15 +264,42 @@ size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-r d p q)
 
 -- redux always decreases process size
 size-r : ∀{Γ} {P Q : Process Γ} -> P ~> Q -> size Q < size P
-size-r {_} (r-link d p) = {!!}
-size-r {_} (r-close p q) = {!!} -- ∀n, n < 2+n 
-size-r (r-left d₁ d₂ q₁ q₂ p) = {!!} -- 
-size-r (r-right d₁ d₂ q₁ q₂ p) = {!!}
-size-r (r-cut d q red) = {!!} -- same issue as s-cong, if Q < P then Q+R < P+R
+size-r {_} {P} (r-link d p)
+  rewrite #size P {!!} = {!!}
+size-r {_} (r-close p q) = {!!} -- ∀n, n < 2+n, duh, okay, I tried applying NatProp.n<1+n (twice) 
+size-r (r-left d₁ d₂ q₁ q₂ p) = {!!}  
+size-r (r-right d₁ d₂ q₁ q₂ p) = {!!} 
+size-r (r-cut d q red) = {!!} --  if Q < P then Q+R < P+R
 size-r (r-cong p red) = size-r {!!} -- 
 
+-- @@@ pieces I needed for termination @@@
+data Thread : ∀{Γ} -> Process Γ -> Set where
+  link :
+    ∀{Γ A B}
+    (d : Dual A B) (p : Γ ≃ [ A ] + [ B ]) -> Thread (link d p)
+  fail :
+    ∀{Γ Δ}
+    (p : Γ ≃ [ Top ] + Δ) -> Thread (fail p)
+  wait :
+    ∀{Γ Δ} (p : Γ ≃ [ Bot ] + Δ) {P : Process Δ} -> Thread (wait p P)
+  case :
+    ∀{Γ Δ A B} (p : Γ ≃ [ A & B ] + Δ)
+    {P : Process (A :: Δ)} {Q : Process (B :: Δ)} -> Thread (case p P Q)
+-- close : Thread close overwriting of definition from process?
+  select :
+    ∀ {Γ Δ A B} (x : Bool) (p : Γ ≃ [ A ⊕ B ] + Δ)
+    {P : Process ((if x then A else B) :: Δ)} -> Thread (select x p P)
+-- join :
+-- fork :
 
--- termination : ∀{Γ} (P : Process Γ) -> ∃[ Q ] P => Q × Observable Q
--- termination P = ?
+data Cut {Γ} : Process Γ -> Set where
+  cut :
+    ∀{Γ₁ Γ₂ A B} {P : Process (A :: Γ₁)} {Q : Process (B :: Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) -> Cut (cut d p P Q)
+    
 
--- aaaaaaaaaaaaaaaa
+Observable : ∀{Γ} -> Process Γ -> Set
+Observable P = ∃[ Q ] ((P ⊒ Q) × (Thread Q))
+
+termination : ∀{Γ} (P : Process Γ) -> ∃[ Q ] ((P ~> Q) × (Observable Q))
+termination P = {!!}
