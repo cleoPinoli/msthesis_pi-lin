@@ -88,8 +88,6 @@
         \Cut\x{P}{\Cut\y{Q}{R}} & \pcong & \Cut\y{\Cut\x{P}{Q}}{R} & x\in\fn{Q} \\
         \defrule{s-link} &
         \Link\x\y & \pcong & \Link\y\x \\
-        \defrule{s-fail} &
-        \Cut\x{\Fail\y}{P} & \pcong & \Fail\y & x \ne y \\
         \defrule{s-wait} &
         \Cut\x{\Wait\y.P}{Q} & \pcong & \Wait\y.\Cut\x{P}{Q} & x \ne y \\
         \defrule{s-select} &
@@ -111,6 +109,8 @@
     \begin{array}{rrcll}
         \defrule{r-link} &
         \Cut\x{\Link\x\y}{P} & \red & P\subst\y\x \\
+        \defrule{r-fail} &
+        \Cut\x{\Fail\y}{P} & \red & \Fail\y & x \ne y \\
         \defrule{r-close} &
         \Cut\x{\Close\x}{\Wait\x.P} & \red & P \\
         \defrule{r-left} &
