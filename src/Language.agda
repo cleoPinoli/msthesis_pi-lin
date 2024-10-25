@@ -231,17 +231,21 @@ size (cut _ _ P Q) = suc (size P + size Q)
 #size (close p) π with #split π p
 ... | Δ₁ , Δ₂ , q , π₁ , π₂ with #one π₁ | #nil π₂
 ... | refl | refl = refl
-#size (link d p) π = {!!}
-#size (fail p) π = {!!}
-#size (wait p P) π = {!!}
-#size (select x p P) π = {!!}
-#size (case p P P₁) π = {!!}
-#size (cut d p P P₁) π = {!!}
-
--- #size P #refl = {!!} -- I first thought of refining by case analysis on P, but π feels like a better choice?
--- #size P (#tran π π') = {!!}
--- #size P (#next π) = {!!}
--- #size P #here = {!!}
+#size (link d p) π with #one+ π p
+... | Δ' , _ , π' with #one π'
+... | refl = refl
+#size (fail p) π = refl
+#size (wait p P) π with #one+ π p
+... | Δ' , q , π' = cong suc (#size P π')
+#size (select x p P) π with #one+ π p
+... | Δ' , q , π' = cong suc (#size P (#next π'))
+#size (case p P Q) π with #one+ π p
+... | Δ' , q , π' = cong suc {!!} -- I'd like to make a recursive call like _⊔_ (#size P (#next π')) (#size Q (#next π'))
+-- with  #process (#next π') P | #process (#next π') Q -- or convince agda that P' ≡ P and Q' ≡ Q
+-- ... | P' | Q' = {!!} 
+#size (cut d p P Q) π with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ with #process (#next π₁) P | #process (#next π₂) Q
+... | P' | Q'  = cong suc {!!}
 
 -- precongruence preserves process size
 size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≤ size P
@@ -275,15 +279,15 @@ size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-r d p q)
 -- redux always decreases process size
 size-r : ∀{Γ} {P Q : Process Γ} -> P ~> Q -> size Q < size P
 size-r {_} {cut _ _ (link _ _) P} (r-link d p) rewrite #size P (#cons p) = s≤s NatProp.≤-refl
-size-r {_} {cut _ _ (close _) (wait _ Q)} (r-close p q) = s≤s (NatProp.n≤1+n (size Q)) -- ∀n, n < 2+n, duh, okay, I tried applying NatProp.n<1+n (twice) 
+size-r {_} {cut _ _ (close _) (wait _ Q)} (r-close p q) = s≤s (NatProp.n≤1+n (size Q))  
 size-r {_} {cut _ _ (select true _ P) (case _ Q R)} (r-left d e p q r) = begin
   suc (suc (size P + size Q)) ≡⟨ cong suc (Eq.sym (NatProp.+-suc (size P) (size Q))) ⟩
   suc (size P + suc (size Q)) <⟨ s≤s (s≤s (NatProp.+-monoʳ-≤ (size P) (s≤s (NatProp.m≤m⊔n (size Q) (size R))))) ⟩
   suc (suc (size P + suc (size Q ⊔ size R))) ∎
   where open NatProp.≤-Reasoning
 size-r (r-right d₁ d₂ q₁ q₂ p) = {!!} 
-size-r {_} {cut _ _ P R} (r-cut d q red) = s≤s (NatProp.+-monoˡ-≤ (size R) (size-r red)) --  if Q < P then Q+R < P+R
-size-r (r-cong p red) = size-r {!!} --
+size-r {_} {cut _ _ P R} (r-cut d q red) = s≤s (NatProp.+-monoˡ-≤ (size R) (size-r red)) 
+size-r (r-cong p red) = size-r {!!}
 
 -- @@@ pieces I needed for termination @@@
 data Thread : ∀{Γ} -> Process Γ -> Set where
