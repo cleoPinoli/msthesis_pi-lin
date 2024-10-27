@@ -90,9 +90,9 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
            (p : Γ ≃ [ A ] + [ B ]) ->
            link d p ⊒ link (dual-symm d) (+-comm p)
 
-  s-fail : ∀{Γ Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ) ->
-           let _ , _ , q' = +-assoc-l p q in
-           cut d p (fail (split-r q)) P ⊒ fail q'
+--  s-fail : ∀{Γ Γ₁ Γ₂ Δ A B P} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Top ] + Δ) ->
+--           let _ , _ , q' = +-assoc-l p q in
+--           cut d p (fail (split-r q)) P ⊒ fail q'
 
   s-wait : ∀{Γ Γ₁ Γ₂ Δ A B}
            {P : Process (A :: Δ)}
@@ -165,15 +165,26 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     {P : Process (B :: Δ)}
     (d : Dual A B)
     (p : Γ ≃ [ B ] + Δ) ->
-    cut d p (link d (split-l (split-r split-e))) P ~> #process (#cons p) P
+    cut d p (link d (split-l (split-r split-e))) P ~> #process (#cons p)  P
 
   r-close :
     ∀{Γ}
     {P : Process Γ} (p : Γ ≃ [] + Γ) (q : Γ ≃ [] + Γ) ->
     cut dual-one-bot p (close (split-l split-e)) (wait (split-l q) P) ~> P
 
-  -- (x)(select true x(y).P | case x(y){Q,R}) ~> (y)(P | Q)
+  r-fail : -- my attempt at r-fail! with (hopefully) proper usage of splittings :^)
+    ∀{Γ Γ₁ Γ₂ Δ A B}
+    {P : Process (B :: Γ₂)}
+    {d : Dual A B} -- endpoints of channel x
+    {p : Γ ≃ Γ₁ + Γ₂}
+    (q : Γ₁ ≃ [ Top ] + Δ)
+    ->
+    let _ , p' , q' = +-assoc-l p q in    
+    cut d p (fail (split-r q)) P ~> fail q' 
 
+
+
+  -- (x)(select true x(y).P | case x(y){Q,R}) ~> (y)(P | Q)
   r-left :
     ∀{Γ Γ₁ Γ₂ A₁ A₂ B₁ B₂}
     {P : Process (A₁ :: Γ₁)}
@@ -204,7 +215,6 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     (q : Γ ≃ Γ₁ + Γ₂)
     (r : P ~> Q) ->
     cut d q P R ~> cut d q Q R
-
 
 -- provided that P ⊒ R and R ~> Q then P ~> Q
   r-cong :
@@ -248,38 +258,51 @@ size (cut _ _ P Q) = suc (size P + size Q)
 ... | P' | Q'  = cong suc {!!}
 
 -- precongruence preserves process size
-size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≤ size P
-size-⊒ {_} {cut _ _ P Q} (s-comm d p)
-  rewrite NatProp.+-comm (size P) (size Q) = NatProp.≤-refl
-size-⊒ {_} {cut _ _ P (cut _ _ Q R)} (s-assoc-r d e p q p' q') = begin
-  suc (suc (size P + size (#process #here Q) + size R))
-    ≡⟨ cong suc (cong suc (cong (_+ size R) (cong (size P +_) ((#size Q #here))))) ⟩
-  suc ((suc (size P + size Q) + size R))
-    ≡⟨ cong suc (cong (_+ size R) (Eq.sym (NatProp.+-suc (size P) (size Q) ))) ⟩
-  suc ((size P + suc (size Q) + size R))
-    ≡⟨ cong suc ((NatProp.+-assoc (size P) (suc (size Q)) (size R)) ) ⟩
-  suc (size P + suc (size Q + size R)) ∎
-  where open NatProp.≤-Reasoning
-size-⊒ {_} (s-link d p) = NatProp.≤-refl
-size-⊒ {_} (s-fail d p q) = z≤n
-size-⊒ {_} (s-wait d p q) = NatProp.≤-refl
-size-⊒ {_} {cut _ _ (case _ P Q) R} (s-case d p q)
-  rewrite #size P #here |
-          #size Q #here |
-          NatProp.+-distribʳ-⊔ ((size R)) (size P) (size Q) = NatProp.≤-refl
-size-⊒ {_} s-refl = NatProp.≤-refl
-size-⊒ {_} (s-tran pc₁ pc₂) = NatProp.≤-trans (size-⊒ pc₂) (size-⊒ pc₁)
-size-⊒ {_} {cut _ _ P R} (s-cong d p pc) =
-  s≤s (NatProp.+-monoˡ-≤ (size R) (size-⊒ pc)) -- I'd like to make a recursive call like: cong ( _+ size R) (size-⊒ pc)
-size-⊒ {_} {cut _ _ (select _ _ P) Q}(s-select-l d p q)
-  rewrite #size P #here = NatProp.≤-refl
-size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-r d p q)
-  rewrite #size P #here = NatProp.≤-refl
+size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≡ size P
+size-⊒ {_} {cut _ _ P Q} (s-comm d p) rewrite NatProp.+-comm (size P) (size Q)  = refl
+size-⊒ {_} (s-assoc-r d e p q p' q') = {!!}
+size-⊒ {_} (s-link d p) = refl
+size-⊒ {_} (s-wait d p q) = refl
+size-⊒ {_} (s-case d p q) = {!!}
+size-⊒ s-refl = refl
+size-⊒ {_} (s-tran pc pc₁) = {!!}
+size-⊒ {_} (s-cong d p pc) = {!!}
+size-⊒ {_} (s-select-l d p q) = {!!}
+size-⊒ {_} (s-select-r d p q) = {!!}
+
+
+-- size-⊒ {_} {cut _ _ P Q} (s-comm d p)
+--  rewrite NatProp.+-comm (size P) (size Q) = NatProp.≤-refl
+-- size-⊒ {_} {cut _ _ P (cut _ _ Q R)} (s-assoc-r d e p q p' q') = begin
+--  suc (suc (size P + size (#process #here Q) + size R))
+--    ≡⟨ cong suc (cong suc (cong (_+ size R) (cong (size P +_) ((#size Q #here))))) ⟩
+--  suc ((suc (size P + size Q) + size R))
+--    ≡⟨ cong suc (cong (_+ size R) (Eq.sym (NatProp.+-suc (size P) (size Q) ))) ⟩
+--  suc ((size P + suc (size Q) + size R))
+--    ≡⟨ cong suc ((NatProp.+-assoc (size P) (suc (size Q)) (size R)) ) ⟩
+--  suc (size P + suc (size Q + size R)) ∎
+--  where open NatProp.≤-Reasoning
+-- size-⊒ {_} (s-link d p) = NatProp.≤-refl
+-- size-⊒ {_} (s-fail d p q) = z≤n
+-- size-⊒ {_} (s-wait d p q) = NatProp.≤-refl
+-- size-⊒ {_} {cut _ _ (case _ P Q) R} (s-case d p q)
+--  rewrite #size P #here |
+--          #size Q #here |
+--          NatProp.+-distribʳ-⊔ ((size R)) (size P) (size Q) = NatProp.≤-refl
+-- size-⊒ {_} s-refl = NatProp.≤-refl
+-- size-⊒ {_} (s-tran pc₁ pc₂) = NatProp.≤-trans (size-⊒ pc₂) (size-⊒ pc₁)
+-- size-⊒ {_} {cut _ _ P R} (s-cong d p pc) =
+--  s≤s (NatProp.+-monoˡ-≤ (size R) (size-⊒ pc)) -- I'd like to make a recursive call like: cong ( _+ size R) (size-⊒ pc)
+-- size-⊒ {_} {cut _ _ (select _ _ P) Q}(s-select-l d p q)
+--  rewrite #size P #here = NatProp.≤-refl
+-- size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-r d p q)
+--  rewrite #size P #here = NatProp.≤-refl
 
 -- redux always decreases process size
 size-r : ∀{Γ} {P Q : Process Γ} -> P ~> Q -> size Q < size P
 size-r {_} {cut _ _ (link _ _) P} (r-link d p) rewrite #size P (#cons p) = s≤s NatProp.≤-refl
 size-r {_} {cut _ _ (close _) (wait _ Q)} (r-close p q) = s≤s (NatProp.n≤1+n (size Q))  
+size-r {_} (r-fail p) = s≤s z≤n
 size-r {_} {cut _ _ (select true _ P) (case _ Q R)} (r-left d e p q r) = begin
   suc (suc (size P + size Q)) ≡⟨ cong suc (Eq.sym (NatProp.+-suc (size P) (size Q))) ⟩
   suc (size P + suc (size Q)) <⟨ s≤s (s≤s (NatProp.+-monoʳ-≤ (size P) (s≤s (NatProp.m≤m⊔n (size Q) (size R))))) ⟩
@@ -287,7 +310,7 @@ size-r {_} {cut _ _ (select true _ P) (case _ Q R)} (r-left d e p q r) = begin
   where open NatProp.≤-Reasoning
 size-r (r-right d₁ d₂ q₁ q₂ p) = {!!} 
 size-r {_} {cut _ _ P R} (r-cut d q red) = s≤s (NatProp.+-monoˡ-≤ (size R) (size-r red)) 
-size-r (r-cong p red) = size-r {!!}
+size-r (r-cong p red) = {!!}
 
 -- @@@ pieces I needed for termination @@@
 data Thread : ∀{Γ} -> Process Γ -> Set where
@@ -318,5 +341,6 @@ data Cut {Γ} : Process Γ -> Set where
 Observable : ∀{Γ} -> Process Γ -> Set
 Observable P = ∃[ Q ] ((P ⊒ Q) × (Thread Q))
 
-termination : ∀{Γ} (P : Process Γ) -> ∃[ Q ] ((P ~> Q) × (Observable Q))
+-- => is what is sometimes called ∼>*
+termination : ∀{Γ} (P : Process Γ) -> ∃[ Q ] ((P => Q) × (Observable Q))
 termination P = {!!}
