@@ -7,8 +7,7 @@ open import Data.Sum
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong)
 open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
-
-open import Relation.Nullary using (¬_)
+import Relation.Nullary using (¬_)
 
 open import List
 open import Type
@@ -260,15 +259,22 @@ size (cut _ _ P Q) = suc (size P + size Q)
 -- precongruence preserves process size
 size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≡ size P
 size-⊒ {_} {cut _ _ P Q} (s-comm d p) rewrite NatProp.+-comm (size P) (size Q)  = refl
-size-⊒ {_} (s-assoc-r d e p q p' q') = {!!}
+size-⊒ {_} {cut _ _ P (cut _ _ Q R)} (s-assoc-r d e p q p' q')
+  rewrite #size Q #here = cong suc {!!} -- NatProp.+-assoc ma con Eq.sym
+  
 size-⊒ {_} (s-link d p) = refl
 size-⊒ {_} (s-wait d p q) = refl
-size-⊒ {_} (s-case d p q) = {!!}
+size-⊒ {_} {cut _ _ (case _ P Q) R} (s-case d p q)
+ rewrite #size P #here |
+         #size Q #here |
+         NatProp.+-distribʳ-⊔ (size R) (size P) (size Q) = refl
 size-⊒ s-refl = refl
-size-⊒ {_} (s-tran pc pc₁) = {!!}
-size-⊒ {_} (s-cong d p pc) = {!!}
-size-⊒ {_} (s-select-l d p q) = {!!}
-size-⊒ {_} (s-select-r d p q) = {!!}
+size-⊒ {_} (s-tran pc₁ pc₂) = Eq.trans (size-⊒ pc₂) (size-⊒ pc₁)
+size-⊒ {_} {cut _ _ P R} (s-cong d p pc) = cong (_+ size R) (cong suc (size-⊒ pc))
+size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-l d p q)
+  rewrite #size P #here = refl
+size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-r d p q)
+  rewrite #size P #here = refl
 
 
 -- size-⊒ {_} {cut _ _ P Q} (s-comm d p)
@@ -303,14 +309,12 @@ size-r : ∀{Γ} {P Q : Process Γ} -> P ~> Q -> size Q < size P
 size-r {_} {cut _ _ (link _ _) P} (r-link d p) rewrite #size P (#cons p) = s≤s NatProp.≤-refl
 size-r {_} {cut _ _ (close _) (wait _ Q)} (r-close p q) = s≤s (NatProp.n≤1+n (size Q))  
 size-r {_} (r-fail p) = s≤s z≤n
-size-r {_} {cut _ _ (select true _ P) (case _ Q R)} (r-left d e p q r) = begin
-  suc (suc (size P + size Q)) ≡⟨ cong suc (Eq.sym (NatProp.+-suc (size P) (size Q))) ⟩
-  suc (size P + suc (size Q)) <⟨ s≤s (s≤s (NatProp.+-monoʳ-≤ (size P) (s≤s (NatProp.m≤m⊔n (size Q) (size R))))) ⟩
-  suc (suc (size P + suc (size Q ⊔ size R))) ∎
-  where open NatProp.≤-Reasoning
+size-r {_} {cut _ _ (select true _ P) (case _ Q R)} (r-left d e p q r) = {!!}
 size-r (r-right d₁ d₂ q₁ q₂ p) = {!!} 
 size-r {_} {cut _ _ P R} (r-cut d q red) = s≤s (NatProp.+-monoˡ-≤ (size R) (size-r red)) 
 size-r (r-cong p red) = {!!}
+
+
 
 -- @@@ pieces I needed for termination @@@
 data Thread : ∀{Γ} -> Process Γ -> Set where
