@@ -2,25 +2,26 @@ module Reduction where
 
 open import Data.Bool using (Bool)
 open Bool using (true; false)
-open import Data.Product using (_,_)
+open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 
 open import Type
 open import Context
 open import List
 open import Process
+open import Congruence
 
 data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   r-link :
     ∀{Γ Δ A B}
     {P : Process (B :: Δ)}
-    (d : Dual A B)
+    (d : Dual A B) (e : Dual A B)
     (p : Γ ≃ [ B ] + Δ) ->
-    cut d p (link d (split-l (split-r split-e))) P ~> #process (#cons p)  P
+    cut d p (link e (split-l (split-r split-e))) P ~> #process (#cons p)  P
 
   r-close :
     ∀{Γ}
     {P : Process Γ} (p : Γ ≃ [] + Γ) (q : Γ ≃ [] + Γ) ->
-    cut dual-one-bot p (close (split-l split-e)) (wait (split-l q) P) ~> P
+    cut dual-one-bot p (close) (wait (split-l q) P) ~> P
 
   r-fail :
     ∀{Γ Γ₁ Γ₂ Δ A B}
@@ -70,6 +71,9 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     (p : P ⊒ R) (q : R ~> Q) -> P ~> Q
 
 
+-- P is Reducible if P ~> Q for some Q.
+Reducible : ∀{Γ} -> Process Γ -> Set
+Reducible P = ∃[ Q ] (P ~> Q)
 
 data _=>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   refl : ∀{Γ} {P : Process Γ} -> P => P
