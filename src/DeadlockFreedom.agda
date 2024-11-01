@@ -9,7 +9,6 @@ open import Relation.Nullary.Negation using (contradiction)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (refl)
 
-open import List
 open import Type
 open import Context
 open import Process

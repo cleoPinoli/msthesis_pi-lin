@@ -5,7 +5,6 @@ open Bool using (true; false)
 open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 
 open import Type
-open import List
 open import Context
 open import Process
 

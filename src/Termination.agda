@@ -10,15 +10,15 @@ open Bool using (true; false)
 open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 
 open import Type
-open import List
 open import Context
 open import Process
 open import Reduction
+open import Congruence
 -- open import DeadlockFreedom
 
 
 size : ∀{Γ} -> Process Γ -> ℕ
-size (close _) = zero
+size (close) = zero
 size (link _ _) = zero
 size (fail _ ) = zero
 size (wait _ P) = suc (size P)
@@ -29,9 +29,8 @@ size (cut _ _ P Q) = suc (size P + size Q)
 -- size (join _ P) = suc (size P)
 
 #size : ∀{Γ Δ} (P : Process Γ) (π : Γ # Δ) -> size (#process π P) ≡ size P
-#size (close p) π with #split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ with #one π₁ | #nil π₂
-... | refl | refl = refl
+#size (close) π with #one π --Δ₁ , Δ₂ , q , π₁ , π₂ with #one π₁ | #nil π₂
+... | refl = refl
 #size (link d p) π with #one+ π p
 ... | Δ' , _ , π' with #one π'
 ... | refl = refl
@@ -50,7 +49,7 @@ size (cut _ _ P Q) = suc (size P + size Q)
 
 -- precongruence preserves process size
 size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≡ size P
-size-⊒ {_} {cut _ _ P Q} (s-comm d p) rewrite NatProp.+-comm (size P) (size Q)  = refl
+size-⊒ {_} {cut _ _ P Q} (s-comm d d' p p') rewrite NatProp.+-comm (size P) (size Q)  = refl
 size-⊒ {_} {cut _ _ P (cut _ _ Q R)} (s-assoc-r d e p q p' q')
   rewrite #size Q #here = begin
   suc ((suc (size P) + size Q) + size R)
@@ -67,7 +66,7 @@ size-⊒ {_} {cut _ _ (case _ P Q) R} (s-case d p q)
          NatProp.+-distribʳ-⊔ (size R) (size P) (size Q) = refl
 size-⊒ s-refl = refl
 size-⊒ {_} (s-tran pc₁ pc₂) = Eq.trans (size-⊒ pc₂) (size-⊒ pc₁)
-size-⊒ {_} {cut _ _ P R} (s-cong d p pc) = cong (_+ size R) (cong suc (size-⊒ pc))
+size-⊒ {_} {cut _ _ P R} (s-cong-l d p pc) = cong (_+ size R) (cong suc (size-⊒ pc))
 size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-l d p q)
   rewrite #size P #here = refl
 size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-r d p q)
@@ -76,8 +75,8 @@ size-⊒ {_} {cut _ _ (select _ _ P) Q} (s-select-r d p q)
 
 -- redux always decreases process size
 size-r : ∀{Γ} {P Q : Process Γ} -> P ~> Q -> size Q < size P
-size-r {_} {cut _ _ (link _ _) P} (r-link d p) rewrite #size P (#cons p) = s≤s NatProp.≤-refl
-size-r {_} {cut _ _ (close _) (wait _ Q)} (r-close p q) = s≤s (NatProp.n≤1+n (size Q))  
+size-r {_} {cut _ _ (link _ _) P} (r-link d e p) rewrite #size P (#cons p) = s≤s NatProp.≤-refl
+size-r {_} {cut _ _ (close) (wait _ Q)} (r-close p q) = s≤s (NatProp.n≤1+n (size Q))  
 size-r {_} (r-fail p) = s≤s z≤n
 size-r {_} {cut _ _ (select true _ P) (case _ Q R)} (r-left d e p q r) = begin
   suc (suc (size P + size Q)) ≡⟨ cong suc (Eq.sym (NatProp.+-suc (size P) (size Q))) ⟩

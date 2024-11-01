@@ -6,7 +6,6 @@ open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 
 open import Type
 open import Context
-open import List
 open import Process
 open import Congruence
 
@@ -39,8 +38,7 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     {Q : Process (B₁ :: Γ₂)}
     {R : Process (B₂ :: Γ₂)}
     (d₁ : Dual A₁ B₁) (d₂ : Dual A₂ B₂)
-    (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂)
-    (p : Γ ≃ Γ₁ + Γ₂)
+    (p : Γ ≃ Γ₁ + Γ₂) (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂)
     ->
     cut (dual-plus-with d₁ d₂) p (select true (split-l q₁) P) (case (split-l q₂) Q R) ~> cut d₁ p P Q
 
@@ -50,8 +48,7 @@ data _~>_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     {Q : Process (B₁ :: Γ₂)}
     {R : Process (B₂ :: Γ₂)}
     (d₁ : Dual A₁ B₁) (d₂ : Dual A₂ B₂)
-    (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂)
-    (p : Γ ≃ Γ₁ + Γ₂)
+    (p : Γ ≃ Γ₁ + Γ₂) (q₁ : Γ₁ ≃ [] + Γ₁) (q₂ : Γ₂ ≃ [] + Γ₂)
     ->
     cut (dual-plus-with d₁ d₂) p (select false (split-l q₁) P) (case (split-l q₂) Q R) ~> cut d₂ p P R
 

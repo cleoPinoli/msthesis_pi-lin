@@ -8,12 +8,12 @@ open Eq using (refl)
 open import Data.Product using (Σ; _×_; _,_; ∃; Σ-syntax; ∃-syntax)
 open import Relation.Nullary using (¬_)
 
--- open import List
+
 open import Type
 open import Context
 
 data Process :  Context -> Set where
-   close : Process (One :: []) -- @diff
+   close : Process (One :: [])
    link  : ∀{Γ A B}
            (d : Dual A B)
            (p : Γ ≃ [ A ] + [ B ])
