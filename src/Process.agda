@@ -13,7 +13,6 @@ open import Type
 open import Context
 
 data Process :  Context -> Set where
-   close : Process (One :: [])
    link  : ∀{Γ A B}
            (d : Dual A B)
            (p : Γ ≃ [ A ] + [ B ])
@@ -21,6 +20,7 @@ data Process :  Context -> Set where
    fail  : ∀{Γ Δ}
            (p : Γ ≃ [ Top ] + Δ)
            -> Process Γ
+   close : Process (One :: [])
    wait  : ∀{Γ Δ}
            (p : Γ ≃ [ Bot ] + Δ)
            -> Process Δ
