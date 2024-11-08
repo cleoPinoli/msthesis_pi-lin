@@ -2,19 +2,22 @@ module Termination where
 
 open import Data.Bool using (Bool; if_then_else_)
 open import Data.Nat
+open import Data.Sum
 import Data.Nat.Properties as NatProp
 open import Data.Product using (_×_)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong)
 open Bool using (true; false)
 open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
+open import Induction.WellFounded
+open import Data.Nat.Induction -- <-WellFounded
 
 open import Type
 open import Context
 open import Process
 open import Reduction
 open import Congruence
--- open import DeadlockFreedom
+open import DeadlockFreedom
 
 
 size : ∀{Γ} -> Process Γ -> ℕ
@@ -52,11 +55,11 @@ size-⊒ : ∀{Γ} {P Q : Process Γ} -> P ⊒ Q -> size Q ≡ size P
 size-⊒ {_} {cut _ _ P Q} (s-comm d d' p p') rewrite NatProp.+-comm (size P) (size Q)  = refl
 size-⊒ {_} {cut _ _ P (cut _ _ Q R)} (s-assoc-r d e p q p' q')
   rewrite #size Q #here = begin
-  suc ((suc (size P) + size Q) + size R)
-  ≡⟨ cong suc (cong suc (NatProp.+-assoc (size P) (size Q) (size R))) ⟩
-  suc (suc (size P) + (size Q + size R))
-  ≡⟨ cong suc (Eq.sym (NatProp.+-suc (size P) (size Q + size R)) ) ⟩
-  suc (size P + suc (size Q + size R)) ∎
+   suc ((suc (size P) + size Q) + size R)
+     ≡⟨ cong suc (cong suc (NatProp.+-assoc (size P) (size Q) (size R))) ⟩
+    suc (suc (size P) + (size Q + size R))
+      ≡⟨ cong suc (Eq.sym (NatProp.+-suc (size P) (size Q + size R)) ) ⟩
+   suc (size P + suc (size Q + size R)) ∎
   where open Eq.≡-Reasoning
 size-⊒ {_} (s-link d p) = refl
 size-⊒ {_} (s-wait d p q) = refl
@@ -92,5 +95,20 @@ size-r {_} {cut _ _ P R} (r-cut d q red) = s≤s (NatProp.+-monoˡ-≤ (size R) 
 size-r (r-cong p red) rewrite Eq.sym (size-⊒ p) = size-r red
 
 -- => is what is sometimes called ∼>*
---termination : ∀{Γ} (P : Process Γ) -> ∃[ Q ] ((P => Q) × (Observable Q))
--- termination P = {!!} -- import DeadlockFreedom, adapt languages *somehow*, check close-related stuff (*again, somehow*) and fork-join bizness
+termination : ∀{Γ} (P : Process Γ) (acc : Acc _<_ (size P))  -> ∃[ Q ] ((P => Q) × (Observable Q))
+termination P a with live P
+... | inj₁ x = P , refl , x -- P is observable (P => P) 
+termination P (acc rs) | inj₂ (P' , red) with termination P' (rs (size P') (size-r red)) -- proof that #P' decreases WRT #P  
+... | Q , reds , obs = Q , tran red reds , obs -- red : P ~> P'
+-- weak-t uses termination 
+
+
+-- conta il numero di riduzioni in =>
+run-length : ∀{Γ} {P Q : Process Γ} -> (P => Q) -> ℕ
+run-length refl = zero
+run-length (tran x p) = suc (run-length p)
+
+
+-- there always exist a finite upper bound for every => of P and Q
+strong-termination : ∀{Γ} (P Q : Process Γ) -> ∃[ n ] ((reds : P => Q) -> (run-length reds ≤ n))
+strong-termination pq = {!!}

@@ -216,7 +216,7 @@ live-cut (cc-delayed d p (select true q)) =
 live : ∀{Γ} (P : Process Γ) -> Live P
 live P with process-is P
 ... | inj₁ x = inj₁ (_ , s-refl , x)
-... | inj₂ (cut d p {P} {Q}) with live P
+live _ | inj₂ (cut d p {P} {Q}) with live P
 ... | inj₂ (P' , red) = inj₂ (_ , r-cut d p red)
 ... | inj₁ (P' , Pc , Pt) with live Q
 ... | inj₂ (Q' , red) = inj₂ (_ , r-cong (s-comm d (dual-symm d) p (+-comm p)) (r-cut (dual-symm d) (+-comm p) red))
