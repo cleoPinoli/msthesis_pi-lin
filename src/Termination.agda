@@ -10,7 +10,7 @@ open Eq using (_≡_; refl; cong)
 open Bool using (true; false)
 open import Data.Product using (Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 open import Induction.WellFounded
-open import Data.Nat.Induction -- <-WellFounded
+open import Data.Nat.Induction -- <-WellFounded for acc
 
 open import Type
 open import Context
@@ -98,12 +98,12 @@ size-r (r-cong p red) rewrite Eq.sym (size-⊒ p) = size-r red
 termination : ∀{Γ} (P : Process Γ) (acc : Acc _<_ (size P))  -> ∃[ Q ] ((P => Q) × (Observable Q))
 termination P a with live P
 ... | inj₁ x = P , refl , x -- P is observable (P => P) 
-termination P (acc rs) | inj₂ (P' , red) with termination P' (rs (size P') (size-r red)) -- proof that #P' decreases WRT #P  
+termination P (acc rs) | inj₂ (P' , red) with termination P' (rs (size P') (size-r red)) -- acc, in a manner of speaking, provides proof that (size P') decreases WRT (size P) with P=>P'  
 ... | Q , reds , obs = Q , tran red reds , obs -- red : P ~> P'
 -- weak-t uses termination 
 
 
--- conta il numero di riduzioni in =>
+-- counts the number of reductions in a =>
 run-length : ∀{Γ} {P Q : Process Γ} -> (P => Q) -> ℕ
 run-length refl = zero
 run-length (tran x p) = suc (run-length p)
@@ -111,4 +111,8 @@ run-length (tran x p) = suc (run-length p)
 
 -- there always exist a finite upper bound for every => of P and Q
 strong-termination : ∀{Γ} (P Q : Process Γ) -> ∃[ n ] ((reds : P => Q) -> (run-length reds ≤ n))
-strong-termination pq = {!!}
+strong-termination P Q = (size P) , aux
+  where
+    aux : ∀{Γ} {P Q : Process Γ} (reds : P => Q) -> run-length reds ≤ size P
+    aux refl = z≤n -- P => P
+    aux (tran red reds) = NatProp.≤-trans (s≤s (aux reds)) (size-r red) 
