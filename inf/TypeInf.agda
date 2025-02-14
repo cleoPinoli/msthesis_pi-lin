@@ -20,18 +20,21 @@ data Type where
 
 data Dual : Type -> Type -> Set
 
-record ∞Dual (t s : ∞Type) : Set where
+record ∞Dual (t s : Type) : Set where
   coinductive
   field
-    force : Dual (t .force) (s .force)
+    force : Dual t s
 open ∞Dual
 
 data Dual where
   dual-one-bot : Dual One Bot
   dual-bot-one : Dual Bot One
-  dual-plus-with : ∀{t s t' s'} -> ∞Dual t t' -> ∞Dual s s' -> Dual (t ⊕ s) (t' & s')
-  dual-with-plus : ∀{t s t' s'} -> ∞Dual t t' -> ∞Dual s s' -> Dual (t & s) (t' ⊕ s')
+  dual-plus-with : ∀{t s t' s'} -> ∞Dual (t .force) (t' .force) -> ∞Dual (s .force) (s' .force) -> Dual (t ⊕ s) (t' & s')
+  dual-with-plus : ∀{t s t' s'} -> ∞Dual (t .force) (t' .force) -> ∞Dual (s .force) (s' .force) -> Dual (t & s) (t' ⊕ s')
 
 
-dual-symm : ∀{t s} -> Dual (t .force) (s .force) -> ∞Dual s t
-dual-symm {t}{s} p .force = {!!} 
+dual-symm : ∀{t s} -> Dual t s -> ∞Dual s t
+dual-symm dual-one-bot .force = dual-bot-one
+dual-symm dual-bot-one .force = dual-one-bot
+dual-symm (dual-plus-with p q) .force = dual-with-plus (dual-symm (p .force)) (dual-symm (q .force))
+dual-symm (dual-with-plus p q) .force = dual-plus-with (dual-symm (p .force)) (dual-symm (q .force))
