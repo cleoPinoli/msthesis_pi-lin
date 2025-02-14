@@ -9,6 +9,7 @@ open import Data.Nat
 data Type : Set
 
 record ∞Type : Set where
+  constructor box
   coinductive
   field
     force : Type
