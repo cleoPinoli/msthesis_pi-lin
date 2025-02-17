@@ -1,6 +1,6 @@
 {-# OPTIONS --guardedness #-}
 
-module ProcessInf where
+module Process where
 
 open import Data.Sum
 open import Data.Bool using (Bool; if_then_else_)
@@ -11,8 +11,8 @@ open import Data.Product using (Σ; _×_; _,_; ∃; Σ-syntax; ∃-syntax)
 open import Relation.Nullary using (¬_)
 
 
-open import TypeInf
-open import ContextInf
+open import Type
+open import Context
 
 data Process : Context -> Set
 
@@ -57,29 +57,19 @@ data Process where
 #process π (link d p) .force with #one+ π p
 ... | Δ' , q , π' with #one π'
 ... | refl = link d q
-#process π (fail p) .force = {!!}
-#process π close .force = {!!}
+#process π (fail p) .force with #one+ π p
+... | Δ' , q , π' = fail q
+#process π close .force with #one π
+... | refl = close
 #process π (wait p P) .force with #one+ π p
 ... | Δ' , q , π' = wait q (#process π' (P .force))
-#process π (select x p P) .force = {!!}
-#process π (case p P Q) .force = {!!}
-#process π (cut d p P Q) .force = {!!}
+#process π (select x p P) .force with #one+ π p
+... | Δ' , q , π' = select x q (#process (#next π') (P .force))
+#process π (case p P Q) .force with #one+ π p
+... | Δ' , q , π' = case q (#process (#next π') (P .force)) (#process (#next π') (Q .force))
+#process π (cut d p P Q) .force with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (#process (#next π₁) (P .force)) (#process (#next π₂) (Q .force))
 
--- #process π (link d p) with #one+ π p
--- ... | Δ' , q , π' with #one π'
--- ... | refl = link d q
--- #process π close  with #one π
--- ... | refl = close
--- #process π (fail p) with #one+ π p
--- ... | Δ' , q , π' = fail q
--- #process π (wait p P) with #one+ π p
--- ... | Δ' , q , π' = wait q (#process π' P)
--- #process π (select x p P) with #one+ π p
--- ... | Δ' , q , π' = select x q (#process (#next π') P)
--- #process π (case p P Q) with #one+ π p
--- ... | Δ' , q , π' = case q (#process (#next π') P) (#process (#next π') Q)
--- #process π (cut d p P Q) with #split π p
--- ... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (#process (#next π₁) P) (#process (#next π₂) Q)
 
 -- -- Input and Output processes that perform an action on the most recent channel.
 -- data Input : ∀{Γ} -> Process Γ -> Set where

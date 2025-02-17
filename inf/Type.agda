@@ -1,8 +1,6 @@
 {-# OPTIONS --guardedness #-}
-{-# OPTIONS --allow-unsolved-metas #-}
---per usare il modulo nonostante il buco in una prova (imprudente e sconsiderato da parte mia)
 
-module TypeInf where
+module Type where
 
 open import Data.Nat
 

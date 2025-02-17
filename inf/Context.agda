@@ -1,13 +1,13 @@
 {-# OPTIONS --guardedness #-}
 
 -- contextInf ≡ context_finite, unchanged
-module ContextInf where
+module Context where
 
 open import Data.Product using (_×_; Σ; _,_; ∃; Σ-syntax; ∃-syntax)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
 
-open import TypeInf
+open import Type
 
 data Context : Set where
   []   : Context
