@@ -22,6 +22,15 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   --             (p : Γ ≃ Γ₁ + Γ₂) (p' : Γ ≃ Γ₂ + Γ₁) ->
   --             cut d p P Q ⊒ cut d' p' Q P
 
+  s-assoc-r : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
+              {P : Process (A :: Γ₁)}
+              {Q : Process (B :: A' :: Δ₁)}
+              {R : Process (B' :: Δ₂)}
+              (d : Dual A A') (e : Dual B B')
+              (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₂ ≃ Δ₁ + Δ₂)
+              (p' : Δ ≃ Γ₁ + Δ₁) (q' : Γ ≃ Δ + Δ₂) ->
+              cut d p ((box P)) (box (cut e (split-l q) ((box Q)) ((box R)))) ⊒ cut e q' ((box (cut d (split-r p') (box P) (#process #here Q)))) ((box R))
+              
   -- s-assoc-r : ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A A' B B'}
   --             {P : Process (A :: Γ₁)}
   --             {Q : Process (B :: A' :: Δ₁)}
@@ -42,6 +51,14 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   --          (p : Γ ≃ [ A ] + [ B ]) ->
   --          link d p ⊒ link (dual-symm d) (+-comm p)
 
+  s-wait :
+    ∀{Γ Γ₁ Γ₂ Δ A B}
+    {P : Process (A :: Δ)}
+    {Q : Process (B :: Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ [ Bot ] + Δ) ->
+    let _ , p' , q' = +-assoc-l p q in
+    cut d p (box (wait (split-r q) (box P))) (box Q) ⊒ wait q' (box (cut d p' (box P) (box Q)))
+    
   -- s-wait : ∀{Γ Γ₁ Γ₂ Δ A B}
   --          {P : Process (A :: Δ)}
   --          {Q : Process (B :: Γ₂)}
@@ -49,6 +66,17 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   --          let _ , p' , q' = +-assoc-l p q in
   --          cut d p (wait (split-r q) P) Q ⊒ wait q' (cut d p' P Q)
 
+  s-case : ∀{Γ A B A₁ A₂ Γ₁ Γ₂ Δ}
+           {P : Process (A₁ :: A :: Δ)}
+           {Q : Process (A₂ :: A :: Δ)}
+           {R : Process (B :: Γ₂)}
+           (d : Dual A B)
+           (p : Γ ≃ Γ₁ + Γ₂)
+           (q : Γ₁ ≃ [ ( box A₁ ) & (box A₂ ) ] + Δ) ->
+           let _ , p' , q' = +-assoc-l p q in
+           cut d p (box (case (split-r q) (box P) (box Q))) (box R) ⊒
+           case q' (box (cut d (split-l p') (#process #here P) (box R)))
+                   (box (cut d (split-l p') (#process #here Q) (box R)))
   -- -- (x)(case y(z){P|Q} | R) ⊒ case y(z){(x)(P|R), (x)(Q|R)} , x ≠ y,z
   -- s-case : ∀{Γ A B A₁ A₂ Γ₁ Γ₂ Δ}
   --        {P : Process (A₁ :: A :: Δ)}
@@ -62,14 +90,38 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   --        case q' (cut d (split-l p') (#process #here P) R)
   --                (cut d (split-l p') (#process #here Q) R)
 
+
+  s-refl : ∀{Γ} {P : Process Γ} -> P ⊒ P
   -- s-refl : ∀{Γ} {P : Process Γ} -> P ⊒ P
+
+  s-tran : ∀{Γ} {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
   -- s-tran : ∀{Γ} {P Q R : Process Γ} -> P ⊒ Q -> Q ⊒ R -> P ⊒ R
+
+  s-cong-l :
+           ∀{Γ Γ₁ Γ₂ A A'}
+           {P Q : Process (A :: Γ₁)}
+           {R : Process (A' :: Γ₂)}
+           (d : Dual A A')
+           (p : Γ ≃ Γ₁ + Γ₂) ->
+           P ⊒ Q -> cut d p (box P) (box R) ⊒ cut d p (box Q) (box R)
   -- s-cong-l : ∀{Γ Γ₁ Γ₂ A A'}
   --          {P Q : Process (A :: Γ₁)}
   --          {R : Process (A' :: Γ₂)}
   --          (d : Dual A A')
   --          (p : Γ ≃ Γ₁ + Γ₂) ->
   --          P ⊒ Q -> cut d p P R ⊒ cut d p Q R
+
+
+  s-select-l :
+    ∀{Γ Γ₁ Γ₂ Δ A B A₁ A₂}
+    {P : Process (A₁ :: A :: Δ)}
+    {Q : Process (B :: Γ₂)}
+    (d : Dual A B)
+    (p : Γ ≃ Γ₁ + Γ₂)
+    (q : Γ₁ ≃ [ (box A₁) ⊕ (box A₂) ] + Δ) ->
+    let _ , p' , q' = +-assoc-l p q in
+    cut d p (box (select true (split-r q) (box P))) (box Q) ⊒
+    select true q' (box (cut d (split-l p') (#process #here P) (box Q)))
 
   -- s-select-l :
   --   ∀{Γ Γ₁ Γ₂ Δ A B A₁ A₂}
@@ -81,6 +133,18 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
   --   let _ , p' , q' = +-assoc-l p q in
   --   cut d p (select true (split-r q) P) Q ⊒
   --   select true q' (cut d (split-l p') (#process #here P) Q)
+
+
+  s-select-r :
+    ∀{Γ Γ₁ Γ₂ Δ A B A₁ A₂}
+    {P : Process (A₂ :: A :: Δ)}
+    {Q : Process (B :: Γ₂)}
+    (d : Dual A B)
+    (p : Γ ≃ Γ₁ + Γ₂)
+    (q : Γ₁ ≃ [ (box A₁) ⊕ (box A₂) ] + Δ) ->
+    let _ , p' , q' = +-assoc-l p q in
+    cut d p (box (select false (split-r q) (box P))) (box Q) ⊒
+    select false q' (box (cut d (split-l p') (#process #here P) (box Q)))
 
   -- s-select-r :
   --   ∀{Γ Γ₁ Γ₂ Δ A B A₁ A₂}
