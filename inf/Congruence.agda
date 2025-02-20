@@ -44,7 +44,7 @@ data _⊒_ : ∀{Γ} -> Process Γ -> Process Γ -> Set where
     ∀{Γ A B}
       (d : Dual A B)
       (p : Γ ≃ [ A ] + [ B ]) ->
-      link d p ⊒ link ((dual-symm d) .∞Dual.force) (+-comm p) -- :D
+      link d p ⊒ link ((dual-symm d) .∞Dual.unbox) (+-comm p) -- :D
 
   -- s-link : ∀{Γ A B}
   --          (d : Dual A B)

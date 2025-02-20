@@ -20,7 +20,7 @@ record ∞Process (Γ : Context) : Set where
   constructor box
   coinductive
   field
-    force : Process Γ
+    unbox : Process Γ
 open ∞Process
 
 data Process where
@@ -54,21 +54,21 @@ data Process where
            -> Process Γ
 
 #process : ∀{Γ Δ} -> Γ # Δ -> Process Γ -> ∞Process Δ
-#process π (link d p) .force with #one+ π p
+#process π (link d p) .unbox with #one+ π p
 ... | Δ' , q , π' with #one π'
 ... | refl = link d q
-#process π (fail p) .force with #one+ π p
+#process π (fail p) .unbox with #one+ π p
 ... | Δ' , q , π' = fail q
-#process π close .force with #one π
+#process π close .unbox with #one π
 ... | refl = close
-#process π (wait p P) .force with #one+ π p
-... | Δ' , q , π' = wait q (#process π' (P .force))
-#process π (select x p P) .force with #one+ π p
-... | Δ' , q , π' = select x q (#process (#next π') (P .force))
-#process π (case p P Q) .force with #one+ π p
-... | Δ' , q , π' = case q (#process (#next π') (P .force)) (#process (#next π') (Q .force))
-#process π (cut d p P Q) .force with #split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (#process (#next π₁) (P .force)) (#process (#next π₂) (Q .force))
+#process π (wait p P) .unbox with #one+ π p
+... | Δ' , q , π' = wait q (#process π' (P .unbox))
+#process π (select x p P) .unbox with #one+ π p
+... | Δ' , q , π' = select x q (#process (#next π') (P .unbox))
+#process π (case p P Q) .unbox with #one+ π p
+... | Δ' , q , π' = case q (#process (#next π') (P .unbox)) (#process (#next π') (Q .unbox))
+#process π (cut d p P Q) .unbox with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (#process (#next π₁) (P .unbox)) (#process (#next π₂) (Q .unbox))
 
 
 -- -- Input and Output processes that perform an action on the most recent channel.
