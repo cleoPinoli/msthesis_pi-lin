@@ -1,6 +1,3 @@
-%Version 3 October 2023
-% See section 11 of the User Manual for version history
-%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                 %%
 %% Please do not use \input{...} to include other tex files.       %%
@@ -11,82 +8,32 @@
 %%                                                                 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%\documentclass[referee,sn-basic]{sn-jnl}% referee option is meant for double line spacing
-
 %%=======================================================%%
 %% to print line numbers in the margin use lineno option %%
 %%=======================================================%%
 
-%%\documentclass[lineno,sn-basic]{sn-jnl}% Basic Springer Nature Reference Style/Chemistry Reference Style
+\documentclass[pdflatex,sn-basic]{sn-jnl}
 
-%%======================================================%%
-%% to compile with pdflatex/xelatex use pdflatex option %%
-%%======================================================%%
-
-%%\documentclass[pdflatex,sn-basic]{sn-jnl}% Basic Springer Nature Reference Style/Chemistry Reference Style
-
-
-%%Note: the following reference styles support Namedate and Numbered referencing. By default the style follows the most common style. To switch between the options you can add or remove �Numbered� in the optional parenthesis. 
-%%The option is available for: sn-basic.bst, sn-vancouver.bst, sn-chicago.bst%  
- 
-%%\documentclass[sn-nature]{sn-jnl}% Style for submissions to Nature Portfolio journals
-%%\documentclass[sn-basic]{sn-jnl}% Basic Springer Nature Reference Style/Chemistry Reference Style
-\documentclass[lineno,sn-mathphys-num]{sn-jnl}% Math and Physical Sciences Numbered Reference Style 
-%%\documentclass[sn-mathphys-ay]{sn-jnl}% Math and Physical Sciences Author Year Reference Style
-%%\documentclass[sn-aps]{sn-jnl}% American Physical Society (APS) Reference Style
-%%\documentclass[sn-vancouver,Numbered]{sn-jnl}% Vancouver Reference Style
-%%\documentclass[sn-apa]{sn-jnl}% APA Reference Style 
-%%\documentclass[sn-chicago]{sn-jnl}% Chicago-based Humanities Reference Style
-
-%%%% Standard Packages
-%%<additional latex packages if required can be included here>
-
-%\usepackage{graphicx}%
-%\usepackage{multirow}%
-\usepackage{amsmath,amssymb,amsfonts}%
-\usepackage{amsthm}%
-\usepackage{mathrsfs}%
-\usepackage[title]{appendix}%
-\usepackage{xcolor}%
-\usepackage{textcomp}%
-\usepackage{manyfoot}%
-%\usepackage{booktabs}%
-%\usepackage{algorithm}%
-%\usepackage{algorithmicx}%
-%\usepackage{algpseudocode}%
-\usepackage{listings}%
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{listings}
 \usepackage{agda}
 \usepackage{xspace}
-%%%%
+
 \input{macros}
 
-%%%%%=============================================================================%%%%
-%%%%  Remarks: This template is provided to aid authors with the preparation
-%%%%  of original research articles intended for submission to journals published 
-%%%%  by Springer Nature. The guidance has been prepared in partnership with 
-%%%%  production teams to conform to Springer Nature technical requirements. 
-%%%%  Editorial and presentation requirements differ among journal portfolios and 
-%%%%  research disciplines. You may find sections in this template are irrelevant 
-%%%%  to your work and are empowered to omit any such section if allowed by the 
-%%%%  journal you intend to submit to. The submission guidelines and policies 
-%%%%  of the journal take precedence. A detailed User Manual is available in the 
-%%%%  template package for technical guidance.
-%%%%%=============================================================================%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
 
-%% as per the requirement new theorem styles can be included as shown below
-\theoremstyle{thmstyleone}%
-\newtheorem{theorem}{Theorem}%  meant for continuous numbers
-%%\newtheorem{theorem}{Theorem}[section]% meant for sectionwise numbers
-%% optional argument [theorem] produces theorem numbering sequence instead of independent numbers for Proposition
-\newtheorem{proposition}[theorem]{Proposition}% 
-%%\newtheorem{proposition}{Proposition}% to get separate numbers for theorem and proposition etc.
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
 
-\theoremstyle{thmstyletwo}%
-\newtheorem{example}{Example}%
-\newtheorem{remark}{Remark}%
-
-\theoremstyle{thmstylethree}%
-\newtheorem{definition}{Definition}%
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
 
 \raggedbottom
 %%\unnumbered% uncomment this for unnumbered level heads
@@ -113,92 +60,31 @@
 
 \affil[2]{\orgdiv{Computer Science Division}, \orgname{Università di Camerino}, \orgaddress{\street{via Madonna delle Carceri 7}, \city{Camerino}, \postcode{62032}, \state{MC}, \country{Italy}}}
 
-%%==================================%%
-%% Sample for unstructured abstract %%
-%%==================================%%
-
 \abstract{blah}
 
-%%================================%%
-%% Sample for structured abstract %%
-%%================================%%
-
-% \abstract{\textbf{Purpose:} The abstract serves both as a general introduction to the topic and as a brief, non-technical summary of the main results and their implications. The abstract must not include subheadings (unless expressly permitted in the journal's Instructions to Authors), equations or citations. As a guide the abstract should not exceed 200 words. Most journals do not set a hard limit however authors are advised to check the author instructions for the journal they are submitting to.
-% 
-% \textbf{Methods:} The abstract serves both as a general introduction to the topic and as a brief, non-technical summary of the main results and their implications. The abstract must not include subheadings (unless expressly permitted in the journal's Instructions to Authors), equations or citations. As a guide the abstract should not exceed 200 words. Most journals do not set a hard limit however authors are advised to check the author instructions for the journal they are submitting to.
-% 
-% \textbf{Results:} The abstract serves both as a general introduction to the topic and as a brief, non-technical summary of the main results and their implications. The abstract must not include subheadings (unless expressly permitted in the journal's Instructions to Authors), equations or citations. As a guide the abstract should not exceed 200 words. Most journals do not set a hard limit however authors are advised to check the author instructions for the journal they are submitting to.
-% 
-% \textbf{Conclusion:} The abstract serves both as a general introduction to the topic and as a brief, non-technical summary of the main results and their implications. The abstract must not include subheadings (unless expressly permitted in the journal's Instructions to Authors), equations or citations. As a guide the abstract should not exceed 200 words. Most journals do not set a hard limit however authors are advised to check the author instructions for the journal they are submitting to.}
-
 \keywords{keyword1, Keyword2, Keyword3, Keyword4}
-
-%%\pacs[JEL Classification]{D8, H51}
-
-%%\pacs[MSC Classification]{35A01, 65L10, 65L12, 65L20, 65L70}
 
 \maketitle
 
 \section{Introduction}
 \label{sec:introduction}
 
-\section{Language}
+\input{calculus}
 
-\[
-    \begin{array}[t]{rcll}
-        P, Q & ::= & \Link\x\y \\
-            & | & \Close\x \\
-            & | & \Fail\x \\
-            & | & \Wait\x.P \\
-            & | & \Select\x{\InTag_i}\z.P \\
-            & | & \Case\x\z{P}{Q} \\
-            & | & \Fork\x\y\z{P}{Q} \\
-            & | & \Join\x\y\z.P \\
-            & | & \Cut\x{P}{Q} \\
-    \end{array}
-\]
+\bibliography{main}
 
-\[
-    \begin{array}{rrcll}
-      \SLink &
-      \Link\x\y & \pcong & \Link\y\x \\
-      \SComm &
-      \Cut\x{P}{Q} & \pcong & \Cut\x{Q}{P} \\
-      \SWait &
-      \Cut\x{\Wait\y.P}{Q} & \pcong & \Wait\y.\Cut\x{P}{Q} & x \ne y \\
-      \SFail &
-      \Cut\x{\Fail\y}{P} & \pcong & \Fail\y & x \ne y \\
-      \SSelect &
-      \Cut\x{\Select\y{\InTag_i}\z.P}{Q} & \pcong & \Select\y{\InTag_i}\z.\Cut\x{P}{Q} & x \ne y,z \\
-      \SCase &
-      \Cut\x{\Case\y\z{P}{Q}}{R} & \pcong & \Case\y\z{\Cut\x{P}{R}}{\Cut\x{Q}{R}} & x \ne y,z \\
-      \SForkL &
-      \Cut\x{\Fork\y\u\v{P}{Q}}{R} & \pcong & \Fork\y\u\v{\Cut\x{P}{R}}{Q} & x \in \fn{P}\setminus\set{y,u,v} \\
-      \SForkR &
-      \Cut\x{\Fork\y\u\v{P}{Q}}{R} & \pcong & \Fork\y\u\v{P}{\Cut\x{Q}{R}} & x \in \fn{Q}\setminus\set{y,u,v} \\
-      \SJoin &
-      \Cut\x{\Join\y\u\v.P}{Q} & \pcong & \Join\y\u\v.\Cut\x{P}{Q} & x \ne y,u,v \\
-      \\
-      \RLink &
-      \Cut\x{\Link\x\y}{P} & \red & P\subst\y\x \\
-      \RFail &
-      \Cut\x{\Fail\y}{P} & \red & \Fail\y & x \ne y \\
-      \RClose &
-      \Cut\x{\Close\x}{\Wait\x.P} & \red & P \\
-      \RSelect &
-      \Cut\x{\Select\x{\Tag_i}\y.P}{\Case\x\y{Q_1}{Q_2}} & \red & \Cut\y{P}{Q_i} & i\in\set{1,2} \\
-      \RFork &
-      \Cut\x{\Fork\x\y\z{P}{Q}}{\Join\x\y\z.R} & \red & \Cut\y{P}{\Cut\z{Q}{R}} \\
-      \RCut &
-      \Cut\x{P}{R} & \red & \Cut\x{Q}{R} & P \red Q \\
-      \RCong &
-      P & \red & Q & P \pcong R \red Q \\
-    \end{array}
-\]
+\end{document}
 
-Introduction section, of referenced text \cite{bib1} expands on the background of the work (some overlap with the Abstract is acceptable). The introduction should not include subheadings.
+Introduction section, of referenced text \cite{bib1} expands on the background
+of the work (some overlap with the Abstract is acceptable). The introduction
+should not include subheadings.
 
-Springer Nature does not impose a strict layout as standard however authors are advised to check the individual requirements for the journal they are planning to submit to as there may be journal-level preferences. When preparing your text please also be aware that some stylistic choices are not supported in full text XML (publication version), including coloured font. These will not be replicated in the typeset article if it is accepted. 
+Springer Nature does not impose a strict layout as standard however authors are
+advised to check the individual requirements for the journal they are planning
+to submit to as there may be journal-level preferences. When preparing your text
+please also be aware that some stylistic choices are not supported in full text
+XML (publication version), including coloured font. These will not be replicated
+in the typeset article if it is accepted. 
 
 \section{Results}\label{sec2}
 
