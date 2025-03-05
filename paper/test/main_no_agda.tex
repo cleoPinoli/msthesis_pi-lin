@@ -1,0 +1,21 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+
+\usepackage{newunicodechar}
+\newunicodechar{λ}{\ensuremath{\mathnormal\lambda}}
+\newunicodechar{←}{\ensuremath{\mathnormal\from}}
+\newunicodechar{→}{\ensuremath{\mathnormal\to}}
+\newunicodechar{∀}{\ensuremath{\mathnormal\forall}}
+\newunicodechar{ℕ}{\ensuremath{\mathbb{N}}}
+
+\begin{document}
+
+\begin{verbatim}
+data ℕ : Set where
+  zero : ℕ
+  succ : ℕ → ℕ
+\end{verbatim}
+
+\end{document}
