@@ -2,7 +2,7 @@
 \label{sec:calculus}
 
 \begin{table}
-    \caption{Syntax of the calculus of pure sessions.}
+    \caption{Syntax of \Calculus.}
     \label{tab:syntax}
     \begin{math}
         \displaystyle
@@ -21,45 +21,71 @@
 \end{table}
 
 The calculus of pure sessions that is formalized in our development is closely
-related to the linear fragment of GV~\citep{Wadler14}, without shared channels.
-Its syntax makes use of an infinite set of \emph{channel names}, ranged over by
-$x$, $y$ and $z$, and is shown in \cref{tab:syntax}.
+related to the multiplicative, additive fragment of CP~\citep{Wadler14}, without
+shared channels. Its syntax makes use of an infinite set of \emph{channel
+names}, ranged over by $x$, $y$ and $z$, and is shown in \cref{tab:syntax}.
+%
+A link $\Link\x\y$ denotes the merging of the $x$ and $y$ channels, so that
+every message sent on one of the channels is forwarded to the other. This form
+is useful for modeling \emph{free outputs}, as we will see later.\Luca{Mettere
+esempio!}
+%
+The $\Close\x$ and $\Wait\x.P$ processes respectively model the output and input of a termination signal on the channel $x$. The former process has no continuation, while the latter process continues as $P$ once the session has been terminated.
+%
+The $\Fail\x$ process denotes a runtime error concerning the session $x$.
+%
+The $\Select\x{\InTag_i}\z.P$ and $\Case\x\z{Q_1}{Q_2}$ processes respectively
+denote the output and input of a label $\InTag_i$ along with a fresh
+continuation $z$ on the channel $x$. Depending on the label $\InTag_i$, the
+receiver continues as $Q_i$. In practice it is useful to consider arbitrary
+(domain-specific) sets of tags instead of the canonical two $\InTag_1$ and
+$\InTag_2$. This generalization has no substantial impact on the formalization,
+so we stick to the classical case of ``binary choices'' in line with the usual
+presentations of linear logic.
+%
+The $\Fork\x\y\z{P}{Q}$ and $\Join\x\y\z.R$ processes respectively denote the
+output and input of a pair of fresh channels $y$ and $z$ on the channel $x$.
+These forms are often used in conjunction with links to model \emph{free
+outputs}, but can also be used to model bifurcating sessions whereby a
+sequential protocol continues as two parallel sub-protocols.
 
-\[
-    \begin{array}{rrcll}
-      \SLink &
-      \Link\x\y & \pcong & \Link\y\x \\
-      \SComm &
-      \Cut\x{P}{Q} & \pcong & \Cut\x{Q}{P} \\
-      \SWait &
-      \Cut\x{\Wait\y.P}{Q} & \pcong & \Wait\y.\Cut\x{P}{Q} & x \ne y \\
-      \SFail &
-      \Cut\x{\Fail\y}{P} & \pcong & \Fail\y & x \ne y \\
-      \SSelect &
-      \Cut\x{\Select\y{\InTag_i}\z.P}{Q} & \pcong & \Select\y{\InTag_i}\z.\Cut\x{P}{Q} & x \ne y,z \\
-      \SCase &
-      \Cut\x{\Case\y\z{P}{Q}}{R} & \pcong & \Case\y\z{\Cut\x{P}{R}}{\Cut\x{Q}{R}} & x \ne y,z \\
-      \SForkL &
-      \Cut\x{\Fork\y\u\v{P}{Q}}{R} & \pcong & \Fork\y\u\v{\Cut\x{P}{R}}{Q} & x \in \fn{P}\setminus\set{y,u,v} \\
-      \SForkR &
-      \Cut\x{\Fork\y\u\v{P}{Q}}{R} & \pcong & \Fork\y\u\v{P}{\Cut\x{Q}{R}} & x \in \fn{Q}\setminus\set{y,u,v} \\
-      \SJoin &
-      \Cut\x{\Join\y\u\v.P}{Q} & \pcong & \Join\y\u\v.\Cut\x{P}{Q} & x \ne y,u,v \\
-      \\
-      \RLink &
-      \Cut\x{\Link\x\y}{P} & \red & P\subst\y\x \\
-      \RFail &
-      \Cut\x{\Fail\y}{P} & \red & \Fail\y & x \ne y \\
-      \RClose &
-      \Cut\x{\Close\x}{\Wait\x.P} & \red & P \\
-      \RSelect &
-      \Cut\x{\Select\x{\Tag_i}\y.P}{\Case\x\y{Q_1}{Q_2}} & \red & \Cut\y{P}{Q_i} & i\in\set{1,2} \\
-      \RFork &
-      \Cut\x{\Fork\x\y\z{P}{Q}}{\Join\x\y\z.R} & \red & \Cut\y{P}{\Cut\z{Q}{R}} \\
-      \RCut &
-      \Cut\x{P}{R} & \red & \Cut\x{Q}{R} & P \red Q \\
-      \RCong &
-      P & \red & Q & P \pcong R \red Q \\
-    \end{array}
-\]
-
+\begin{table}
+    \caption{Operational semantics of \Calculus.}
+    \[
+        \begin{array}{rrcll}
+        \SLink &
+        \Link\x\y & \pcong & \Link\y\x \\
+        \SComm &
+        \Cut\x{P}{Q} & \pcong & \Cut\x{Q}{P} \\
+        \SWait &
+        \Cut\x{\Wait\y.P}{Q} & \pcong & \Wait\y.\Cut\x{P}{Q} & x \ne y \\
+        \SFail &
+        \Cut\x{\Fail\y}{P} & \pcong & \Fail\y & x \ne y \\
+        \SSelect &
+        \Cut\x{\Select\y{\InTag_i}\z.P}{Q} & \pcong & \Select\y{\InTag_i}\z.\Cut\x{P}{Q} & x \ne y,z \\
+        \SCase &
+        \Cut\x{\Case\y\z{P}{Q}}{R} & \pcong & \Case\y\z{\Cut\x{P}{R}}{\Cut\x{Q}{R}} & x \ne y,z \\
+        \SForkL &
+        \Cut\x{\Fork\y\u\v{P}{Q}}{R} & \pcong & \Fork\y\u\v{\Cut\x{P}{R}}{Q} & x \in \fn{P}\setminus\set{y,u,v} \\
+        \SForkR &
+        \Cut\x{\Fork\y\u\v{P}{Q}}{R} & \pcong & \Fork\y\u\v{P}{\Cut\x{Q}{R}} & x \in \fn{Q}\setminus\set{y,u,v} \\
+        \SJoin &
+        \Cut\x{\Join\y\u\v.P}{Q} & \pcong & \Join\y\u\v.\Cut\x{P}{Q} & x \ne y,u,v \\
+        \\
+        \RLink &
+        \Cut\x{\Link\x\y}{P} & \red & P\subst\y\x \\
+        \RFail &
+        \Cut\x{\Fail\y}{P} & \red & \Fail\y & x \ne y \\
+        \RClose &
+        \Cut\x{\Close\x}{\Wait\x.P} & \red & P \\
+        \RSelect &
+        \Cut\x{\Select\x{\Tag_i}\y.P}{\Case\x\y{Q_1}{Q_2}} & \red & \Cut\y{P}{Q_i} & i\in\set{1,2} \\
+        \RFork &
+        \Cut\x{\Fork\x\y\z{P}{Q}}{\Join\x\y\z.R} & \red & \Cut\y{P}{\Cut\z{Q}{R}} \\
+        \RCut &
+        \Cut\x{P}{R} & \red & \Cut\x{Q}{R} & P \red Q \\
+        \RCong &
+        P & \red & Q & P \pcong R \red Q \\
+        \end{array}
+    \]
+\end{table}
