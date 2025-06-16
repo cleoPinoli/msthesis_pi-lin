@@ -30,7 +30,10 @@ every message sent on one of the channels is forwarded to the other. This form
 is useful for modeling \emph{free outputs}, as we will see later.\Luca{Mettere
 esempio!}
 %
-The $\Close\x$ and $\Wait\x.P$ processes respectively model the output and input of a termination signal on the channel $x$. The former process has no continuation, while the latter process continues as $P$ once the session has been terminated.
+The $\Close\x$ and $\Wait\x.P$ processes respectively model the output and input
+of a termination signal on the channel $x$. The former process has no
+continuation, while the latter process continues as $P$ once the session has
+been terminated.
 %
 The $\Fail\x$ process denotes a runtime error concerning the session $x$.
 %
@@ -49,18 +52,23 @@ These forms are often used in conjunction with links to model \emph{free
 outputs}, but can also be used to model bifurcating sessions whereby a
 sequential protocol continues as two parallel sub-protocols.
 
+free and bound names
+
+we consideer processes equal up to renaming of bound names
+
 \begin{table}
     \caption{Operational semantics of \Calculus.}
+    \label{tab:semantics}
     \[
         \begin{array}{rrcll}
         \SLink &
         \Link\x\y & \pcong & \Link\y\x \\
         \SComm &
         \Cut\x{P}{Q} & \pcong & \Cut\x{Q}{P} \\
-        \SWait &
-        \Cut\x{\Wait\y.P}{Q} & \pcong & \Wait\y.\Cut\x{P}{Q} & x \ne y \\
         \SFail &
         \Cut\x{\Fail\y}{P} & \pcong & \Fail\y & x \ne y \\
+        \SWait &
+        \Cut\x{\Wait\y.P}{Q} & \pcong & \Wait\y.\Cut\x{P}{Q} & x \ne y \\
         \SSelect &
         \Cut\x{\Select\y{\InTag_i}\z.P}{Q} & \pcong & \Select\y{\InTag_i}\z.\Cut\x{P}{Q} & x \ne y,z \\
         \SCase &
@@ -74,12 +82,12 @@ sequential protocol continues as two parallel sub-protocols.
         \\
         \RLink &
         \Cut\x{\Link\x\y}{P} & \red & P\subst\y\x \\
-        \RFail &
-        \Cut\x{\Fail\y}{P} & \red & \Fail\y & x \ne y \\
+        % \RFail &
+        % \Cut\x{\Fail\y}{P} & \red & \Fail\y & x \ne y \\
         \RClose &
         \Cut\x{\Close\x}{\Wait\x.P} & \red & P \\
         \RSelect &
-        \Cut\x{\Select\x{\Tag_i}\y.P}{\Case\x\y{Q_1}{Q_2}} & \red & \Cut\y{P}{Q_i} & i\in\set{1,2} \\
+        \Cut\x{\Select\x{\Tag_i}\z.P}{\Case\x\z{Q_1}{Q_2}} & \red & \Cut\z{P}{Q_i} & i\in\set{1,2} \\
         \RFork &
         \Cut\x{\Fork\x\y\z{P}{Q}}{\Join\x\y\z.R} & \red & \Cut\y{P}{\Cut\z{Q}{R}} \\
         \RCut &
@@ -89,3 +97,47 @@ sequential protocol continues as two parallel sub-protocols.
         \end{array}
     \]
 \end{table}
+
+The operational semantics of \Calculus is shown in \cref{tab:semantics} and is
+given by two relations: a \emph{structural pre-congruence} relation $\pcong$ and
+a \emph{reduction} relation $\red$. Structural pre-congruence relates processes
+that we consider to be essentially indistinguishable. Reduction relates
+processes in which a communication occurs. In some presentations of linear
+logic~\cite{Doumane}, these relations are respectively dubbed \emph{external}
+and \emph{internal} reductions. Let us describe the two relations more in
+detail.
+
+Structural pre-congruence is the least pre-congruence defined by rule
+\rulename{s-*} rules.
+%
+\SLink and \SComm assert that links and parallel compositions are symmetric. The
+remaining rules, when read from left to right, push a cut on $x$ underneath the
+topmost prefix on $y$ of one of its sub-processes when $x \ne y$. These rules
+are key to float input/output actions to the top-level of a process, so that
+they can interact with corresponding complementary actions in the context
+surrounding the process.
+%
+Note that some rules have additional side-conditions preventing bound names to
+become free.\Luca{Non proprio, sono tutti nomi bound.} Also, there are two
+versions of \SForkL and \SForkR depending on which of the two continuations $P$
+and $Q$ contains occurrences of the restricted channel $x$.
+%
+Notably and somewhat surprisingly, there is no pre-congruence rule asserting
+that parallel composition is associative. While this is a sound and expected
+property of parallel composition, it turns out to be inessential for proving all
+of the properties of \Calculus that we consider. We leave it out in light of the
+forthcoming formalization of the calculus, in which every simplication is
+welcome.
+
+The reduction rules \RLink, \RClose, \RSelect and \RFork are in one-to-one
+correspondence with the well-known reductions of session calculis and the cut
+reductions of linear logic. \RLink eliminates a link $\Link\x\y$ by unifying $x$
+and $y$. \RClose closes a session $x$ when a termination signal is exchanged on
+$x$. \RSelect and \RFork respectively model the communication of a tag $\Tag_i$
+and of a fresh channel $y$. Since channels are linear in \Calculus, each
+non-terminating communication carries along a \emph{fresh continuation} $z$ on
+which the rest of the conversation may take place, in line with the semantics of
+the linear $\pi$-calculus~\cite{KobayashiPierceTurner99}.
+%
+The rule~\RCut propagates reductions through cuts and the rules \RCong closes
+reduction by structural pre-congruence.
