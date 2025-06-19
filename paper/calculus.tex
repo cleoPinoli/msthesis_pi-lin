@@ -23,10 +23,11 @@
     \end{math}
 \end{table}
 
-The calculus of pure sessions that is formalized in our development is closely
-related to the multiplicative, additive fragment of CP~\citep{Wadler14}, without
-shared channels. Its syntax makes use of an infinite set of \emph{channel
-names}, ranged over by $x$, $y$ and $z$, and is shown in \cref{tab:syntax}.
+The calculus of pure sessions that is formalized in our development is dubbed
+\Calculus and is closely related to the multiplicative, additive fragment of
+CP~\citep{Wadler14}, without shared channels. Its syntax makes use of an
+infinite set of \emph{channel names}, ranged over by $x$, $y$ and $z$, and is
+shown in \cref{tab:syntax}.
 %
 A link $\Link\x\y$ denotes the merging of the $x$ and $y$ channels, so that
 every message sent on one of the channels is forwarded to the other. This form
