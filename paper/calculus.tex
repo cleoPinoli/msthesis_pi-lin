@@ -1,5 +1,8 @@
-\section{The Calculus}
+\section{\Calculus}
 \label{sec:calculus}
+
+\subsection{Syntax}
+\label{sec:syntax}
 
 \begin{table}
     \caption{Syntax of \Calculus.}
@@ -8,8 +11,8 @@
         \displaystyle
         \begin{array}[t]{rcll}
             P, Q & ::= & \Link\x\y \\
-                & | & \Close\x \\
                 & | & \Fail\x \\
+                & | & \Close\x \\
                 & | & \Wait\x.P \\
                 & | & \Select\x{\InTag_i}\z.P \\
                 & | & \Case\x\z{P}{Q} \\
@@ -52,9 +55,17 @@ These forms are often used in conjunction with links to model \emph{free
 outputs}, but can also be used to model bifurcating sessions whereby a
 sequential protocol continues as two parallel sub-protocols.
 
-free and bound names
+The notions of free and bound names are fairly standard. Just bear in mind that
+all action prefixes bind continuation channels in (some) continuation processes.
+In particular, $\Select\x{\Tag_i}\z.P$ binds $z$ in $P$, $\Case\x\z{P}{Q}$ binds
+$z$ in both $P$ and $Q$, $\Fork\x\y\z{P}{Q}$ binds $y$ in $P$ but not in $Q$ and
+$z$ in $Q$ but not in $P$, and $\Join\x\y\z.P$ binds both $y$ and $z$ in $P$.
+%
+We write $\fn{P}$ for the set of channel names occurring free in $P$ and we
+identify processes up to renaming of bound names.
 
-we consideer processes equal up to renaming of bound names
+\subsection{Operational Semantics}
+\label{sec:semantics}
 
 \begin{table}
     \caption{Operational semantics of \Calculus.}
@@ -126,11 +137,12 @@ Notably and somewhat surprisingly, there is no pre-congruence rule asserting
 that parallel composition is associative. While this is a sound and expected
 property of parallel composition, it turns out to be inessential for proving all
 of the properties of \Calculus that we consider. We leave it out in light of the
-forthcoming formalization of the calculus, in which every simplication is
-welcome.
+forthcoming formalization of the calculus, in which every simplification is
+welcome, although standard presentations of classical linear logic admit such
+reduction~\cite{Doumane17}.
 
 The reduction rules \RLink, \RClose, \RSelect and \RFork are in one-to-one
-correspondence with the well-known reductions of session calculis and the cut
+correspondence with the well-known reductions of session calculi and the cut
 reductions of linear logic. \RLink eliminates a link $\Link\x\y$ by unifying $x$
 and $y$. \RClose closes a session $x$ when a termination signal is exchanged on
 $x$. \RSelect and \RFork respectively model the communication of a tag $\Tag_i$
@@ -141,3 +153,145 @@ the linear $\pi$-calculus~\cite{KobayashiPierceTurner99}.
 %
 The rule~\RCut propagates reductions through cuts and the rules \RCong closes
 reduction by structural pre-congruence.
+
+\subsection{Type System}
+
+Types, ranged over by $A$, $B$, \dots, are propositions of multiplicative,
+additive linear logic:
+\[
+    A, B ::= \Zero \mid \Top \mid \One \mid \Bot \mid A \Plus B \mid A \With B \mid A \Ten B \mid A \Par B
+\]
+
+context syntax and notation
+
+\begin{table}
+    \caption{Operational semantics of \Calculus.}
+    \label{tab:semantics}
+    \begin{mathpar}
+        \inferrule[\LinkRule]{~}{
+            \wtp{
+                \Link\x\y
+            }{
+                x : A, y : \dual{A}
+            }
+        }
+        \and
+        \inferrule[\FailRule]{~}{
+            \wtp{
+                \Fail\x
+            }{
+                \Context, x : \Top
+            }
+        }
+        \and
+        \inferrule[\CloseRule]{~}{
+            \wtp{
+                \Close\x
+            }{
+                x : \One
+            }
+        }
+        \and
+        \inferrule[\WaitRule]{
+            \wtp{
+                P
+            }{
+                \Context
+            }
+        }{
+            \wtp{
+                \Wait\x.P
+            }{
+                \Context, x : \Bot
+            }
+        }
+        \and
+        \inferrule[\SelectRule]{
+            \wtp{
+                P
+            }{
+                \Context, y : A_i
+            }
+        }{
+            \wtp{
+                \Select\x{\Tag_i}\y.P
+            }{
+                \Context, x : A_1 \Plus A_2
+            }
+        }
+        \and
+        \inferrule[\CaseRule]{
+            \wtp{
+                P
+            }{
+                \Context, y : A
+            }
+            \\
+            \wtp{
+                Q
+            }{
+                \Context, y : B
+            }
+        }{
+            \wtp{
+                \Case\x\y{P}{Q}
+            }{
+                \Context, x : A \With B
+            }
+        }
+        \and
+        \inferrule[\ForkRule]{
+            \wtp{
+                P
+            }{
+                \ContextC, y : A
+            }
+            \\
+            \wtp{
+                Q
+            }{
+                \ContextD, z : B
+            }
+        }{
+            \wtp{
+                \Join\x\y\z{P}{Q}
+            }{
+                \ContextC, \ContextD, x : A \Ten B
+            }
+        }
+        \and
+        \inferrule[\JoinRule]{
+            \wtp{
+                P
+            }{
+                \Context, y : A, z : B
+            }
+        }{
+            \wtp{
+                \Join\x\y\z.P
+            }{
+                \Context, x : A \Par B
+            }
+        }
+        \and
+        \inferrule[\CutRule]{
+            \wtp{
+                P
+            }{
+                \ContextC, x : A
+            }
+            \\
+            \wtp{
+                Q
+            }{
+                \ContextD, x : \dual{A}
+            }
+        }{
+            \wtp{
+                \Cut\x{P}{Q}
+            }{
+                \ContextC, \ContextD
+            }
+        }
+    \end{mathpar}
+\end{table}
