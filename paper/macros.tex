@@ -14,7 +14,7 @@
 %%% NOTATION %%%
 %%%%%%%%%%%%%%%%
 
-\newcommand{\Calculus}{$\pi$\textsf{LIN}\xspace}
+\newcommand{\Calculus}{\textsf{LCP}\xspace}
 
 \newcommand{\eg}{\textit{e.g.}\xspace}
 \newcommand{\ie}{\textit{i.e.}\xspace}
@@ -130,20 +130,22 @@
 \newcommand{\Def}[2]{#1\ifblank{#2}{}{\parens{#2}}}
 \newcommand{\Call}[2]{#1\ifblank{#2}{}{\angles{#2}}}
 \newcommand{\Link}[2]{#1\leftrightarrow#2}
-\newcommand{\Close}[1]{\mkkeyword{close}\,#1}
-\newcommand{\Wait}[1]{\mkkeyword{wait}\,#1}
-\newcommand{\Fail}[1]{\mkkeyword{fail}\,#1}
-\newcommand{\Select}[3]{#1\bracks{#2}\ifblank{#3}{}{\angles{#3}}}
+\newcommand{\Close}[1]{#1\bracks{}}
+\newcommand{\Wait}[1]{#1\parens{}}
+\newcommand{\Fail}[1]{#1 \triangleright \braces{}}
+\newcommand{\Select}[3]{#1 \triangleleft #2\ifblank{#3}{}{\bracks{#3}}}
 \newcommand{\Left}[2]{\Select{#1}{\InTag_1}{#2}}
 \newcommand{\Right}[2]{\Select{#1}{\InTag_2}{#2}}
 \newcommand{\Choice}[3][p]{#2 \mathbin{\ifblank{#1}{}{_{#1}}\boxplus} #3}
 \newcommand{\OneCase}[3]{#1\ifblank{#2}{}{\parens{#2}}#3}
-\newcommand{\Case}[4]{\OneCase{#1}{#2}{\braces{#3,#4}}}
+\newcommand{\Case}[4]{#1 \triangleright \ifblank{#2}{}{\parens{#2}}\braces{#3,#4}}
 \newcommand{\BigCase}[2]{\OneCase{#1}{\left\{\begin{array}{@{}r@{~:~}l@{}}#2\end{array}\right\}}}
-\newcommand{\Fork}[5]{#1\angles{#2\ifblank{#3}{}{,#3}}\parens{#4,#5}}
+\newcommand{\Fork}[5]{#1\bracks{#2\ifblank{#3}{}{,#3}}.\parens{#4 \parop #5}}
 \renewcommand{\Join}[3]{#1\parens{#2\ifblank{#3}{}{,#3}}}
 \newcommand{\Client}[2]{{?}#1\bracks{#2}}
 \newcommand{\Server}[2]{{!}#1\parens{#2}}
+\newcommand{\Weaken}[1]{{?}#1\bracks{}}
+\newcommand{\Contract}[3]{{?}#1\bracks{#2,#3}}
 \newcommand{\Cut}[3]{\parens{#1}\parens{#2\parop#3}}
 \newcommand{\BigCut}[3]{\parens{#1}\left(#2\,\middle|\,#3\right)}
 
@@ -192,12 +194,19 @@
 \newcommand{\SForkL}{\rulename{s-fork-l}}
 \newcommand{\SForkR}{\rulename{s-fork-r}}
 \newcommand{\SJoin}{\rulename{s-join}}
+\newcommand{\SClient}{\rulename{s-client}}
+\newcommand{\SWeaken}{\rulename{s-weaken}}
+\newcommand{\SContract}{\rulename{s-contract}}
+\newcommand{\SServer}{\rulename{s-server}}
 
 \newcommand{\RLink}{\rulename{r-link}}
 \newcommand{\RFail}{\rulename{r-fail}}
 \newcommand{\RClose}{\rulename{r-close}}
 \newcommand{\RFork}{\rulename{r-fork}}
 \newcommand{\RSelect}{\rulename{r-select}}
+\newcommand{\RConnect}{\rulename{r-connect}}
+\newcommand{\RWeaken}{\rulename{r-weaken}}
+\newcommand{\RContract}{\rulename{r-contract}}
 \newcommand{\RCut}{\rulename{r-cut}}
 \newcommand{\RCong}{\rulename{r-cong}}
 
