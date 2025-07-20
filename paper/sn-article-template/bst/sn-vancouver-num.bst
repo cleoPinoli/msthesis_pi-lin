@@ -1,17 +1,8 @@
 %%
-%% This `vancouver.bst' bibliographic style file (for LaTeX/BibTeX) is
-%% generated with the docstrip utility and modified manually to meet the
-%% ``Uniform Requirements for Manuscripts Submitted to Biomedical Journals''
-%% as published in N Engl J Med 1997;336:309-315.
-%% (also known as the Vancouver style)
-%% This specification may be found on the web page of the
-%% International Committe of Medical Journal Editors:
+%% This is file `sn-vancouver-num.bst',
+%% generated with the docstrip utility.
 %%
-%% http://www.icmje.org
-%%
-%%-------------------------------------------------------------------
-%%
-%% Copyright 2004  Folkert van der Beek
+%% The original source files were: vancouver.bst 
 %%
 %% This work may be distributed and/or modified under the
 %% conditions of the LaTeX Project Public License, either version 1.3
@@ -20,16 +11,6 @@
 %%   http://www.latex-project.org/lppl.txt
 %% and version 1.3 or later is part of all distributions of LaTeX
 %% version 2005/12/01 or later.
-%%
-%% This work has the LPPL maintenance status `maintained'.
-%% 
-%% The Current Maintainer of this work is Folkert van der Beek.
-%%
-%% Complaints, suggestions and comments may be sent to
-%%
-%% Folkert van der Beek <folkertvanderbeek at gmail dot com>
-%%
-%%-------------------------------------------------------------------
 %%
 %% This bibliography style file is intended for texts in ENGLISH
 %% This is a numerical citation style, and as such is standard LaTeX.
@@ -48,8 +29,14 @@
 %% \makeatletter % Reference list option change
 %% \renewcommand\@biblabel[1]{#1} % from [1] to 1
 %% \makeatother %
-%%
 %%---------------------------------------------------------------------
+
+FUNCTION {identify.vancouver.version}
+{ % Put identifying string in the .blg file
+  "sn-vancouver-num.bst"
+  " [2024/07/19 v1.1 Vancouver bibliography style]"
+  * top$
+}
 
 %% List of all possible fields
 ENTRY
@@ -269,7 +256,6 @@ FUNCTION {add.semicolon}
   ";" *
   no.blank.or.punct
 }
-
 
 FUNCTION {misc.add.colon}
 {
@@ -1351,7 +1337,7 @@ FUNCTION {format.chapter.pages}
 	    'skip$
 	  if$
 	}
-	FUNCTION {format.thesis.type}
+FUNCTION {format.thesis.type}
 	{ type duplicate$ empty$
 	    'pop$
 	    { swap$ pop$
@@ -1988,6 +1974,8 @@ FUNCTION {unpublished}
 
 FUNCTION {default.type} { misc }
 READ
+EXECUTE {identify.vancouver.version}
+
 STRINGS { longest.label }
 INTEGERS { number.label longest.label.width }
 FUNCTION {initialize.longest.label}
@@ -2029,5 +2017,5 @@ FUNCTION {end.bib}
 EXECUTE {end.bib}
 %% End of customized bst file
 %%
-%% End of file `vancouver.bst'.
+%% End of file `sn-vancouver-num.bst'.
 

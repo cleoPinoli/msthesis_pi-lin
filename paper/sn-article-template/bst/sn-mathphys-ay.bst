@@ -1,14 +1,10 @@
-%% This is file `bmc-mathphys.bst' (created: 2011-12-27)
+%% This is file `sn-mathphys-ay.bst'
 %% Compatible with bibtex version 0.99d.
-%%
-%% Please submit bugs or your comments to vtex@vtex.lt
-%% Start subject with a "[BMC] bibtex: " + subject
 %%
 %% Sorting entries is done by name and year fields!
 %%
 %% You are free to use this style file as you see fit, provided 
 %% that you do not make changes to the file. 
-%% If you DO make changes, you are required to rename this file.
 %%
 %% It may be distributed under the terms of the LaTeX Project Public
 %% License, as described in lppl.txt in the base LaTeX distribution.
@@ -19,12 +15,13 @@
 %% "Sorry---you've exceeded BibTeX's number of string global-variables"
 %% that means you are using to old bibtex version. You should download latest version 0.99d. 
 %% (One of the binaries location is minimals.contextgarden.net/current/bin/common/)
-%%
-%% BibTeX programming: Linas Stonys, VTeX, Lithuania, lstonys@vtex.lt
-%
-% Changes:
-% 2013-07-15 -- added XML output (taken from bmc_article.bst) v2.0
-%
+
+FUNCTION {identify.mathphys.version}
+{ % Put identifying string in the .blg file
+  "sn-mathphys-ay.bst"
+  " [2024/07/19 v1.1 bibliography style]"
+  * top$
+}
 
 ENTRY
   { address
@@ -2393,6 +2390,8 @@ MACRO {dec} {"December"}
 
 READ
 
+EXECUTE {identify.mathphys.version}
+
 FUNCTION {sortify}
 { purify$
   "l" change.case$
@@ -3203,6 +3202,7 @@ FUNCTION {export.xml}{
 %%ITERATE {export.xml}
 %%EXECUTE {end.bmcxmlcomment}
 
+%% End of file `sn-mathphys-ay.bst'.
 
 
 
