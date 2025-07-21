@@ -29,9 +29,13 @@
 \end{table}
 
 The calculus of pure sessions that is formalized in our development is dubbed
-\Calculus and is a linear version of \CP~\citep{Wadler14,GayVasconcelos25}. Its
-syntax makes use of an infinite set of \emph{channel names}, ranged over by $x$,
-$y$ and $z$, and is shown in~\Cref{tab:syntax}.
+\Calculus and is a linear version of \CP~\citep{Wadler14,GayVasconcelos25},
+where every session endpoint is meant to be used \emph{exactly once}. This
+differs from \CP and other session calculi where session endpoints can be used
+repeatedly, albeit sequentially.
+
+The syntax of \Calculus makes use of an infinite set of \emph{channel names},
+ranged over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
 %
 A link $\Link\x\y$ denotes the merging of the $x$ and $y$ channels, so that
 every message sent on one of the channels is forwarded to the other. This form
@@ -354,19 +358,69 @@ propositions as sessions~\citep{Wadler14} for their interpretation.
 \subsection{Properties of Well-Typed Processes}
 \label{sec:properties}
 
-\begin{lemma}
-    \label{lem:pcong}
-    If $P \pcong Q$, then $\wtp{P}\Context$ implies $\wtp{Q}\Context$.
-\end{lemma}
+The \emph{linearity challenge}~\citep{CarboneEtAl24} aims at formalizing two
+essential properties of well-typed processes: (1) typing is preserved by
+reductions; (2) peer endpoints are always used in complementary ways. This
+latter property is dubbed \emph{well formedness} in the text of the challenge.
+We now formulate these properties using the notation developed so far.
+
+Concerning the preservation of typing, this corresponds to the usual subject
+reduction result which is expressed thus.
 
 \begin{theorem}[subject reduction]
     \label{thm:red}
     If $P \red Q$, then $\wtp{P}\Context$ implies $\wtp{Q}\Context$.
 \end{theorem}
 
-\begin{theorem}[deadlock freedom]
-    \label{thm:df}
-    If $\wtp{P}\Context$, then $P$ is either observable or reducible.
+In order to formulate well formedness, we start by defining \emph{reduction
+contexts} are partial processes with a single unguarded hole $\Hole$, thus:
+\[
+    \ReductionContext ::= \Hole \mid \Cut\x\ReductionContext{P} \mid \Cut\x{P}\ReductionContext
+\]
+
+As usual, we write $\ReductionContext[P]$ for the process obtained by replacing
+the hole in $\ReductionContext$ with $P$, noting that such replacement may
+capture channel names that are bound in $\ReductionContext$ and occur free in
+$P$.
+
+Next we introduce some terminology concerning the shape of processes. We say
+that $P$ is a \emph{thread} if it is anything but a cut. In other words, a
+thread is either a link or a process that starts with an input/output action of
+some sort. Note that a thread may contain cuts, but these must all guarded
+underneath the topmost action prefix.
+%
+We also say that $P$ is \emph{observable} if $P \pcong Q$ for some thread $Q$.
+An observable process is a process that exposes an action on a free channel name
+and therefore can interact through that channel, if put into some appropriate
+reduction context. We say that $P$ is \emph{reducible} if $P \red Q$ for some
+$Q$. A reducible process may perform a reduction step.
+
+Now we observe that if $P$ and $Q$ both act on the same channel $x$ in
+complementary ways, then their parallel composition $\Cut\x{P}{Q}$ must be able
+to reduce according to one of the principal cut reductions described in
+\Cref{tab:semantics}. Therefore, an alternative (and more convenient) way of
+formulating well formedness is the following:
+
+\begin{definition}[well formedness]
+    \label{def:well-formedness}
+    We say that $P$ is \emph{well formed} if $P \pcong
+    \ReductionContext[\Cut\x{Q_1}{Q_2}]$ where both $Q_1$ and $Q_2$ are threads
+    implies that $\Cut\x{Q_1}{Q_2}$ is either observable or reducible.
+\end{definition}
+
+In general a process may be well-formed even if it is unable to reduce. For
+example, $P \eqdef \Cut\x{\Wait\y.\Close\x}{\Wait\x.\Close\z}$ is irreducible
+but also well formed, because $P \pcong
+\Wait\y.\Cut\x{\Close\x}{\Wait\x.\Close\z}$ which is observable.
+
+\begin{theorem}[type safety]
+    \label{thm:type-safety}
+    If $\wtp{P}\Context$, then $P$ is well formed.
 \end{theorem}
 
-safety
+% \begin{theorem}[deadlock freedom]
+%     \label{thm:df}
+%     If $\wtp{P}\Context$, then $P$ is either observable or reducible.
+% \end{theorem}
+
+% safety
