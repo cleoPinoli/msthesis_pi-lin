@@ -31,7 +31,7 @@
 The calculus of pure sessions that is formalized in our development is dubbed
 \Calculus and is a linear version of \CP~\citep{Wadler14,GayVasconcelos25}. Its
 syntax makes use of an infinite set of \emph{channel names}, ranged over by $x$,
-$y$ and $z$, and is shown in Table~\ref{tab:syntax}.
+$y$ and $z$, and is shown in~\Cref{tab:syntax}.
 %
 A link $\Link\x\y$ denotes the merging of the $x$ and $y$ channels, so that
 every message sent on one of the channels is forwarded to the other. This form
@@ -70,17 +70,14 @@ $\Weaken\x.P$ denotes an explicit \emph{weakening}, that is a client that does
 denotes an explicit \emph{contraction}, that is a client that uses the server
 $x$ multiple times on the channels $y$ and $z$.
 
-\emph{Cuts} of the form $\Cut\x{P}{Q}$ represent the parallel composition of $P$
-and $Q$ connected by a channel $x$.
+\emph{Cuts} of the form $\Cut\x{P}{Q}$ represent the parallel composition of the
+processes $P$ and $Q$ connected by a channel $x$.
 
-The notions of free and bound names are fairly standard. Just bear in mind that
-all action prefixes bind continuation channels in (some) continuation processes.
-In particular, $\Select\x{\Tag_i}\z.P$ binds $z$ in $P$, $\Case\x\z{P}{Q}$ binds
-$z$ in both $P$ and $Q$, $\Fork\x\y\z{P}{Q}$ binds $y$ in $P$ but not in $Q$ and
-$z$ in $Q$ but not in $P$, and $\Join\x\y\z.P$ binds both $y$ and $z$ in $P$.
-%
-Also, $\Server\x\y.P$ and $\Client\x\y.P$ bind $y$ in $P$ and
-$\Contract\x\y\z.P$ binds $y$ and $z$ in $P$.
+The notions of free and bound names are almost standard. Just bear in mind that
+also output action prefixes bind continuation channels in (some) continuation
+processes. In particular, $\Select\x{\Tag_i}\z.P$ binds $z$ in $P$, while
+$\Fork\x\y\z{P}{Q}$ binds $y$ in $P$ but not in $Q$ and $z$ in $Q$ but not in
+$P$.
 %
 We write $\fn{P}$ for the set of channel names occurring free in $P$ and we
 identify processes up to renaming of bound names.
@@ -166,16 +163,16 @@ identify processes up to renaming of bound names.
     \end{tabular}
 \end{table}
 
-The operational semantics of \Calculus is shown in Table~\ref{tab:semantics} and
+The operational semantics of \Calculus is shown in~\Cref{tab:semantics} and
 is given by two relations: a \emph{structural pre-congruence} relation $\pcong$
 and a \emph{reduction} relation $\red$. Structural pre-congruence relates
 processes that we consider to be essentially indistinguishable. Reduction
 relates processes in which a communication occurs. In some presentations of
-linear logic~\cite{Doumane}, these relations are respectively dubbed
-\emph{external} and \emph{internal} reductions. Let us describe the two
-relations more in detail.
+linear logic~\cite{BaeldeDoumaneSaurin16,Doumane17}, these relations are
+respectively dubbed \emph{external} and \emph{internal} reductions. Let us
+describe the two relations more in detail.
 
-Structural pre-congruence is the least pre-congruence defined by rule
+Structural pre-congruence is the least pre-congruence defined by the
 \rulename{s-*} rules.
 %
 \SLink and \SComm assert that links and parallel compositions are symmetric. The
@@ -185,11 +182,11 @@ are key to float input/output actions to the top-level of a process, so that
 they can interact with corresponding complementary actions in the context
 surrounding the process.
 %
-Note that some rules have additional side-conditions preventing bound names to
-become free.\Luca{Non proprio, sono tutti nomi bound.} Also, there are two
-versions of \SForkL and \SForkR depending on which of the two continuations $P$
-and $Q$ contains occurrences of the restricted channel $x$.
-%
+Note that some rules have additional side-conditions aimed at preserving the
+meaning of names when binders are moved around. Also, there are two versions of
+\SForkL and \SForkR depending on which of the two continuations $P$ and $Q$
+contains occurrences of the restricted channel $x$.
+
 Notably and somewhat surprisingly, there is no pre-congruence rule asserting
 that parallel composition is associative. While this is a sound and expected
 property of parallel composition, it turns out to be inessential for proving all
@@ -197,26 +194,41 @@ of the properties of \Calculus that we consider. We leave it out in light of the
 forthcoming formalization of the calculus, in which every simplification is
 welcome, although standard presentations of classical linear logic admit such
 reduction~\cite{Doumane17}.
+%
+Another rule that deserves attention is \SServer. In this case, a server prefix
+$\Server\y\u$ can be pulled out of a cut only provided that the other process in
+the cut is also a server on the channel restricted by the cut.
 
-The reduction rules \RLink, \RClose, \RSelect and \RFork are in one-to-one
-correspondence with the well-known reductions of session calculi and the cut
-reductions of linear logic. \RLink eliminates a link $\Link\x\y$ by unifying $x$
-and $y$. \RClose closes a session $x$ when a termination signal is exchanged on
-$x$. \RSelect and \RFork respectively model the communication of a tag $\Tag_i$
-and of a fresh channel $y$. Since channels are linear in \Calculus, each
-non-terminating communication carries along a \emph{fresh continuation} $z$ on
-which the rest of the conversation may take place, in line with the semantics of
+The reduction rules \RLink, \RClose, \RSelect, \RFork, \RConnect, \RWeaken and
+\RContract are in one-to-one correspondence with the well-known reductions of
+session calculi and the principal cut reductions of linear logic. \RLink
+eliminates a link $\Link\x\y$ by substituting $y$ for $x$. \RClose closes a
+session $x$ when a termination signal is exchanged on $x$. \RSelect and \RFork
+respectively model the communication of a tag $\Tag_i$ and of a fresh channel
+$y$. Each of these communications carries along a \emph{fresh continuation} $z$
+on which the rest of the conversation takes place, in line with the semantics of
 the linear $\pi$-calculus~\cite{KobayashiPierceTurner99}.
 %
+\RConnect, \RWeaken and \RContract describe interactions on shared channels and
+respectively represent the connection between a server and a client, the
+disposal of an unused server, and the duplication of a server. In \RWeaken and
+\RContract we use some convenient (albeit slightly ambiguous) notation for
+denoting sequences of (pairwise distinct) channels and prefixes. In particular,
+$\seqof\z$ stands for a sequence $z_1, \dots, z_n$ of channels,
+$\Weaken{\seqof\z}.Q$ stands for $\Weaken{z_1}\dots\Weaken{z_n}.Q$ and
+$\Contract{\seqof\z}{\seqof\z'}{\seqof\z''}.R$ stands for
+$\Contract{z_1}{z_1'}{z_1''}\dots\Contract{z_n}{z_n'}{z_n''}.R$.
+
 The rule~\RCut propagates reductions through cuts and the rules \RCong closes
 reduction by structural pre-congruence.
 
 \subsection{Type System}
+\label{sec:typing-rules}
 
-The types for \Calculus, ranged over by $A$, $B$, \dots, are propositions of
-\MALL generated by the following grammar:
+The types for \Calculus, ranged over by $A$, $B$, \dots, are linear logic
+ propositions generated by the following grammar:
 \[
-    A, B ::= \Zero \mid \Top \mid \One \mid \Bot \mid A \Plus B \mid A \With B \mid A \Ten B \mid A \Par B
+    A, B ::= \Zero \mid \Top \mid \One \mid \Bot \mid A \Plus B \mid A \With B \mid A \Ten B \mid A \Par B \mid \OfCourse A \mid \WhyNot A
 \]
 
 The interpretation of propositions as session types is the usual
@@ -228,9 +240,133 @@ multiplicative connectives $A \Ten B$ and $A \Par B$ describe the behavior of a
 process sending/receiving a channel (to be used according to $A$) and then
 continuing as described by $B$. The additive constants $\Zero$ and $\Top$ do not
 describe useful protocols, but they can serve the role of smallest/largest type
-in type systems that support a notion of subtyping~\citep{HornePadovani24}.
+in type systems that support a notion of subtyping~\citep{HornePadovani24}. The
+``of course'' modality $\OfCourse A$ and the ``why not'' modality $\WhyNot A$
+describe the behavior of servers and clients accepting and requesting
+connections to be used according to $A$.
 
 The notion of \emph{duality} is standard and we write $\dual{A}$ for the dual of
 $A$.
 
-context syntax and notation
+Typing contexts (\ie sequents) are finite maps from channel names to types
+written as $x_1 : A_1, \dots, x_n : A_n$ and ranged over by $\ContextC$ and
+$\ContextD$. We write $\ContextC, \ContextD$ for the union of $\ContextC$ and
+$\ContextD$ when they have disjoint domain. We write $\WhyNot\Context$ for some
+context $\Context = x_1 : \WhyNot A_1, \dots, x_n : \WhyNot A_n$ where all the
+types in its range are prefixed by the $\WhyNot$ modality.
+
+\begin{table}
+    \caption{Typing rules of \Calculus.}
+    \label{tab:typing-rules}
+    \begin{tabular}{@{}c@{}}
+        \begin{mathpar}
+            \inferrule[\LinkRule]{~}{
+                \wtp{\Link\x\y}{x : A, y : \dual{A}}
+            }
+            \and
+            \inferrule[\FailRule]{~}{
+                \wtp{\Fail\x}{x : \Top, \Context}
+            }
+            \and
+            \inferrule[\CloseRule]{~}{
+                \wtp{\Close\x}{x : \One}
+            }
+            \and
+            \inferrule[\WaitRule]{
+                \wtp{P}{\Context}
+            }{
+                \wtp{\Wait\x.P}{x : \Bot, \Context}
+            }
+            \and
+            \inferrule[\SelectRule]{
+                \wtp{P}{y : A_i, \Context}
+            }{
+                \wtp{\Select\x{\InTag_i}\y.P}{x : A_1 \Plus A_2, \Context}
+            }
+            \and
+            \inferrule[\CaseRule]{
+                \wtp{P}{y : A, \Context}
+                \\
+                \wtp{Q}{y : B, \Context}
+            }{
+                \wtp{\Case\x\y{P}{Q}}{x : A \With B, \Context}
+            }
+            \and
+            \inferrule[\ForkRule]{
+                \wtp{P}{y : A, \ContextC}
+                \\
+                \wtp{Q}{z : B, \ContextD}
+            }{
+                \wtp{\Fork\x\y\z{P}{Q}}{x : A \Ten B, \ContextC, \ContextD}
+            }
+            \and
+            \inferrule[\JoinRule]{
+                \wtp{P}{y : A, z : B, \Context}
+            }{
+                \wtp{\Join\x\y\z.P}{x : A \Par B, \Context}
+            }
+            \and
+            \inferrule[\ServerRule]{
+                \wtp{P}{y : A, \WhyNot\Context}
+            }{
+                \wtp{\Server\x\y.P}{x : \OfCourse A, \WhyNot\Context}
+            }
+            \and
+            \inferrule[\ClientRule]{
+                \wtp{P}{y : A, \Context}
+            }{
+                \wtp{\Client\x\y.P}{x : \WhyNot A, \Context}
+            }
+            \and
+            \inferrule[\WeakenRule]{
+                \wtp{P}\Context
+            }{
+                \wtp{P}{x : \WhyNot A, \Context}
+            }
+            \and
+            \inferrule[\ContractRule]{
+                \wtp{P}{y : \WhyNot A, z : \WhyNot A, \Context}
+            }{
+                \wtp{P}{x : \WhyNot A, \Context}
+            }
+            \and
+            \inferrule[\CutRule]{
+                \wtp{P}{x : A, \ContextC}
+                \\
+                \wtp{Q}{x : \dual{A}, \ContextD}
+            }{
+                \wtp{\Cut\x{P}{Q}}{\ContextC, \ContextD}
+            }
+        \end{mathpar}
+    \end{tabular}
+\end{table}
+
+Typing judgments have the form $\wtp{P}\Context$ meaning that the process $P$ is
+well typed in the context $\Context$. Equivalently, the judgment indicates that
+the sequent $\wtp{}\Context$ is derivable and $P$ is a \emph{proof term}
+corresponding to the derivation for $\wtp{}\Context$.
+%
+The typing rules are shown in \Cref{tab:typing-rules}. Since they are in
+one-to-one correspondence with the proof rules of classical linear logic, the
+reader may refer to the standard literature on linear logic~\cite{} or
+propositions as sessions~\citep{Wadler14} for their interpretation.
+
+\subsection{Properties of Well-Typed Processes}
+\label{sec:properties}
+
+\begin{lemma}
+    \label{lem:pcong}
+    If $P \pcong Q$, then $\wtp{P}\Context$ implies $\wtp{Q}\Context$.
+\end{lemma}
+
+\begin{theorem}[subject reduction]
+    \label{thm:red}
+    If $P \red Q$, then $\wtp{P}\Context$ implies $\wtp{Q}\Context$.
+\end{theorem}
+
+\begin{theorem}[deadlock freedom]
+    \label{thm:df}
+    If $\wtp{P}\Context$, then $P$ is either observable or reducible.
+\end{theorem}
+
+safety
