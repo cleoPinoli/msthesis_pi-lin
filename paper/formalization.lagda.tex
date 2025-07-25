@@ -1,29 +1,51 @@
 \section{Agda Formalization}
 \label{sec:formalization}
 
+\begin{code}[hide]
+open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
+open import Data.List.Base using (List; []; _∷_; [_]; _++_)
+\end{code}
+
+\subsection{Type Representation}
+\label{sec:type-agda}
+
+The representation of types is standard, with one constructor for each of the
+forms described in \Cref{sec:calculus}.
+
 \begin{code}
 data Type : Set where
-  𝟘 𝟙 ⊥ ⊤ : Type
-  ¡ ¿ : Type → Type
-  _&_ _⊕_ _⊗_ _⅋_ : Type → Type → Type
+  𝟘 𝟙 ⊥ ⊤          : Type
+  ¡ ¿              : Type → Type
+  _&_ _⊕_ _⊗_ _⅋_  : Type → Type → Type
 \end{code}
+
+The notion of duality is formalized as a \emph{relation} \AgdaDatatype{Dual}
+such that $\AgdaDatatype{Dual}~A~B$ holds if and only if $A = \dual{B}$.
 
 \begin{code}
 data Dual : Type → Type → Set where
-  d-𝟘-⊤ : Dual 𝟘 ⊤
-  d-⊤-𝟘 : Dual ⊤ 𝟘
-  d-𝟙-⊥ : Dual 𝟙 ⊥
-  d-⊥-𝟙 : Dual ⊥ 𝟙
-  d-!-? : ∀{A B} → Dual A B → Dual (¡ A) (¿ B)
-  d-?-! : ∀{A B} → Dual A B → Dual (¿ A) (¡ B)
-  d-&-⊕ : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A & B) (A′ ⊕ B′)
-  d-⊕-& : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A ⊕ B) (A′ & B′)
-  d-⊗-⅋ : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A ⊗ B) (A′ ⅋ B′)
-  d-⅋-⊗ : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A ⅋ B) (A′ ⊗ B′)
+  d-𝟘-⊤  : Dual 𝟘 ⊤
+  d-⊤-𝟘  : Dual ⊤ 𝟘
+  d-𝟙-⊥  : Dual 𝟙 ⊥
+  d-⊥-𝟙  : Dual ⊥ 𝟙
+  d-!-?  : ∀{A B} → Dual A B → Dual (¡ A) (¿ B)
+  d-?-!  : ∀{A B} → Dual A B → Dual (¿ A) (¡ B)
+  d-&-⊕  : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A & B) (A′ ⊕ B′)
+  d-⊕-&  : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A ⊕ B) (A′ & B′)
+  d-⊗-⅋  : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A ⊗ B) (A′ ⅋ B′)
+  d-⅋-⊗  : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A ⅋ B) (A′ ⊗ B′)
 \end{code}
 
+It is straightforward to prove that duality is a symmetric relation and that it
+behaves as an involution. From this we prove that it acts as the function
+$\dual\cdot$ defined in \Cref{sec:calculus}.
+
 \begin{code}
-dual-symm : ∀{A B} → Dual A B → Dual B A
+dual-symm   : ∀{A B} → Dual A B → Dual B A
+dual-inv    : ∀{A B C} → Dual A B → Dual B C → A ≡ C
+dual-fun-r  : ∀{A B C} → Dual A B → Dual A C → B ≡ C
+dual-fun-l  : ∀{A B C} → Dual B A → Dual C A → B ≡ C
 \end{code}
 \begin{code}[hide]
 dual-symm d-𝟘-⊤ = d-⊤-𝟘
@@ -37,3 +59,134 @@ dual-symm (d-⊕-& p q) = d-&-⊕ (dual-symm p) (dual-symm q)
 dual-symm (d-⊗-⅋ p q) = d-⅋-⊗ (dual-symm p) (dual-symm q)
 dual-symm (d-⅋-⊗ p q) = d-⊗-⅋ (dual-symm p) (dual-symm q)
 \end{code}
+
+\begin{code}[hide]
+dual-inv d-𝟘-⊤ d-⊤-𝟘 = refl
+dual-inv d-⊤-𝟘 d-𝟘-⊤ = refl
+dual-inv d-𝟙-⊥ d-⊥-𝟙 = refl
+dual-inv d-⊥-𝟙 d-𝟙-⊥ = refl
+dual-inv (d-!-? p) (d-?-! q) = cong ¡ (dual-inv p q)
+dual-inv (d-?-! p) (d-!-? q) = cong ¿ (dual-inv p q)
+dual-inv (d-&-⊕ p q) (d-⊕-& r s) = cong₂ _&_ (dual-inv p r) (dual-inv q s)
+dual-inv (d-⊕-& p q) (d-&-⊕ r s) = cong₂ _⊕_ (dual-inv p r) (dual-inv q s)
+dual-inv (d-⊗-⅋ p q) (d-⅋-⊗ r s) = cong₂ _⊗_ (dual-inv p r) (dual-inv q s)
+dual-inv (d-⅋-⊗ p q) (d-⊗-⅋ r s) = cong₂ _⅋_ (dual-inv p r) (dual-inv q s)
+
+dual-fun-r d e = dual-inv (dual-symm d) e
+
+dual-fun-l d e = dual-inv d (dual-symm e)
+\end{code}
+
+\subsection{Context Representation}
+\label{sec:context-agda}
+
+We are going to adopt a nameless representation of channels whereby a channel is
+identified by its position in a typing context. This representation is akin to
+using De Bruijn indices, except that the index, instead of being represented
+explicitly by a natural number, is computable from the \emph{proof} that the
+type of the channel belong to the typing context.
+%
+Typing contexts are represented using \emph{lists} of types, where the
+(polymorphic) \AgdaDatatype{List} type is defined in Agda′s standard library.
+
+\begin{code}
+Context : Set
+Context = List Type
+\end{code}
+
+The most important operation concerning typing contexts is \emph{splitting}. The
+splitting of $\ContextC$ into $\ContextD$ and $\ContextE$, which is denoted by
+$\Splitting\ContextC\ContextD\ContextE$, represents the fact that $\ContextC$
+contains all the types contained in $\ContextD$ and $\ContextE$, preserving both
+their overall \emph{multiplicity} and also their relative \emph{order} within
+$\ContextD$ and $\ContextE$. A \emph{proof} of
+$\Splitting\ContextC\ContextD\ContextE$ shows how the types in $\ContextC$ are
+distributed in $\ContextD$ and $\ContextE$ from left to right.
+
+\begin{code}[hide]
+infix 4 _≃_+_ _≃_,_
+\end{code}
+\begin{code}
+data _≃_+_ : Context → Context → Context → Set where
+  split-e  : [] ≃ [] + []
+  split-l  : ∀{A Γ Δ Θ} → Γ ≃ Δ + Θ → A ∷ Γ ≃ A ∷ Δ + Θ
+  split-r  : ∀{A Γ Δ Θ} → Γ ≃ Δ + Θ → A ∷ Γ ≃ Δ + A ∷ Θ
+\end{code}
+
+As an example, below is the splitting of the context $[A, B, C, D]$ into $[A,
+D]$ and $[B, C]$. Note how the sequence of \AgdaInductiveConstructor{split-l}
+and \AgdaInductiveConstructor{split-r} applications determines where each of the
+types in $[A, B, C, D]$ ends up in $[A, D]$ and $[B, C]$.
+
+\begin{code}[hide]
+module _ where
+  postulate A B C D : Type
+\end{code}
+\begin{code}
+  splitting-example : (A ∷ B ∷ C ∷ D ∷ []) ≃ (A ∷ D ∷ []) + (B ∷ C ∷ [])
+  splitting-example = split-l (split-r (split-r (split-l split-e)))
+\end{code}
+
+It is often the case that the context $\ContextD$ in a splitting
+$\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. For this
+particular case, we introduce a dedicated notation that allows us to represent
+this case in a more compact and readable way, as
+$\SimpleSplitting\ContextC{A}\ContextE$.
+
+\begin{code}
+_≃_,_ : Context → Type → Context → Set
+Γ ≃ A , Δ = Γ ≃ [ A ] + Δ
+\end{code}
+
+Context splitting enjoys a number of expected properties. In particular, it is
+easy to see that splitting is commutative and that the empty context is both a
+left and right unit of splitting.
+
+\begin{code}
++-comm    : ∀{Γ Δ Θ} → Γ ≃ Δ + Θ → Γ ≃ Θ + Δ
++-unit-l  : ∀{Γ} → Γ ≃ [] + Γ
++-unit-r  : ∀{Γ} → Γ ≃ Γ + []
+\end{code}
+\begin{code}[hide]
++-comm split-e = split-e
++-comm (split-l p) = split-r (+-comm p)
++-comm (split-r p) = split-l (+-comm p)
+
++-unit-l {[]} = split-e
++-unit-l {_ ∷ _} = split-r +-unit-l
+
++-unit-r = +-comm +-unit-l
+\end{code}
+
+Context splitting is also associative in a sense that is made precise below. If
+we write $\ContextD + \ContextE$ for some $\ContextC$ such that $Γ ≃ Δ + Θ$, then
+we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
+
+\begin{code}
++-assoc-r  : ∀{Γ Δ Θ Δ′ Θ′} → Γ ≃ Δ + Θ → Θ ≃ Δ′ + Θ′ →
+             ∃[ Γ′ ] Γ′ ≃ Δ + Δ′ × Γ ≃ Γ′ + Θ′
++-assoc-l  : ∀{Γ Δ Θ Δ′ Θ′} → Γ ≃ Δ + Θ → Δ ≃ Δ′ + Θ′ →
+             ∃[ Γ′ ] Γ′ ≃ Θ′ + Θ × Γ ≃ Δ′ + Γ′
+\end{code}
+\begin{code}[hide]
++-assoc-r split-e split-e = [] , split-e , split-e
++-assoc-r (split-l p) q with +-assoc-r p q
+... | _ , p′ , q′ = _ , split-l p′ , split-l q′
++-assoc-r (split-r p) (split-l q) with +-assoc-r p q
+... | _ , p′ , q′ = _ , split-r p′ , split-l q′
++-assoc-r (split-r p) (split-r q) with +-assoc-r p q
+... | _ , p′ , q′ = _ , p′ , split-r q′
+
++-assoc-l p q with +-assoc-r (+-comm p) (+-comm q)
+... | Δ , r , p′ = Δ , +-comm r , +-comm p′
+
++-empty-l : ∀{Γ Δ} → Γ ≃ [] + Δ → Γ ≡ Δ
++-empty-l split-e = refl
++-empty-l (split-r p) = cong (_ ∷_) (+-empty-l p)
+
++-sing-l : ∀{A B Γ} → [ A ] ≃ B , Γ → A ≡ B × Γ ≡ []
++-sing-l (split-l split-e) = refl , refl
+\end{code}
+
+\subsection{Context Permutations}
+\label{sec:permutation-agda}
