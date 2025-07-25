@@ -12,8 +12,22 @@
 \usepackage{xspace}
 \usepackage{upgreek}
 \usepackage{cleveref}
+\usepackage{newunicodechar}
+\usepackage[utf8]{inputenc}
 %%%%
 \input{macros}
+
+\newunicodechar{𝟘}{\ensuremath{\Zero}}
+\newunicodechar{𝟙}{\ensuremath{\One}}
+\newunicodechar{⊥}{\ensuremath{\Bot}}
+\newunicodechar{⊤}{\ensuremath{\Top}}
+\newunicodechar{¡}{\ensuremath{\OfCourse}}
+\newunicodechar{¿}{\ensuremath{\WhyNot}}
+\newunicodechar{⊕}{\ensuremath{\Plus}}
+\newunicodechar{⊗}{\ensuremath{\Ten}}
+\newunicodechar{⅋}{\ensuremath{\Par}}
+\newunicodechar{∀}{\ensuremath{\forall}}
+\newunicodechar{′}{\ensuremath{{}^\prime}}
 
 %%%%%=============================================================================%%%%
 %%%%  Remarks: This template is provided to aid authors with the preparation
@@ -83,6 +97,7 @@
 \label{sec:introduction}
 
 \input{calculus}
+\input{formalization}
 
 \bibliography{main}
 

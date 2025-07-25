@@ -1,2 +1,2 @@
 #!/bin/sh
-exec watchexec -d 500ms -i main.tex agda --latex-dir=. --latex main.lagda.tex
+exec watchexec -d 500ms -i formalization.tex agda --latex-dir=. --latex formalization.lagda.tex

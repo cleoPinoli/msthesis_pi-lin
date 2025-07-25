@@ -1,0 +1,39 @@
+\section{Agda Formalization}
+\label{sec:formalization}
+
+\begin{code}
+data Type : Set where
+  𝟘 𝟙 ⊥ ⊤ : Type
+  ¡ ¿ : Type → Type
+  _&_ _⊕_ _⊗_ _⅋_ : Type → Type → Type
+\end{code}
+
+\begin{code}
+data Dual : Type → Type → Set where
+  d-𝟘-⊤ : Dual 𝟘 ⊤
+  d-⊤-𝟘 : Dual ⊤ 𝟘
+  d-𝟙-⊥ : Dual 𝟙 ⊥
+  d-⊥-𝟙 : Dual ⊥ 𝟙
+  d-!-? : ∀{A B} → Dual A B → Dual (¡ A) (¿ B)
+  d-?-! : ∀{A B} → Dual A B → Dual (¿ A) (¡ B)
+  d-&-⊕ : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A & B) (A′ ⊕ B′)
+  d-⊕-& : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A ⊕ B) (A′ & B′)
+  d-⊗-⅋ : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A ⊗ B) (A′ ⅋ B′)
+  d-⅋-⊗ : ∀{A B A′ B′} → Dual A A′ → Dual B B′ → Dual (A ⅋ B) (A′ ⊗ B′)
+\end{code}
+
+\begin{code}
+dual-symm : ∀{A B} → Dual A B → Dual B A
+\end{code}
+\begin{code}[hide]
+dual-symm d-𝟘-⊤ = d-⊤-𝟘
+dual-symm d-⊤-𝟘 = d-𝟘-⊤
+dual-symm d-𝟙-⊥ = d-⊥-𝟙
+dual-symm d-⊥-𝟙 = d-𝟙-⊥
+dual-symm (d-!-? p) = d-?-! (dual-symm p)
+dual-symm (d-?-! p) = d-!-? (dual-symm p)
+dual-symm (d-&-⊕ p q) = d-⊕-& (dual-symm p) (dual-symm q)
+dual-symm (d-⊕-& p q) = d-&-⊕ (dual-symm p) (dual-symm q)
+dual-symm (d-⊗-⅋ p q) = d-⅋-⊗ (dual-symm p) (dual-symm q)
+dual-symm (d-⅋-⊗ p q) = d-⊗-⅋ (dual-symm p) (dual-symm q)
+\end{code}
