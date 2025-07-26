@@ -2,6 +2,7 @@
 \label{sec:formalization}
 
 \begin{code}[hide]
+open import Data.Bool using (Bool; if_then_else_)
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 open import Data.List.Base using (List; []; _∷_; [_]; _++_)
@@ -190,3 +191,264 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 
 \subsection{Context Permutations}
 \label{sec:permutation-agda}
+
+\begin{code}
+data _#_ : Context → Context → Set where
+  #refl  : ∀{Γ} → Γ # Γ
+  #here  : ∀{A B Γ} → (A ∷ B ∷ Γ) # (B ∷ A ∷ Γ)
+  #next  : ∀{A Γ Δ} → Γ # Δ → (A ∷ Γ) # (A ∷ Δ)
+  #tran  : ∀{Γ Δ Θ} → Γ # Δ → Δ # Θ → Γ # Θ
+
+#sym : ∀{Γ Δ} → Γ # Δ → Δ # Γ
+#sym #refl = #refl
+#sym #here = #here
+#sym (#next π) = #next (#sym π)
+#sym (#tran π π′) = #tran (#sym π′) (#sym π)
+
+#empty-inv : ∀{Γ} → [] # Γ → Γ ≡ []
+#empty-inv #refl = refl
+#empty-inv (#tran π π′) rewrite #empty-inv π | #empty-inv π′ = refl
+
+#singleton-inv : ∀{A Γ} → [ A ] # Γ → Γ ≡ [ A ]
+#singleton-inv {Γ = Γ} #refl = refl
+#singleton-inv {Γ = Γ} (#next π) rewrite #empty-inv π = refl
+#singleton-inv {Γ = Γ} (#tran π π′) rewrite #singleton-inv π | #singleton-inv π′ = refl
+
+#rot : ∀{A B C Γ} → (A ∷ B ∷ C ∷ Γ) # (C ∷ A ∷ B ∷ Γ)
+#rot = #tran (#next #here) #here
+
+#cons : ∀{A Γ Δ} → Γ ≃ A , Δ → (A ∷ Δ) # Γ
+#cons (split-l p) with +-empty-l p
+... | refl = #refl
+#cons (split-r p) = #tran #here (#next (#cons p))
+
+#split : ∀{Γ Γ₁ Γ₂ Δ} → Γ # Δ → Γ ≃ Γ₁ + Γ₂ → ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ # Δ₁ × Γ₂ # Δ₂)
+#split #refl p = _ , _ , p , #refl , #refl
+#split (#next π) (split-l p) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = _ ∷ Δ₁ , Δ₂ , split-l q , #next π₁ , π₂
+#split (#next π) (split-r p) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = Δ₁ , _ ∷ Δ₂ , split-r q , π₁ , #next π₂
+#split #here (split-l (split-l p)) = _ , _ , split-l (split-l p) , #here , #refl
+#split #here (split-l (split-r p)) = _ , _ , split-r (split-l p) , #refl , #refl
+#split #here (split-r (split-l p)) = _ , _ , split-l (split-r p) , #refl , #refl
+#split #here (split-r (split-r p)) = _ , _ , split-r (split-r p) , #refl , #here
+#split (#tran π π′) p with #split π p
+... | Θ₁ , Θ₂ , p′ , π₁ , π₂ with #split π′ p′
+... | Δ₁ , Δ₂ , q , π₁′ , π₂′ = Δ₁ , Δ₂ , q , #tran π₁ π₁′ , #tran π₂ π₂′
+
+#one+ : ∀{A Γ Γ′ Δ} → Γ # Δ → Γ ≃ A , Γ′ → ∃[ Δ′ ] (Δ ≃ A , Δ′ × Γ′ # Δ′)
+#one+ π p with #split π p
+... | _ , _ , q , π₁ , π₂ rewrite #singleton-inv π₁ = _ , q , π₂
+
+#shift : ∀{Γ A Δ} → (Γ ++ A ∷ Δ) # (A ∷ Γ ++ Δ)
+#shift {[]} = #refl
+#shift {B ∷ Γ} = #tran (#next #shift) #here
+
++++# : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → (Γ₁ ++ Γ₂) # Γ
++++# split-e = #refl
++++# (split-l p) = #next (+++# p)
++++# (split-r p) = #tran #shift (#next (+++# p))
+
+#left : ∀{Γ Δ Θ} → Γ # Δ → (Θ ++ Γ) # (Θ ++ Δ)
+#left {Θ = []} π = π
+#left {Θ = _ ∷ Θ} π = #next (#left π)
+
+data Un : Context → Set where
+  un-[]  : Un []
+  un-∷   : ∀{A Γ} → Un Γ → Un (¿ A ∷ Γ)
+
+#un : ∀{Γ Δ} → Γ # Δ → Un Γ → Un Δ
+#un #refl un = un
+#un (#next π) (un-∷ un) = un-∷ (#un π un)
+#un #here (un-∷ (un-∷ un)) = un-∷ (un-∷ un)
+#un (#tran π π′) un = #un π′ (#un π un)
+
+#un+ : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → Un Γ₁ → Un Γ₂ → Un Γ
+#un+ split-e un-[] un-[] = un-[]
+#un+ (split-l p) (un-∷ un₁) un₂ = un-∷ (#un+ p un₁ un₂)
+#un+ (split-r p) un₁ (un-∷ un₂) = un-∷ (#un+ p un₁ un₂)
+\end{code}
+
+\subsection{Process Representation}
+\label{sec:process-agda}
+
+CO-DE BRUIJN INDICES
+
+We adopt an \emph{intrinsically typed} representation of processes, so that a
+process is also a proof derivation showing that the process is well typed. This
+choice increases the effort in the definition of the datatypes for processes and
+their operational semantics, but it pays off in the rest of the formalization
+for a number of reasons:
+
+\begin{itemize}
+\item channel names are encoded in the context splitting proofs occurring within
+  processes, hence they do not need to be represented explicitly.
+\item processes and typing rules are conflated in the same datatype, thus
+  reducing the overall number of datatypes in the formalization;
+\item the typing preservation results are embedded in the definition of the
+  operational semantics of processes and do not need to be proved separately.
+\end{itemize}
+
+We now illustrate the definition of the \AgdaDatatype{Process} datatype and
+describe each constructor in detail. The datatype is indexed by a typing
+context:
+
+\begin{AgdaAlign}
+\begin{code}
+data Process : Context → Set where
+   link      : ∀{Γ A B} (d : Dual A B) (p : Γ ≃ [ A ] + [ B ]) → Process Γ
+\end{code}
+
+A \AgdaInductiveConstructor{link} process is well typed in a typing context with
+exactly two types $A$ and $B$ which must be related by duality. We use a proof
+$p$ that $\Context \simeq [A] + [B]$ instead of requiring $\Context$ to be
+simply $[A,B]$ so that it becomes straightforward to define \SLink using
+\AgdaFunction{dual-symm} and \AgdaFunction{+-comm}.
+
+\begin{code}
+   fail      : ∀{Γ Δ} (p : Γ ≃ ⊤ , Δ) → Process Γ
+\end{code}
+
+A \AgdaInductiveConstructor{fail} process simply requires the presence of $\Top$
+in the typing context.
+
+\begin{code}
+   close     : Process [ 𝟙 ]
+\end{code}
+
+A \AgdaInductiveConstructor{close} process is well typed in the singleton
+context $[\One]$.
+
+\begin{code}
+   wait      : ∀{Γ Δ} (p : Γ ≃ ⊥ , Δ) → Process Δ → Process Γ
+\end{code}
+
+A \AgdaInductiveConstructor{wait} process is well typed in any context
+$\ContextC$ that contains $\Bot$ and whose residual $\ContextD$ allows the
+continuation to be well typed.
+
+\begin{code}
+   select    : ∀{Γ Δ A B} (x : Bool) (p : Γ ≃ A ⊕ B , Δ) →
+               Process ((if x then A else B) ∷ Δ) → Process Γ
+\end{code}
+
+We represent the tags $\InTag_1$ and $\InTag_2$ with Agda′s boolean values
+\AgdaInductiveConstructor{True} and \AgdaInductiveConstructor{False}. In this
+way we can use a single constructor \AgdaInductiveConstructor{select} for the
+selections $\Select\x{\InTag_i}.P$. According to the semantics of \Calculus, the
+channel on which the selection is performed is consumed and the continuation
+process uses a fresh continuation channel. As a consequence, the type of the
+continuation channel, which is either $A$ or $B$ depending on the value of the
+tag $x$, is \emph{prepended} in front of the typing context used to type the
+continuation process.
+
+\begin{code}
+   case      : ∀{Γ Δ A B} (p : Γ ≃ A & B , Δ) →
+               Process (A ∷ Δ) → Process (B ∷ Δ) → Process Γ
+\end{code}
+
+A \AgdaInductiveConstructor{case} process has two possible continuations. Note
+again that the continuation channel, which is received along with the tag, has
+either type $A$ or type $B$ depending on the tag and its type is prepended to
+the typing context of the continuation process since it is the newest channel.
+
+\begin{code}
+   fork      : ∀{Γ Δ Γ₁ Γ₂ A B} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Γ₁ + Γ₂) →
+               Process (A ∷ Γ₁) → Process (B ∷ Γ₂) → Process Γ
+\end{code}
+
+A \AgdaInductiveConstructor{fork} process creates two fresh continuation
+channels and spaws two continuation processes. Since context splitting is a
+ternary relation, we need two splitting proofs $p$ and $q$ to isolate the type
+$A \Ten B$ of channel on which the pair of continuation channels is sent and to
+distribute the remaining channel across the two continuation processes.
+
+\begin{code}
+   join      : ∀{Γ Δ A B} (p : Γ ≃ A ⅋ B , Δ) →
+               Process (B ∷ A ∷ Δ) → Process Γ
+\end{code}
+
+The \AgdaInductiveConstructor{join} process has a single continuation which uses
+the pair of continuation channels received from a channel of type $A \Par B$.
+Note that $B$ is prepended in front of $A$, somewhat implying that the second
+continuation is bound \emph{after} the first even though, from a technical
+standpoint, both continuations are bound simultaneously. We could have prepended
+the types $A$ and $B$ also in the opposite order, provided that the reduction
+rule \RFork (formalized in \Cref{sec:semantics-agda}) is suitably adjusted.
+
+\begin{code}
+   server    : ∀{Γ Δ A} (p : Γ ≃ ¡ A , Δ) (un : Un Δ) →
+               Process (A ∷ Δ) → Process Γ
+\end{code}
+
+A \AgdaInductiveConstructor{server} constructor introduces a channel of type
+$\OfCourse A$ given a continuation process that consumes a channel of type $A$
+and a proof $\mathit{un}$ that every other channel in $\ContextD$ is
+unrestricted.
+
+\begin{code}
+   client    : ∀{Γ Δ A} (p : Γ ≃ ¿ A , Δ) → Process (A ∷ Δ) → Process Γ
+   weaken    : ∀{Γ Δ A} (p : Γ ≃ ¿ A , Δ) → Process Δ → Process Γ
+   contract  : ∀{Γ Δ A} (p : Γ ≃ ¿ A , Δ) → Process (¿ A ∷ ¿ A ∷ Δ) → Process Γ
+\end{code}
+
+The constructors \AgdaInductiveConstructor{client},
+\AgdaInductiveConstructor{weaken} and \AgdaInductiveConstructor{contract}
+introduce a channel of type $\WhyNot A$ and follow the same pattern of the
+previous process forms. Note that, in the case of
+\AgdaInductiveConstructor{contract}, the contraction of $\WhyNot A$ applies to
+the first two channels in the typing context of the continuation. This is
+consistent with the fact that \Calculus uses an explicit prefix
+$\Contract\x\y\z$ that models contraction and binds $y$ and $z$ in the
+continuation process. In a pen-and-paper presentation, like the one by
+Wadler~\citep{Wadler14}, it is arguably more convenient to have weaking and
+contraction typing rules without the corresponding process forms.
+
+\begin{code}
+   cut       : ∀{Γ Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) →
+               Process (A ∷ Γ₁) → Process (B ∷ Γ₂) → Process Γ
+\end{code}
+
+A \AgdaInductiveConstructor{cut} process incorporates a duality proof for the
+peer endpoints of the channel being restricted and a splitting proof that
+distributes the free channels among the two parallel processes.
+
+\end{AgdaAlign}
+
+\begin{code}
+#process : ∀{Γ Δ} → Γ # Δ → Process Γ → Process Δ
+\end{code}
+\begin{code}[hide]
+#process π (link d p) with #one+ π p
+... | Δ′ , q , π′ with #singleton-inv π′
+... | refl = link d q
+#process π close with #singleton-inv π
+... | refl = close
+#process π (fail p) with #one+ π p
+... | Δ′ , q , π′ = fail q
+#process π (wait p P) with #one+ π p
+... | Δ′ , q , π′ = wait q (#process π′ P)
+#process π (select x p P) with #one+ π p
+... | Δ′ , q , π′ = select x q (#process (#next π′) P)
+#process π (case p P Q) with #one+ π p
+... | Δ′ , q , π′ = case q (#process (#next π′) P) (#process (#next π′) Q)
+#process π (fork p q P Q) with #one+ π p
+... | Δ′ , p′ , π′ with #split π′ q
+... | Δ₁ , Δ₂ , q′ , π₁ , π₂ = fork p′ q′ (#process (#next π₁) P) (#process (#next π₂) Q)
+#process π (join p P) with #one+ π p
+... | Δ′ , q , π′ = join q (#process (#next (#next π′)) P)
+#process π (cut d p P Q) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (#process (#next π₁) P) (#process (#next π₂) Q)
+#process π (server p un P) with #one+ π p
+... | Δ′ , q , π′ = server q (#un π′ un) (#process (#next π′) P)
+#process π (client p P) with #one+ π p
+... | Δ′ , q , π′ = client q (#process (#next π′) P)
+#process π (weaken p P) with #one+ π p
+... | Δ′ , q , π′ = weaken q (#process π′ P)
+#process π (contract p P) with #one+ π p
+... | Δ′ , q , π′ = contract q (#process (#next (#next π′)) P)
+\end{code}
+
+\subsection{Operational Semantics}
+\label{sec:semantics-agda}
+
