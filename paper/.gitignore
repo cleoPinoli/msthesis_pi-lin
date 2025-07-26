@@ -1,1 +1,10 @@
 *.pdf
+*.agdai
+*.blg
+*.fls
+*.log
+*.out
+*.aux
+*.gz
+*.fdb*
+*.bbl

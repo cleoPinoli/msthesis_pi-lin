@@ -88,6 +88,13 @@ left and right unit of splitting.
 +-unit-r = +-comm +-unit-l
 \end{code}
 
+E QUESTO?
+\begin{code}
+++≃+ : ∀{Γ Δ} → Γ ++ Δ ≃ Γ + Δ
+++≃+ {[]} = +-unit-l
+++≃+ {_ ∷ _} = split-l ++≃+
+\end{code}
+
 Context splitting is also associative in a sense that is made precise below. If
 we write $\ContextD + \ContextE$ for some $\ContextC$ such that $Γ ≃ Δ + Θ$, then
 we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.

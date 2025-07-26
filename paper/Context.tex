@@ -327,6 +327,35 @@ left and right unit of splitting.
 \AgdaFunction{+-unit-l}\<%
 \end{code}
 
+E QUESTO?
+\begin{code}%
+\>[0]\AgdaFunction{++≃+}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{++}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
+\AgdaBound{Δ}\<%
+\\
+\>[0]\AgdaFunction{++≃+}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{[]}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{+-unit-l}\<%
+\\
+\>[0]\AgdaFunction{++≃+}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaSymbol{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{split-l}\AgdaSpace{}%
+\AgdaFunction{++≃+}\<%
+\end{code}
+
 Context splitting is also associative in a sense that is made precise below. If
 we write $\ContextD + \ContextE$ for some $\ContextC$ such that $Γ ≃ Δ + Θ$, then
 we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
@@ -334,7 +363,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \begin{code}%
 \>[0]\AgdaFunction{+-assoc-r}%
 \>[11]\AgdaSymbol{:}%
-\>[206I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\>[226I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{Θ}\AgdaSpace{}%
 \AgdaBound{Δ′}\AgdaSpace{}%
@@ -353,7 +382,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaBound{Θ′}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[206I]%
+\>[.][@{}l@{}]\<[226I]%
 \>[13]\AgdaFunction{∃[}\AgdaSpace{}%
 \AgdaBound{Γ′}\AgdaSpace{}%
 \AgdaFunction{]}\AgdaSpace{}%
@@ -371,7 +400,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \\
 \>[0]\AgdaFunction{+-assoc-l}%
 \>[11]\AgdaSymbol{:}%
-\>[237I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\>[257I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{Θ}\AgdaSpace{}%
 \AgdaBound{Δ′}\AgdaSpace{}%
@@ -390,7 +419,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaBound{Θ′}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[237I]%
+\>[.][@{}l@{}]\<[257I]%
 \>[13]\AgdaFunction{∃[}\AgdaSpace{}%
 \AgdaBound{Γ′}\AgdaSpace{}%
 \AgdaFunction{]}\AgdaSpace{}%

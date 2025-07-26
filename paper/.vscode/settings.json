@@ -1,0 +1,14 @@
+{
+    "files.exclude": {
+        "**/*.pdf": true,
+        "**/*.agdai": true,
+        "**/*.blg": true,
+        "**/*.fls": true,
+        "**/*.log": true,
+        "**/*.out": true,
+        "**/*.aux": true,
+        "**/*.gz": true,
+        "**/*.fdb*": true,
+        "**/*.bbl": true
+    }
+}

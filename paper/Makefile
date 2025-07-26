@@ -6,7 +6,8 @@ MODULES = \
   Context \
   Permutations \
   Process \
-  Semantics \
+  Congruence \
+  Reduction \
   $(NULL)
 
 TARGETS = $(MODULES:%=%.tex)
