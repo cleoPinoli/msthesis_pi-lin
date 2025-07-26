@@ -2,7 +2,7 @@
 \label{sec:formalization}
 
 \begin{code}[hide]
-open import Data.Bool using (Bool; if_then_else_)
+open import Data.Bool using (Bool; true; false; if_then_else_)
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 open import Data.List.Base using (List; []; _∷_; [_]; _++_)
@@ -333,7 +333,7 @@ continuation to be well typed.
 \end{code}
 
 We represent the tags $\InTag_1$ and $\InTag_2$ with Agda′s boolean values
-\AgdaInductiveConstructor{True} and \AgdaInductiveConstructor{False}. In this
+\AgdaInductiveConstructor{true} and \AgdaInductiveConstructor{false}. In this
 way we can use a single constructor \AgdaInductiveConstructor{select} for the
 selections $\Select\x{\InTag_i}.P$. According to the semantics of \Calculus, the
 channel on which the selection is performed is consumed and the continuation
@@ -384,7 +384,8 @@ rule \RFork (formalized in \Cref{sec:semantics-agda}) is suitably adjusted.
 A \AgdaInductiveConstructor{server} constructor introduces a channel of type
 $\OfCourse A$ given a continuation process that consumes a channel of type $A$
 and a proof $\mathit{un}$ that every other channel in $\ContextD$ is
-unrestricted.
+unrestricted.\Luca{Introdurre terminologia e dire che unrestricted vuol dire che
+il canale può essere ``duplicato'' e scartato.}
 
 \begin{code}
    client    : ∀{Γ Δ A} (p : Γ ≃ ¿ A , Δ) → Process (A ∷ Δ) → Process Γ
@@ -452,3 +453,252 @@ distributes the free channels among the two parallel processes.
 \subsection{Operational Semantics}
 \label{sec:semantics-agda}
 
+We formalize structural precongruence as a binary relation between processes
+that are well typed in the \emph{same} typing context. This entails that
+structural precongruence preserves typing by definition.
+
+\begin{AgdaAlign}
+\begin{code}
+data _⊒_ : ∀{Γ} → Process Γ → Process Γ → Set where
+\end{code}
+
+The datatype for $\pcong$ has one constructor for each of the structural
+precongruence rules in \Cref{tab:semantics}. Since many aspects recur
+repeatedly, we will focus on just a few representative rules starting from
+\SComm.
+
+\begin{code}
+  s-comm :
+    ∀{Γ Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) →
+    cut d p P Q ⊒ cut (dual-symm d) (+-comm p) Q P
+\end{code}
+
+The constructor \AgdaInductiveConstructor{s-comm} models the commutativity
+property of parallel composition. We use \AgdaFunction{dual-symm} and
+\AgdaFunction{+-comm} to compute the proofs of the relation
+$\AgdaDatatype{Dual}~B~A$ and of the splitting $\ContextC \simeq \Context_2 +
+\Context_1$ from $d$ and $p$ respectively.
+
+\begin{code}[hide]
+  s-link :
+    ∀{Γ A B}
+    (d : Dual A B) (p : Γ ≃ [ A ] + [ B ]) →
+    link d p ⊒ link (dual-symm d) (+-comm p)
+
+  s-fail :
+    ∀{Γ Γ₁ Γ₂ Δ A B P} (d : Dual A B)
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ⊤ , Δ) →
+    let _ , _ , q′ = +-assoc-l p q in
+    cut d p (fail (split-r q)) P ⊒ fail q′
+\end{code}
+
+The constructor \AgdaInductiveConstructor{s-wait} models the \SWait rule:
+
+\begin{code}
+  s-wait :
+    ∀{Γ Γ₁ Γ₂ Δ A B} {P : Process (A ∷ Δ)} {Q : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ⊥ , Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut d p (wait (split-r q) P) Q ⊒ wait q′ (cut d p′ P Q)
+\end{code}
+
+There are two non-trivial aspects worth commenting. The first one concerns the
+proof $(\AgdaInductiveConstructor{split-r}~q)$ used in the
+\AgdaInductiveConstructor{wait} process before structural precongruence is
+applied. To understand the meaning of this proof, we must recall three key
+elements:
+\begin{enumerate}
+  \item
+    $(\AgdaInductiveConstructor{wait}~(\AgdaInductiveConstructor{split-r}~q)~P)$
+    is a direct sub-process of the \AgdaInductiveConstructor{cut}, and therefore
+    it is meant to be well typed in the context
+    $A~\AgdaInductiveConstructor{∷}~\Context_1$.
+  \item Being a \AgdaInductiveConstructor{wait} process, such context must
+    contain a $\Bot$ type as per the typing rule \WaitRule. That is
+    $A~\AgdaInductiveConstructor{∷}~\Context_1 \simeq [\Bot] +
+    A~\AgdaInductiveConstructor{∷}~\Delta$ for some $\Delta$.
+  \item The \SWait rule is applicable only provided that the channel restricted
+    by the cut (say $x$, of type $A$) is different from the channel (say $y$, of
+    type $\Bot$) consumed by the \AgdaInductiveConstructor{wait} process.
+    %
+    We enforce the side condition $x \ne y$ of \SWait imposing that the type $A$
+    in front of $A~\AgdaInductiveConstructor{∷}~\Context_1$ necessarily comes
+    from the right component of the splitting $[\Bot] +
+    A~\AgdaInductiveConstructor{∷}~\Delta$ through the use of
+    \AgdaInductiveConstructor{split-r}.
+\end{enumerate}
+
+The other aspect that is worth commenting concerns the rearrangement of the
+splittings in the process after the application of structural precongruence.
+Overall, $p$ and $q$ prove the splittings $([\Bot] + \ContextD) + \ContextC_2$,
+but the precongruence rule requires this splitting to be rearranged as $[\Bot] +
+(\ContextD + \ContextC_2)$. That is, we need to apply the left-to-right
+associativity property of context splitting which we called
+\AgdaFunction{+-assoc-l} in \Cref{sec:context-agda}. The nested
+\AgdaKeyword{let}-\AgdaKeyword{in} allows us to pattern match the result of the
+application $\AgdaFunction{+-assoc-l}~p~q$ and to extract the new proofs $p'$
+and $q'$ for the rearranged splittings.
+
+The constructors \AgdaInductiveConstructor{s-select-l} and
+\AgdaInductiveConstructor{s-select-r} model \SSelect when the selected tag is
+respectively \AgdaInductiveConstructor{true} and
+\AgdaInductiveConstructor{false}.
+
+\begin{code}
+  s-select-l :
+    ∀{Γ Γ₁ Γ₂ Δ A B C D} {P : Process (C ∷ A ∷ Δ)} {Q : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⊕ D , Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut d p (select true (split-r q) P) Q ⊒
+    select true q′ (cut d (split-l p′) (#process #here P) Q)
+\end{code}
+
+Here the process
+$(\AgdaInductiveConstructor{select}~\AgdaInductiveConstructor{true}~(\AgdaInductiveConstructor{split-r}~q)~P)$,
+which is found under a cut for $x : A$, is using some channel $y : C \Plus D$ to
+send the tag $\AgdaInductiveConstructor{true}$.
+%
+Unlike \AgdaInductiveConstructor{wait}, which consumes the channel it operates
+on, the continuation process $P$ will be using a fresh continuation channel $z :
+C$. Therefore, $P$ is required to be well typed in the context
+$C~\AgdaInductiveConstructor{∷}~A~\AgdaInductiveConstructor{∷}~\ContextD$, where
+the type of the continuation sits on top of the type of the restricted channel.
+%
+After structural precongruence is applied, however, the type $C$ of the
+continuation channel $z$ ends up underneath that of the restricted channel $x$,
+because now the two channels are introduced in the opposite order. Therefore, we
+are in a situation where we need to turn $P$ into a process that is well typed
+in the context
+$A~\AgdaInductiveConstructor{∷}~C~\AgdaInductiveConstructor{∷}~\ContextD$. This
+is achieved applying the function \AgdaFunction{\#process} to the
+\AgdaInductiveConstructor{\#here} permutation, which swaps the two topmost types
+in a typing context, and finally to the process $P$.
+
+\begin{code}[hide]
+  s-select-r :
+    ∀{Γ Γ₁ Γ₂ Δ A B C D}
+    {P : Process (D ∷ A ∷ Δ)}
+    {Q : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⊕ D , Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut d p (select false (split-r q) P) Q ⊒
+    select false q′ (cut d (split-l p′) (#process #here P) Q)
+
+  s-case :
+    ∀{Γ A B A₁ A₂ Γ₁ Γ₂ Δ}
+    {P : Process (A₁ ∷ A ∷ Δ)}
+    {Q : Process (A₂ ∷ A ∷ Δ)}
+    {R : Process (B ∷ Γ₂)}
+    (d : Dual A B)
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ A₁ & A₂ , Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut d p (case (split-r q) P Q) R ⊒
+    case q′ (cut d (split-l p′) (#process #here P) R)
+            (cut d (split-l p′) (#process #here Q) R)
+\end{code}
+
+\emph{En passant}, we also show the modeling of the \SForkL rule, which is
+interesting because of its complex side conditions:
+
+\begin{code}
+  s-fork-l :
+    ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A B C D}
+    {P : Process (C ∷ A ∷ Δ₁)} {Q : Process (D ∷ Δ₂)} {R : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⊗ D , Δ) (r : Δ ≃ Δ₁ + Δ₂) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    let _ , p′′ , r′ = +-assoc-l p′ r in
+    let _ , q′′ , r′′ = +-assoc-r r′ (+-comm p′′) in
+    cut d p (fork (split-r q) (split-l r) P Q) R ⊒
+    fork q′ r′′ (cut d (split-l q′′) (#process #here P) R) Q
+\end{code}
+
+Recall from \Cref{tab:semantics} that we want to apply this rule on a process of
+the form $\Cut\x{\Fork\y\u\v{P}{Q}}{R}$ when $x \in \fn{P}$. We capture this
+condition by means of the splitting $(\AgdaInductiveConstructor{split-l}~r)$,
+meaning that the type $A$ of $x$ ends up in the typing context for $P$ and not
+in the one for $Q$.
+%
+The symmetric rule \SForkR is modeled by another constructor
+\AgdaInductiveConstructor{s-fork-r}, which is not shown here but is similar to
+\AgdaInductiveConstructor{s-fork-l} except that
+$(\AgdaInductiveConstructor{split-l}~r)$ is replaced by
+$(\AgdaInductiveConstructor{split-r}~r)$.
+
+\begin{code}[hide]
+  s-fork-r :
+    ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A B C D}
+    {P : Process (C ∷ Δ₁)}
+    {Q : Process (D ∷ A ∷ Δ₂)}
+    {R : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⊗ D , Δ)
+    (r : Δ ≃ Δ₁ + Δ₂) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    let _ , p′′ , r′ = +-assoc-l p′ r in
+    cut d p (fork (split-r q) (split-r r) P Q) R ⊒
+    fork q′ r′ P (cut d (split-l p′′) (#process #here Q) R)
+
+  s-join :
+    ∀{Γ Γ₁ Γ₂ Δ A B C D}
+    {P : Process (D ∷ C ∷ A ∷ Δ)}
+    {Q : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⅋ D , Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut d p (join (split-r q) P) Q ⊒
+    join q′ (cut d (split-l (split-l p′)) (#process #rot P) Q)
+
+  s-server :
+    ∀{Γ A B C Γ₁ Γ₂ Δ₁}
+    {P : Process (C ∷ ¿ A ∷ Δ₁)}
+    {Q : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¡ C , Δ₁) (r : Γ₂ ≃ [] + Γ₂)
+    (un₁ : Un Δ₁) (un₂ : Un Γ₂) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut (d-?-! d) p (server (split-r q) (un-∷ un₁) P) (server (split-l r) un₂ Q) ⊒
+    server q′ (#un+ p′ un₁ un₂) (cut (d-?-! d) (split-l p′) (#process #here P) (server (split-l r) un₂ Q))
+
+  s-client :
+    ∀{Γ A B C Γ₁ Γ₂ Δ}
+    {P : Process (C ∷ A ∷ Δ)}
+    {Q : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¿ C , Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut d p (client (split-r q) P) Q ⊒
+    client q′ (cut d (split-l p′) (#process #here P) Q)
+
+  s-weaken :
+    ∀{Γ A B C Γ₁ Γ₂ Δ}
+    {P : Process (A ∷ Δ)}
+    {Q : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¿ C , Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut d p (weaken (split-r q) P) Q ⊒
+    weaken q′ (cut d p′ P Q)
+
+  s-contract :
+    ∀{Γ A B C Γ₁ Γ₂ Δ}
+    {P : Process (¿ C ∷ ¿ C ∷ A ∷ Δ)}
+    {Q : Process (B ∷ Γ₂)}
+    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¿ C , Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut d p (contract (split-r q) P) Q ⊒
+    contract q′ (cut d (split-l (split-l p′)) (#process #rot P) Q)
+\end{code}
+
+Finally, in \Cref{sec:semantics} we have colloquially defined $\pcong$ as a
+``\emph{pre-congruence}'', implicitly implying that it is reflexive, transitive,
+and that it is is preserved by some forms of calculus. In the formalization we
+have to be precise and we introduce specific rules:
+
+\begin{code}
+  s-refl  : ∀{Γ} {P : Process Γ} → P ⊒ P
+  s-tran  : ∀{Γ} {P Q R : Process Γ} → P ⊒ Q → Q ⊒ R → P ⊒ R
+  s-cong  : ∀{Γ Γ₁ Γ₂ A A′} {P Q : Process (A ∷ Γ₁)} {P′ Q′ : Process (A′ ∷ Γ₂)}
+            (d : Dual A A′) (p : Γ ≃ Γ₁ + Γ₂) → P ⊒ Q → P′ ⊒ Q′ →
+            cut d p P P′ ⊒ cut d p Q Q′
+\end{code}
+
+Note that we define a single congruence rule \AgdaInductiveConstructor{s-cong}
+that allows us to apply $\pcong$ within cuts, but not underneath prefixes. This
+limited form of pre-congruence turns out to be sufficient for the development
+that follows.
+\end{AgdaAlign}
