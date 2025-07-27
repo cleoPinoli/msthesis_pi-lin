@@ -15,7 +15,7 @@ open import Congruence
 \subsection{Reduction}
 \label{sec:reduction-agda}
 
-\begin{code}
+\begin{code}[hide]
 weakening : ∀{Γ Γ₁ Γ₂} (un : Un Γ₁) → Γ ≃ Γ₁ + Γ₂ → Process Γ₂ → Process Γ
 weakening un p P = #process (+++# p) (aux un P)
   where
@@ -32,25 +32,92 @@ contraction un p P = #process (+++# p) (aux un (#process (#left (#sym (+++# p)))
     ... | P₁ rewrite sym (++-assoc (¿ A ∷ Γ₁) Γ₁ Γ₂) with #process (#sym (#shift {Γ₁ ++ Γ₁} {¿ A})) P₁
     ... | P₂ rewrite ++-assoc Γ₁ Γ₁ (¿ A ∷ Γ₂) with aux un P₂
     ... | P₃ = #process #shift P₃
+\end{code}
 
+Just like structural precongruence, reduction is formalized as a binary relation
+between processes that are well typed in the very same typing context. Thus, the
+definition of reduction embeds the subject reduction result.
+
+\begin{AgdaAlign}
+\begin{code}
 data _↝_ {Γ} : Process Γ → Process Γ → Set where
-  r-link :
-    ∀{Δ A B} {P : Process (B ∷ Δ)} (d : Dual A B) (e : Dual A B) (p : Γ ≃ B , Δ) →
-    cut d p (link e (split-l (split-r split-e))) P ↝ #process (#cons p) P
+\end{code}
 
-  r-close :
-    ∀{P : Process Γ} (p₀ : Γ ≃ [] + Γ) (q₀ : Γ ≃ [] + Γ) →
-    cut d-𝟙-⊥ p₀ close (wait (split-l q₀) P) ↝ P
+There is a constructor for each of the reduction rules in \Cref{tab:semantics}.
+Let us comment a representative selection of them.
 
-  r-select-l :
-    ∀{Γ₁ Γ₂ A A′ B B′}
-    {P : Process (A ∷ Γ₁)} {Q : Process (A′ ∷ Γ₂)} {R : Process (B′ ∷ Γ₂)}
-    (d : Dual A A′) (e : Dual B B′) (p : Γ ≃ Γ₁ + Γ₂) (p₀ : Γ₁ ≃ [] + Γ₁) (q₀ : Γ₂ ≃ [] + Γ₂) →
-    cut (d-⊕-& d e) p
-        (select true (split-l p₀) P)
-        (case (split-l q₀) Q R) ↝ cut d p P Q
+The constructor \AgdaInductiveConstructor{r-link} models \RLink. 
 
-  r-select-r :
+\begin{code}
+  r-link      : ∀{Δ A B} {P : Process (B ∷ Δ)}
+                (d : Dual A B) (e : Dual A B) (p : Γ ≃ B , Δ) →
+                cut d p (link e (split-l (split-r split-e))) P ↝ #process (#cons p) P
+\end{code}
+
+For generality, the rules quantifies over two proofs $d$ and $e$ of the same
+duality relation between $A$ and $B$. Even though such proofs would necessarily
+be the same, distinguishing them saves us a proof that they are equal whenever
+we want to apply this reduction. 
+%
+Also note that the splitting
+$(\AgdaInductiveConstructor{split-l}~(\AgdaInductiveConstructor{split-r}~\AgdaInductiveConstructor{split-e}))$
+to which \AgdaInductiveConstructor{link} is applied is structured consistently
+with \Cref{tab:semantics}, where the link $\Link\x\y$ being reduced is oriented
+so that the restricted channel $x$ occurs on the left. 
+%
+Finally, the process $P\subst\y\x$ resulting from the reduction is subject to a
+channel substitution in \Cref{tab:semantics}. In the Agda representation of
+processes with nameless channels, the same effect is achieved by the permutation
+$\AgdaFunction{\#cons}~p$, which ``renames'' (the position of) the free
+occurrence of $x$ within $P$ with (the position of) $y$ encoded in the splitting
+$p$.
+
+The constructor \AgdaInductiveConstructor{r-close} models \RClose:
+
+\begin{code}
+  r-close     : ∀{P : Process Γ} (p₀ : Γ ≃ [] + Γ) (q₀ : Γ ≃ [] + Γ) →
+                cut d-𝟙-⊥ p₀ close (wait (split-l q₀) P) ↝ P
+\end{code}
+
+While the \AgdaInductiveConstructor{close} constructor implicitly refers to the
+only free channel occurring in a process of the form $\Close\x$, the
+\AgdaInductiveConstructor{wait} constructor uses a splitting proof of the form
+$(\AgdaInductiveConstructor{split-l}~q_0)$ to be sure that the referenced
+channel is also the restricted one, and therefore matches the one of the
+\AgdaInductiveConstructor{close} process.
+%
+Just like \AgdaInductiveConstructor{r-link} quantifies over multiple proofs for
+the same duality relation, also \AgdaInductiveConstructor{r-close} (and several
+other reduction constructors) quantifies over $p_0$ and $q_0$ which both prove
+the splitting $\Context \simeq \AgdaInductiveConstructor{[]} + \Context$. Since
+the left context is empty, these splittings must be equal and made of a sequence
+of \AgdaInductiveConstructor{split-r} applications followed by
+\AgdaInductiveConstructor{split-e}, but it is easier to quantify them separately
+so that we do not have to worry about proving their equality whenever we wish to
+apply this reduction.
+
+The constructor \AgdaInductiveConstructor{r-select-l} models \RSelect when the
+selected tag is $\InTag_1$, that is \AgdaInductiveConstructor{true} in Agda:
+
+\begin{code}
+  r-select-l  : ∀{Γ₁ Γ₂ A A′ B B′}
+                {P : Process (A ∷ Γ₁)} {Q : Process (A′ ∷ Γ₂)} {R : Process (B′ ∷ Γ₂)}
+                (d : Dual A A′) (e : Dual B B′)
+                (p : Γ ≃ Γ₁ + Γ₂) (p₀ : Γ₁ ≃ [] + Γ₁) (q₀ : Γ₂ ≃ [] + Γ₂) →
+                cut (d-⊕-& d e) p
+                    (select true (split-l p₀) P)
+                    (case (split-l q₀) Q R) ↝ cut d p P Q
+\end{code}
+
+There is not much more to note here (and in other omitted reduction rules),
+except again for the multiple quantifications over the trivial splittings
+$\Context_i \simeq \AgdaInductiveConstructor{[]} + \Context_i$ and the use of
+\AgdaInductiveConstructor{split-l} to make sure that the channel referred to by
+\AgdaInductiveConstructor{select} and \AgdaInductiveConstructor{case} is indeed
+the one restricted by the cut.
+
+\begin{code}[hide]
+  r-select-r  :
     ∀{Γ₁ Γ₂ A A′ B B′}
     {P : Process (B ∷ Γ₁)} {Q : Process (A′ ∷ Γ₂)} {R : Process (B′ ∷ Γ₂)}
     (d : Dual A A′) (e : Dual B B′) (p : Γ ≃ Γ₁ + Γ₂) (p₀ : Γ₁ ≃ [] + Γ₁) (q₀ : Γ₂ ≃ [] + Γ₂) →
@@ -58,7 +125,7 @@ data _↝_ {Γ} : Process Γ → Process Γ → Set where
         (select false (split-l p₀) P)
         (case (split-l q₀) Q R) ↝ cut e p P R
 
-  r-fork :
+  r-fork      :
     ∀{Γ₁ Γ₂ Γ₃ Δ A B A′ B′}
     {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)} {R : Process (B′ ∷ A′ ∷ Γ₃)}
     (d : Dual A A′) (e : Dual B B′) (p : Γ ≃ Δ + Γ₃) (p₀ : Γ₃ ≃ [] + Γ₃)
@@ -68,7 +135,7 @@ data _↝_ {Γ} : Process Γ → Process Γ → Set where
         (fork (split-l q₀) q P Q)
         (join (split-l p₀) R) ↝ cut d q′ P (cut e (split-r p′) Q R)
 
-  r-client :
+  r-client    :
     ∀{Γ₁ Γ₂ A A′}
     {P : Process (A ∷ Γ₁)} {Q : Process (A′ ∷ Γ₂)} (d : Dual A A′)
     (p : Γ ≃ Γ₁ + Γ₂) (p₀ : Γ₁ ≃ [] + Γ₁) (q₀ : Γ₂ ≃ [] + Γ₂) (un : Un Γ₁) →
@@ -76,7 +143,7 @@ data _↝_ {Γ} : Process Γ → Process Γ → Set where
       (server (split-l p₀) un P)
       (client (split-l q₀) Q) ↝ cut d p P Q
 
-  r-weaken :
+  r-weaken    :
     ∀{Γ₁ Γ₂ A A′}
     {P : Process (A ∷ Γ₁)} {Q : Process Γ₂}
     (d : Dual A A′) (p : Γ ≃ Γ₁ + Γ₂) (p₀ : Γ₁ ≃ [] + Γ₁) (q₀ : Γ₂ ≃ [] + Γ₂) (un : Un Γ₁) →
@@ -84,7 +151,7 @@ data _↝_ {Γ} : Process Γ → Process Γ → Set where
         (server (split-l p₀) un P)
         (weaken (split-l q₀) Q) ↝ weakening un p Q
 
-  r-contract :
+  r-contract  :
     ∀{Γ₁ Γ₂ A A′}
     {P : Process (A ∷ Γ₁)} {Q : Process (¿ A′ ∷ ¿ A′ ∷ Γ₂)}
     (d : Dual A A′) (p : Γ ≃ Γ₁ + Γ₂) (p₀ : Γ₁ ≃ [] + Γ₁) (q₀ : Γ₂ ≃ [] + Γ₂) (un : Un Γ₁) →
@@ -95,21 +162,30 @@ data _↝_ {Γ} : Process Γ → Process Γ → Set where
         (cut (d-!-? d) ++≃+
              (server (split-l p₀) un P)
              (cut (d-!-? d) (split-r p) (server (split-l p₀) un P) Q))
+\end{code}
 
-  r-cut :
-    ∀{Γ₁ Γ₂ A B}
-    {P Q : Process (A ∷ Γ₁)} {R : Process (B ∷ Γ₂)}
-    (d : Dual A B) (q : Γ ≃ Γ₁ + Γ₂) (r : P ↝ Q) →
-    cut d q P R ↝ cut d q Q R
+Reduction is closed under cuts and by structural pre-congruence as per \RCut and
+\RCong. The corresponding constructors that model these features are shown
+below:
 
-  r-cong :
-    ∀{P R Q : Process Γ}
-    (p : P ⊒ R) (q : R ↝ Q) → P ↝ Q
+\begin{code}
+  r-cut       : ∀{Γ₁ Γ₂ A B} {P Q : Process (A ∷ Γ₁)} {R : Process (B ∷ Γ₂)}
+                (d : Dual A B) (q : Γ ≃ Γ₁ + Γ₂) → P ↝ Q →
+                cut d q P R ↝ cut d q Q R
 
+  r-cong      : ∀{P R Q : Process Γ} → P ⊒ R → R ↝ Q → P ↝ Q
+\end{code}
+\end{AgdaAlign}
+In the following it is also useful to work with the reflexive, transitive
+closure of $\red$, which is defined below:
+
+\begin{code}
 data _⇒_ {Γ} : Process Γ → Process Γ → Set where
-  refl : ∀{P : Process Γ} → P ⇒ P
-  tran : ∀{P Q R : Process Γ} → P ↝ Q → Q ⇒ R → P ⇒ R
+  refl  : ∀{P : Process Γ} → P ⇒ P
+  tran  : ∀{P Q R : Process Γ} → P ↝ Q → Q ⇒ R → P ⇒ R
+\end{code}
 
+\begin{code}[hide]
 Reducible : ∀{Γ} → Process Γ → Set
 Reducible P = ∃[ Q ] P ↝ Q
 \end{code}

@@ -69,7 +69,7 @@
 \subsection{Reduction}
 \label{sec:reduction-agda}
 
-\begin{code}%
+\begin{code}[hide]%
 \>[0]\AgdaFunction{weakening}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
@@ -295,9 +295,14 @@
 \AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaFunction{\#shift}\AgdaSpace{}%
 \AgdaBound{P₃}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+Just like structural precongruence, reduction is formalized as a binary relation
+between processes that are well typed in the very same typing context. Thus, the
+definition of reduction embeds the subject reduction result.
+
+\begin{AgdaAlign}
+\begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}↝\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -310,13 +315,18 @@
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaPrimitive{Set}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
-\\
-\>[0][@{}l@{\AgdaIndent{0}}]%
-\>[2]\AgdaInductiveConstructor{r-link}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀\{}\AgdaBound{Δ}\AgdaSpace{}%
+\end{code}
+
+There is a constructor for each of the reduction rules in \Cref{tab:semantics}.
+Let us comment a representative selection of them.
+
+The constructor \AgdaInductiveConstructor{r-link} models \RLink. 
+
+\begin{code}%
+\>[0][@{}l@{\AgdaIndent{1}}]%
+\>[2]\AgdaInductiveConstructor{r-link}%
+\>[14]\AgdaSymbol{:}%
+\>[238I]\AgdaSymbol{∀\{}\AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
@@ -324,8 +334,10 @@
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{B}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{d}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{)\}}\<%
+\\
+\>[.][@{}l@{}]\<[238I]%
+\>[16]\AgdaSymbol{(}\AgdaBound{d}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
@@ -345,7 +357,7 @@
 \AgdaSymbol{→}\<%
 \\
 %
-\>[4]\AgdaInductiveConstructor{cut}\AgdaSpace{}%
+\>[16]\AgdaInductiveConstructor{cut}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{link}\AgdaSpace{}%
@@ -359,15 +371,33 @@
 \AgdaSymbol{(}\AgdaFunction{\#cons}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\<%
-\\
+\end{code}
+
+For generality, the rules quantifies over two proofs $d$ and $e$ of the same
+duality relation between $A$ and $B$. Even though such proofs would necessarily
+be the same, distinguishing them saves us a proof that they are equal whenever
+we want to apply this reduction. 
 %
-\\[\AgdaEmptyExtraSkip]%
+Also note that the splitting
+$(\AgdaInductiveConstructor{split-l}~(\AgdaInductiveConstructor{split-r}~\AgdaInductiveConstructor{split-e}))$
+to which \AgdaInductiveConstructor{link} is applied is structured consistently
+with \Cref{tab:semantics}, where the link $\Link\x\y$ being reduced is oriented
+so that the restricted channel $x$ occurs on the left. 
 %
-\>[2]\AgdaInductiveConstructor{r-close}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀\{}\AgdaBound{P}\AgdaSpace{}%
+Finally, the process $P\subst\y\x$ resulting from the reduction is subject to a
+channel substitution in \Cref{tab:semantics}. In the Agda representation of
+processes with nameless channels, the same effect is achieved by the permutation
+$\AgdaFunction{\#cons}~p$, which ``renames'' (the position of) the free
+occurrence of $x$ within $P$ with (the position of) $y$ encoded in the splitting
+$p$.
+
+The constructor \AgdaInductiveConstructor{r-close} models \RClose:
+
+\begin{code}%
+%
+\>[2]\AgdaInductiveConstructor{r-close}%
+\>[14]\AgdaSymbol{:}%
+\>[277I]\AgdaSymbol{∀\{}\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -387,8 +417,8 @@
 \AgdaBound{Γ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-%
-\>[4]\AgdaInductiveConstructor{cut}\AgdaSpace{}%
+\>[.][@{}l@{}]\<[277I]%
+\>[16]\AgdaInductiveConstructor{cut}\AgdaSpace{}%
 \AgdaInductiveConstructor{d-𝟙-⊥}\AgdaSpace{}%
 \AgdaBound{p₀}\AgdaSpace{}%
 \AgdaInductiveConstructor{close}\AgdaSpace{}%
@@ -398,23 +428,41 @@
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{↝}}\AgdaSpace{}%
 \AgdaBound{P}\<%
-\\
+\end{code}
+
+While the \AgdaInductiveConstructor{close} constructor implicitly refers to the
+only free channel occurring in a process of the form $\Close\x$, the
+\AgdaInductiveConstructor{wait} constructor uses a splitting proof of the form
+$(\AgdaInductiveConstructor{split-l}~q_0)$ to be sure that the referenced
+channel is also the restricted one, and therefore matches the one of the
+\AgdaInductiveConstructor{close} process.
 %
-\\[\AgdaEmptyExtraSkip]%
+Just like \AgdaInductiveConstructor{r-link} quantifies over multiple proofs for
+the same duality relation, also \AgdaInductiveConstructor{r-close} (and several
+other reduction constructors) quantifies over $p_0$ and $q_0$ which both prove
+the splitting $\Context \simeq \AgdaInductiveConstructor{[]} + \Context$. Since
+the left context is empty, these splittings must be equal and made of a sequence
+of \AgdaInductiveConstructor{split-r} applications followed by
+\AgdaInductiveConstructor{split-e}, but it is easier to quantify them separately
+so that we do not have to worry about proving their equality whenever we wish to
+apply this reduction.
+
+The constructor \AgdaInductiveConstructor{r-select-l} models \RSelect when the
+selected tag is $\InTag_1$, that is \AgdaInductiveConstructor{true} in Agda:
+
+\begin{code}%
 %
-\>[2]\AgdaInductiveConstructor{r-select-l}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{r-select-l}%
+\>[14]\AgdaSymbol{:}%
+\>[305I]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
 \AgdaBound{Γ₂}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{A′}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
 \AgdaBound{B′}\AgdaSymbol{\}}\<%
 \\
-%
-\>[4]\AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
+\>[.][@{}l@{}]\<[305I]%
+\>[16]\AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
@@ -434,7 +482,7 @@
 \AgdaBound{Γ₂}\AgdaSymbol{)\}}\<%
 \\
 %
-\>[4]\AgdaSymbol{(}\AgdaBound{d}\AgdaSpace{}%
+\>[16]\AgdaSymbol{(}\AgdaBound{d}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
@@ -443,8 +491,10 @@
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Dual}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
-\AgdaBound{B′}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
+\AgdaBound{B′}\AgdaSymbol{)}\<%
+\\
+%
+\>[16]\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
@@ -468,21 +518,21 @@
 \AgdaSymbol{→}\<%
 \\
 %
-\>[4]\AgdaInductiveConstructor{cut}%
-\>[360I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-⊕-\&}\AgdaSpace{}%
+\>[16]\AgdaInductiveConstructor{cut}%
+\>[358I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-⊕-\&}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{e}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
-\>[.][@{}l@{}]\<[360I]%
-\>[8]\AgdaSymbol{(}\AgdaInductiveConstructor{select}\AgdaSpace{}%
+\>[.][@{}l@{}]\<[358I]%
+\>[20]\AgdaSymbol{(}\AgdaInductiveConstructor{select}\AgdaSpace{}%
 \AgdaInductiveConstructor{true}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-l}\AgdaSpace{}%
 \AgdaBound{p₀}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
 %
-\>[8]\AgdaSymbol{(}\AgdaInductiveConstructor{case}\AgdaSpace{}%
+\>[20]\AgdaSymbol{(}\AgdaInductiveConstructor{case}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-l}\AgdaSpace{}%
 \AgdaBound{q₀}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSpace{}%
@@ -493,12 +543,19 @@
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{Q}\<%
-\\
+\end{code}
+
+There is not much more to note here (and in other omitted reduction rules),
+except again for the multiple quantifications over the trivial splittings
+$\Context_i \simeq \AgdaInductiveConstructor{[]} + \Context_i$ and the use of
+\AgdaInductiveConstructor{split-l} to make sure that the channel referred to by
+\AgdaInductiveConstructor{select} and \AgdaInductiveConstructor{case} is indeed
+the one restricted by the cut.
+
+\begin{code}[hide]%
 %
-\\[\AgdaEmptyExtraSkip]%
-%
-\>[2]\AgdaInductiveConstructor{r-select-r}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
+\>[2]\AgdaInductiveConstructor{r-select-r}%
+\>[14]\AgdaSymbol{:}\<%
 \\
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
@@ -564,12 +621,12 @@
 \\
 %
 \>[4]\AgdaInductiveConstructor{cut}%
-\>[432I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-⊕-\&}\AgdaSpace{}%
+\>[429I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-⊕-\&}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{e}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
-\>[.][@{}l@{}]\<[432I]%
+\>[.][@{}l@{}]\<[429I]%
 \>[8]\AgdaSymbol{(}\AgdaInductiveConstructor{select}\AgdaSpace{}%
 \AgdaInductiveConstructor{false}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-l}\AgdaSpace{}%
@@ -592,8 +649,8 @@
 %
 \\[\AgdaEmptyExtraSkip]%
 %
-\>[2]\AgdaInductiveConstructor{r-fork}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
+\>[2]\AgdaInductiveConstructor{r-fork}%
+\>[14]\AgdaSymbol{:}\<%
 \\
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
@@ -685,12 +742,12 @@
 \\
 %
 \>[4]\AgdaInductiveConstructor{cut}%
-\>[524I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-⊗-⅋}\AgdaSpace{}%
+\>[520I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-⊗-⅋}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{e}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
-\>[.][@{}l@{}]\<[524I]%
+\>[.][@{}l@{}]\<[520I]%
 \>[8]\AgdaSymbol{(}\AgdaInductiveConstructor{fork}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-l}\AgdaSpace{}%
 \AgdaBound{q₀}\AgdaSymbol{)}\AgdaSpace{}%
@@ -718,8 +775,8 @@
 %
 \\[\AgdaEmptyExtraSkip]%
 %
-\>[2]\AgdaInductiveConstructor{r-client}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
+\>[2]\AgdaInductiveConstructor{r-client}%
+\>[14]\AgdaSymbol{:}\<%
 \\
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
@@ -802,8 +859,8 @@
 %
 \\[\AgdaEmptyExtraSkip]%
 %
-\>[2]\AgdaInductiveConstructor{r-weaken}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
+\>[2]\AgdaInductiveConstructor{r-weaken}%
+\>[14]\AgdaSymbol{:}\<%
 \\
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
@@ -858,11 +915,11 @@
 \\
 %
 \>[4]\AgdaInductiveConstructor{cut}%
-\>[651I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-!-?}\AgdaSpace{}%
+\>[645I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-!-?}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
-\>[.][@{}l@{}]\<[651I]%
+\>[.][@{}l@{}]\<[645I]%
 \>[8]\AgdaSymbol{(}\AgdaInductiveConstructor{server}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-l}\AgdaSpace{}%
 \AgdaBound{p₀}\AgdaSymbol{)}\AgdaSpace{}%
@@ -883,8 +940,8 @@
 %
 \\[\AgdaEmptyExtraSkip]%
 %
-\>[2]\AgdaInductiveConstructor{r-contract}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
+\>[2]\AgdaInductiveConstructor{r-contract}%
+\>[14]\AgdaSymbol{:}\<%
 \\
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
@@ -970,11 +1027,11 @@
 \\
 \>[6][@{}l@{\AgdaIndent{0}}]%
 \>[8]\AgdaSymbol{(}\AgdaInductiveConstructor{cut}%
-\>[728I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-!-?}\AgdaSpace{}%
+\>[721I]\AgdaSymbol{(}\AgdaInductiveConstructor{d-!-?}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaFunction{++≃+}\<%
 \\
-\>[.][@{}l@{}]\<[728I]%
+\>[.][@{}l@{}]\<[721I]%
 \>[13]\AgdaSymbol{(}\AgdaInductiveConstructor{server}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-l}\AgdaSpace{}%
 \AgdaBound{p₀}\AgdaSymbol{)}\AgdaSpace{}%
@@ -993,21 +1050,21 @@
 \AgdaBound{un}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{))}\<%
-\\
+\end{code}
+
+Reduction is closed under cuts and by structural pre-congruence as per \RCut and
+\RCong. The corresponding constructors that model these features are shown
+below:
+
+\begin{code}%
 %
-\\[\AgdaEmptyExtraSkip]%
-%
-\>[2]\AgdaInductiveConstructor{r-cut}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{r-cut}%
+\>[14]\AgdaSymbol{:}%
+\>[738I]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
 \AgdaBound{Γ₂}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\<%
-\\
-%
-\>[4]\AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
@@ -1021,8 +1078,8 @@
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaBound{Γ₂}\AgdaSymbol{)\}}\<%
 \\
-%
-\>[4]\AgdaSymbol{(}\AgdaBound{d}\AgdaSpace{}%
+\>[.][@{}l@{}]\<[738I]%
+\>[16]\AgdaSymbol{(}\AgdaBound{d}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
@@ -1034,15 +1091,14 @@
 \AgdaBound{Γ₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
 \AgdaBound{Γ₂}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{↝}}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
 %
-\>[4]\AgdaInductiveConstructor{cut}\AgdaSpace{}%
+\>[16]\AgdaInductiveConstructor{cut}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
@@ -1057,35 +1113,32 @@
 %
 \\[\AgdaEmptyExtraSkip]%
 %
-\>[2]\AgdaInductiveConstructor{r-cong}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀\{}\AgdaBound{P}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{r-cong}%
+\>[14]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{R}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSymbol{\}}\<%
-\\
-%
-\>[4]\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{⊒}}\AgdaSpace{}%
-\AgdaBound{R}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{R}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{R}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{↝}}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{↝}}\AgdaSpace{}%
 \AgdaBound{Q}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+\end{AgdaAlign}
+In the following it is also useful to work with the reflexive, transitive
+closure of $\red$, which is defined below:
+
+\begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}⇒\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -1100,8 +1153,8 @@
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
-\>[2]\AgdaInductiveConstructor{refl}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{refl}%
+\>[8]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
@@ -1112,8 +1165,8 @@
 \AgdaBound{P}\<%
 \\
 %
-\>[2]\AgdaInductiveConstructor{tran}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{tran}%
+\>[8]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSpace{}%
 \AgdaBound{R}\AgdaSpace{}%
@@ -1132,9 +1185,9 @@
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{⇒}}\AgdaSpace{}%
 \AgdaBound{R}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+\begin{code}[hide]%
 \>[0]\AgdaFunction{Reducible}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
