@@ -8,6 +8,7 @@ MODULES = \
   Process \
   Congruence \
   Reduction \
+  DeadlockFreedom \
   $(NULL)
 
 TARGETS = $(MODULES:%=%.tex)
