@@ -9,6 +9,7 @@ MODULES = \
   Congruence \
   Reduction \
   DeadlockFreedom \
+  Safety \
   $(NULL)
 
 TARGETS = $(MODULES:%=%.tex)

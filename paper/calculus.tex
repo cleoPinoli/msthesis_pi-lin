@@ -426,10 +426,10 @@ Now we observe that if $P$ and $Q$ both act on the same channel $x$ in
 complementary ways, then their parallel composition $\Cut\x{P}{Q}$ is reducible
 according to one of the principal cut reductions described in
 \Cref{tab:semantics}. Therefore, an alternative (and more general) way of
-formulating well formedness is this:
+formulating well formedness is simply this:
 %
-we say that $P$ is \emph{well formed} if $P \pcong
-\ReductionContext[\Cut\x{Q_1}{Q_2}]$ implies that $\Cut\x{Q_1}{Q_2}$ is alive.
+we say that $P$ is \emph{well formed} if $P \pcong \ReductionContext[Q]$ implies
+that $Q$ is alive.
 
 \begin{theorem}[type safety]
     \label{thm:type-safety}
