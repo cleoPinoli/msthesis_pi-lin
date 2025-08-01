@@ -176,16 +176,3 @@ below:
   r-cong      : ∀{P R Q : Process Γ} → P ⊒ R → R ↝ Q → P ↝ Q
 \end{code}
 \end{AgdaAlign}
-In the following it is also useful to work with the reflexive, transitive
-closure of $\red$, which is defined below:
-
-\begin{code}
-data _⇒_ {Γ} : Process Γ → Process Γ → Set where
-  refl  : ∀{P : Process Γ} → P ⇒ P
-  tran  : ∀{P Q R : Process Γ} → P ↝ Q → Q ⇒ R → P ⇒ R
-\end{code}
-
-\begin{code}[hide]
-Reducible : ∀{Γ} → Process Γ → Set
-Reducible P = ∃[ Q ] P ↝ Q
-\end{code}

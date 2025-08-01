@@ -361,35 +361,40 @@ propositions as sessions~\citep{Wadler14} for their interpretation.
 The \emph{linearity challenge}~\citep{CarboneEtAl24} aims at formalizing two
 essential properties of well-typed processes: (1) typing is preserved by
 reductions; (2) peer endpoints are always used in complementary ways. This
-latter property is dubbed \emph{well formedness} in the text of the challenge.
-In this work we also consider \emph{deadlock freedom} which follows from the
-fact that \Calculus is based on linear logic. As we will see, well formedness is
-nothing but a particular form of deadlock freedom. We now formulate these
-properties using the notation developed so far.
+latter property is called \emph{well formedness} in the challenge. In this work
+we also consider \emph{deadlock freedom}, which is more general than well
+formedness and holds for \Calculus since its type system is based on linear
+logic. We now formulate these properties using the notation developed so far.
 
 Concerning the preservation of typing, this corresponds to the usual subject
 reduction result, which is expressed thus:
 
 \begin{theorem}[subject reduction]
     \label{thm:red}
-    If $P \red Q$, then $\wtp{P}\Context$ implies $\wtp{Q}\Context$.
+    If $P \red Q$ then $\wtp{P}\Context$ implies $\wtp{Q}\Context$.
 \end{theorem}
 
-In order to formulate deadlock freedom, we need to introduce some terminology
-for referring to processes that are unable to make any progress. Deadlock is not
-simply the negation of reducibility: there are irreducible processes that are
-not a deadlock because they would be able to reduce if put in a suitable
-context. For example, $\Wait\x.P$ does not reduce, and yet it is not a deadlock
-because it would be able to make progress when composed in parallel with
-$\Close\x$. In general, even a process like $\Cut\y{\Wait\y.P}{\Wait\z.Q}$ where
-$x\ne y,z$ cannot be considered a deadlock, because the prefixes $\Wait\y$ and
-$\Wait\z$ could be exposed using \SWait and possibly \SComm. Let us make all
-this more precise.
+In order to formulate deadlock freedom, we first need to introduce some
+terminology for referring to processes that are unable to make any progress. A
+simple example of deadlock is the process $\Cut\x{\Close\x}{\Close\x}$. This
+process is unable to reduce (because a $\Close\x$ process is meant to interact
+with a process of the form $\Wait\x.P$) and, more generally, it is unable to
+interact regardless of the context in which it occurs because the $\Close\x$
+sub-processes it contains are blocked on the channel $x$ bound by the cut.
+%
+In general, the property of being a deadlock is not simply the inability to
+reduce: there are irreducible processes that are not a deadlock because they
+would be able to reduce if put in a suitable context. For example, $\Wait\x.P$
+does not reduce, and yet it is not a deadlock because it would be able to make
+progress when composed in parallel with $\Close\x$. In general, even a process
+like $\Cut\y{\Wait\y.P}{\Wait\z.Q}$ where $x\ne y,z$ cannot be considered a
+deadlock, because the prefixes $\Wait\y$ and $\Wait\z$ could be exposed using
+\SWait and possibly \SComm. Let us make all this more precise.
 
 We say that $P$ is a \emph{thread} if it is anything but a cut. In other words,
 a thread is either a link or a process that starts with an input/output action
-of some sort. Note that a thread may contain cuts, but these must all guarded
-underneath the topmost action prefix.
+of some sort. Note that a thread may contain cuts, but these cuts must all
+guarded underneath the topmost action prefix.
 %
 We also say that $P$ is \emph{observable} if $P \pcong Q$ for some thread $Q$.
 An observable process is a process that exposes an action on a free channel name
@@ -397,15 +402,15 @@ and therefore can interact through that channel, if put into some appropriate
 context. We say that $P$ is \emph{reducible} if $P \red Q$ for some $Q$. A
 reducible process may perform a reduction step.
 %
-Now, a process is a \emph{deadlock} if it is neither observable nor reducible. A
-simple example of deadlock is the process $\Cut\x{\Close\x}{\Close\x}$. 
+We say that a process is \emph{alive} if it is either observable or reducible
+and that it is a \emph{deadlock} if it is not alive.
 
 \begin{theorem}[deadlock freedom]
     \label{thm:df}
-    If $\wtp{P}\Context$, then $P$ is not a deadlock.
+    If $\wtp{P}\Context$ then $P$ is alive.
 \end{theorem}
 
-In order to formulate \emph{well formedness}~\cite{CarboneEtAl}, we define
+In order to formulate \emph{well formedness}~\cite{CarboneEtAl24}, we define
 \emph{reduction contexts} as partial processes with a single unguarded hole
 $\Hole$, thus:
 \[
@@ -424,12 +429,11 @@ according to one of the principal cut reductions described in
 formulating well formedness is this:
 %
 we say that $P$ is \emph{well formed} if $P \pcong
-\ReductionContext[\Cut\x{Q_1}{Q_2}]$ implies that $\Cut\x{Q_1}{Q_2}$ is not a
-deadlock.
+\ReductionContext[\Cut\x{Q_1}{Q_2}]$ implies that $\Cut\x{Q_1}{Q_2}$ is alive.
 
 \begin{theorem}[type safety]
     \label{thm:type-safety}
-    If $\wtp{P}\Context$, then $P$ is well formed.
+    If $\wtp{P}\Context$ then $P$ is well formed.
 \end{theorem}
 
 Note that the properties expressed in \Cref{thm:df,thm:type-safety} are

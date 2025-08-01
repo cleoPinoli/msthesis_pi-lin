@@ -1,4 +1,16 @@
-\begin{code}%
+\subsection{Deadlock Freedom}
+\label{sec:deadlock-freedom-agda}
+
+As we have seen in \Cref{sec:calculus}, the deadlock freedom result
+(\Cref{thm:df}) rests on some notions and predicates about processes which we
+now formalize in Agda. First of all we need to distinguish \emph{threads} from
+\emph{cuts}. As it turns out, in the formalization it is convenient to provide
+an even more fine-grained classification of threads, distinguishing between
+links, input/output actions on linear/shared channels, and sometimes also
+whether such actions operate on free or bound channels. We define predicates for
+each of these process classes:
+
+\begin{code}[hide]%
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
 \AgdaModule{Data.Sum}\<%
@@ -54,6 +66,10 @@
 \\
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Permutations}\<%
+\\
+\>[0]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
 \AgdaModule{Process}\<%
 \\
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
@@ -63,21 +79,106 @@
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
 \AgdaModule{Congruence}\<%
-\\
-\>[0]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Permutations}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+\begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
-\AgdaDatatype{Cut}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Cut}%
+\>[20]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{Link}%
+\>[20]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{Input}%
+\>[20]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{Output}%
+\>[20]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{Delayed}%
+\>[20]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{Client}%
+\>[20]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{Server}%
+\>[20]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{DelayedServer}%
+\>[20]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\end{code}
+
+These predicates are relatively uninteresting since they are essentially
+isomorphic to the relevant parts of the \AgdaDatatype{Process} datatype. The
+only remarkable aspect is that \AgdaDatatype{Input}, \AgdaDatatype{Output},
+\AgdaDatatype{Client} and \AgdaDatatype{Server} the channel being acted upon by
+the thread is the \emph{first} in $\Context$, hence it is the \emph{most
+recently introduced} channel, whereas in \AgdaDatatype{Delayed} and
+\AgdaDatatype{DelayedServer} the channel is older. This allows us to distinguish
+those threads that, in the context of a cut, operate on the channel bound by the
+cut or on a free channel. As an illustration, consider the
+\AgdaInductiveConstructor{wait} case in \AgdaDatatype{Input} and in
+\AgdaDatatype{Delayed}. In the former predicate we have
+
+\begin{AgdaAlign}
+\begin{code}[hide]%
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaDatatype{Cut}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
@@ -85,7 +186,8 @@
 \AgdaSymbol{:}\<%
 \\
 \>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ₁}\AgdaSpace{}%
+\>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Γ₁}\AgdaSpace{}%
 \AgdaBound{Γ₂}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -129,12 +231,6 @@
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{Link}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
@@ -142,7 +238,8 @@
 \AgdaSymbol{:}\<%
 \\
 \>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{d}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -170,13 +267,6 @@
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{Input}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
@@ -200,13 +290,13 @@
 \AgdaSymbol{(}\AgdaInductiveConstructor{fail}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-l}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{))}\<%
-\\
+\end{code}
+
+\begin{code}%
 %
 \>[2]\AgdaInductiveConstructor{wait}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -225,7 +315,11 @@
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-l}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
-\\
+\end{code}
+where the \AgdaInductiveConstructor{split-l} constructor indicates that the
+thread operates on the most recent channel. In the latter predicate we have
+
+\begin{code}[hide]%
 %
 \>[2]\AgdaInductiveConstructor{case}\AgdaSpace{}%
 \AgdaSymbol{:}\<%
@@ -301,13 +395,6 @@
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{Client}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
@@ -415,13 +502,6 @@
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{Output}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
@@ -524,13 +604,6 @@
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{Delayed}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
@@ -556,13 +629,13 @@
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-r}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{))}\<%
-\\
+\end{code}
+
+\begin{code}%
 %
 \>[2]\AgdaInductiveConstructor{wait}\AgdaSpace{}%
-\AgdaSymbol{:}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀\{}\AgdaBound{C}\AgdaSpace{}%
+\AgdaSymbol{:}%
+\>[408I]\AgdaSymbol{∀\{}\AgdaBound{C}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
@@ -578,13 +651,19 @@
 \AgdaSymbol{(}\AgdaBound{C}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{)\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Delayed}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[.][@{}l@{}]\<[408I]%
+\>[9]\AgdaDatatype{Delayed}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{wait}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{split-r}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
-\\
+\end{code}
+where the \AgdaInductiveConstructor{split-r} constructor indicates that the
+thread operates on a channel other than the most recent one.
+
+\begin{code}[hide]%
 %
 \>[2]\AgdaInductiveConstructor{case}\AgdaSpace{}%
 \AgdaSymbol{:}\<%
@@ -933,13 +1012,6 @@
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{Server}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
@@ -981,13 +1053,6 @@
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{DelayedServer}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\AgdaSpace{}%
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
@@ -1030,9 +1095,13 @@
 \AgdaSymbol{(}\AgdaInductiveConstructor{un-∷}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+\end{AgdaAlign}
+
+Now the \AgdaDatatype{Thread} predicate is simply the disjunction of all the
+previous ones.
+
+\begin{code}%
 \>[0]\AgdaFunction{Thread}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -1044,8 +1113,8 @@
 \\
 \>[0]\AgdaFunction{Thread}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaDatatype{Link}\AgdaSpace{}%
+\AgdaSymbol{=}%
+\>[766I]\AgdaDatatype{Link}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{⊎}}\AgdaSpace{}%
 \AgdaDatatype{Delayed}\AgdaSpace{}%
@@ -1056,8 +1125,10 @@
 \AgdaOperator{\AgdaDatatype{⊎}}\AgdaSpace{}%
 \AgdaDatatype{Input}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{⊎}}\AgdaSpace{}%
-\AgdaDatatype{Client}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⊎}}\<%
+\\
+\>[.][@{}l@{}]\<[766I]%
+\>[11]\AgdaDatatype{Client}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{⊎}}\AgdaSpace{}%
 \AgdaDatatype{Server}\AgdaSpace{}%
@@ -1065,9 +1136,76 @@
 \AgdaOperator{\AgdaDatatype{⊎}}\AgdaSpace{}%
 \AgdaDatatype{DelayedServer}\AgdaSpace{}%
 \AgdaBound{P}\<%
+\end{code}
+
+We can now define observability, reducibility and aliveness in the expected way:
+
+\begin{code}%
+\>[0]\AgdaFunction{Observable}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaFunction{Observable}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{∃[}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
+\AgdaFunction{]}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⊒}}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{×}}\AgdaSpace{}%
+\AgdaFunction{Thread}\AgdaSpace{}%
+\AgdaBound{Q}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaFunction{Reducible}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaFunction{Reducible}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{∃[}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
+\AgdaFunction{]}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↝}}\AgdaSpace{}%
+\AgdaBound{Q}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaFunction{Alive}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaFunction{Alive}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{Observable}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⊎}}\AgdaSpace{}%
+\AgdaFunction{Reducible}\AgdaSpace{}%
+\AgdaBound{P}\<%
+\end{code}
+
+\begin{code}[hide]%
 \>[0]\AgdaFunction{link-thread}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
@@ -1718,9 +1856,15 @@
 \AgdaSymbol{(}\AgdaInductiveConstructor{server}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSymbol{))))))}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+In order to prove that every (well-typed) process is alive, it is convenient to
+also define a ``canonical'' form for cuts, which is a form that matches at least
+one of the left-hand-sides of the rules for structural pre-congruence or
+reduction (\Cref{tab:semantics}). This is the notion where the fine-grained
+classification of threads introduced earlier comes into play.
+
+\begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{CanonicalCut}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -1979,9 +2123,20 @@
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{)}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+A \emph{canonical cut} $\Cut\x{P}{Q}$ has one of these forms:
+\begin{itemize}
+\item $P$ is a link (\AgdaInductiveConstructor{cc-link}), or
+\item $P$ operates on a channel other than $x$ and is not a server
+(\AgdaInductiveConstructor{cc-delayed}), or
+\item $P$ and $Q$ are servers and $P$ operates on a channel other than $x$
+(\AgdaInductiveConstructor{cc-delayed-server}), or
+\item $P$ performs an output on $x$ and $Q$ performs an input on $x$
+(\AgdaInductiveConstructor{cc-redex} and \AgdaInductiveConstructor{cc-connect}).
+\end{itemize}
+
+\begin{code}[hide]%
 \>[0]\AgdaFunction{output-output}\AgdaSpace{}%
 \AgdaSymbol{:}\<%
 \\
@@ -2486,9 +2641,12 @@
 \AgdaInductiveConstructor{server}\AgdaSpace{}%
 \AgdaBound{p₁}\AgdaSpace{}%
 \AgdaBound{un₁}\AgdaSymbol{)}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+Every cut $\Cut\x{P}{Q}$ where both $P$ and $Q$ are threads can be rewritten
+into a canonical cut using structural pre-congruence:
+
+\begin{code}%
 \>[0]\AgdaFunction{canonical-cut}\AgdaSpace{}%
 \AgdaSymbol{:}\<%
 \\
@@ -2497,10 +2655,8 @@
 \AgdaBound{Γ₁}\AgdaSpace{}%
 \AgdaBound{Γ₂}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\<%
-\\
-%
-\>[2]\AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
@@ -2534,10 +2690,8 @@
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaFunction{Thread}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
-\\
-%
-\>[2]\AgdaFunction{∃[}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{∃[}\AgdaSpace{}%
 \AgdaBound{R}\AgdaSpace{}%
 \AgdaFunction{]}\AgdaSpace{}%
 \AgdaDatatype{CanonicalCut}\AgdaSpace{}%
@@ -2550,7 +2704,9 @@
 \AgdaBound{Q}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{⊒}}\AgdaSpace{}%
 \AgdaBound{R}\<%
-\\
+\end{code}
+
+\begin{code}[hide]%
 \>[0]\AgdaFunction{canonical-cut}\AgdaSpace{}%
 \AgdaBound{dc}\AgdaSpace{}%
 \AgdaBound{pc}\AgdaSpace{}%
@@ -3233,78 +3389,7 @@
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{Observable}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\<%
-\\
-\>[0]\AgdaFunction{Observable}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{∃[}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSpace{}%
-\AgdaFunction{]}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{⊒}}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{×}}\AgdaSpace{}%
-\AgdaFunction{Thread}\AgdaSpace{}%
-\AgdaBound{Q}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{Live}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\<%
-\\
-\>[0]\AgdaFunction{Live}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{Observable}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{⊎}}\AgdaSpace{}%
-\AgdaFunction{Reducible}\AgdaSpace{}%
-\AgdaBound{P}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{DeadlockFree}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\<%
-\\
-\>[0]\AgdaFunction{DeadlockFree}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaSymbol{∀(}\AgdaBound{Q}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{⇒}}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{Live}\AgdaSpace{}%
-\AgdaBound{Q}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{⊒Live}\AgdaSpace{}%
+\>[0]\AgdaFunction{⊒Alive}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
@@ -3317,13 +3402,13 @@
 \AgdaOperator{\AgdaDatatype{⊒}}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{Live}\AgdaSpace{}%
+\AgdaFunction{Alive}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{Live}\AgdaSpace{}%
+\AgdaFunction{Alive}\AgdaSpace{}%
 \AgdaBound{P}\<%
 \\
-\>[0]\AgdaFunction{⊒Live}\AgdaSpace{}%
+\>[0]\AgdaFunction{⊒Alive}\AgdaSpace{}%
 \AgdaBound{pcong}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{inj₁}\AgdaSpace{}%
 \AgdaSymbol{(\AgdaUnderscore{}}\AgdaSpace{}%
@@ -3341,7 +3426,7 @@
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaBound{th}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{⊒Live}\AgdaSpace{}%
+\>[0]\AgdaFunction{⊒Alive}\AgdaSpace{}%
 \AgdaBound{pcong}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{inj₂}\AgdaSpace{}%
 \AgdaSymbol{(\AgdaUnderscore{}}\AgdaSpace{}%
@@ -3354,10 +3439,13 @@
 \AgdaInductiveConstructor{r-cong}\AgdaSpace{}%
 \AgdaBound{pcong}\AgdaSpace{}%
 \AgdaBound{red}\AgdaSymbol{)}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\end{code}
+
+It is easy to prove that every canonical cut is alive, either reducing it or
+applying structural pre-congruence to rewrite it into a thread.
+
+\begin{code}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
@@ -3368,10 +3456,12 @@
 \AgdaDatatype{CanonicalCut}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{Live}\AgdaSpace{}%
+\AgdaFunction{Alive}\AgdaSpace{}%
 \AgdaBound{P}\<%
-\\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\end{code}
+
+\begin{code}[hide]%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-link}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3397,7 +3487,7 @@
 \AgdaBound{e}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-link}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3435,7 +3525,7 @@
 \AgdaBound{e}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{))}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-redex}\AgdaSpace{}%
 \AgdaInductiveConstructor{d-𝟙-⊥}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3462,7 +3552,7 @@
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-redex}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{d-⊕-\&}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
@@ -3496,7 +3586,7 @@
 \AgdaBound{q}\AgdaSpace{}%
 \AgdaBound{r}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-redex}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{d-⊕-\&}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
@@ -3530,7 +3620,7 @@
 \AgdaBound{q}\AgdaSpace{}%
 \AgdaBound{r}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-redex}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{d-⊗-⅋}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
@@ -3565,7 +3655,7 @@
 \AgdaBound{r}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-connect}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{d-!-?}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSymbol{)}\AgdaSpace{}%
@@ -3598,7 +3688,7 @@
 \AgdaBound{r}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-connect}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{d-!-?}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSymbol{)}\AgdaSpace{}%
@@ -3631,7 +3721,7 @@
 \AgdaBound{r}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-connect}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{d-!-?}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSymbol{)}\AgdaSpace{}%
@@ -3664,7 +3754,7 @@
 \AgdaBound{r}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3697,7 +3787,7 @@
 \AgdaFunction{wait-thread}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3730,7 +3820,7 @@
 \AgdaFunction{case-thread}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3763,7 +3853,7 @@
 \AgdaFunction{join-thread}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3798,7 +3888,7 @@
 \AgdaInductiveConstructor{false}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3833,7 +3923,7 @@
 \AgdaInductiveConstructor{true}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3896,7 +3986,7 @@
 \AgdaBound{q′}\AgdaSpace{}%
 \AgdaBound{r′′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3945,7 +4035,7 @@
 \AgdaBound{q′}\AgdaSpace{}%
 \AgdaBound{r′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -3978,7 +4068,7 @@
 \AgdaFunction{fail-thread}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -4011,7 +4101,7 @@
 \AgdaFunction{client-thread}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -4044,7 +4134,7 @@
 \AgdaFunction{weaken-thread}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -4077,7 +4167,7 @@
 \AgdaFunction{contract-thread}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live-cut}\AgdaSpace{}%
+\>[0]\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cc-delayed-server}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{d-?-!}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4128,10 +4218,12 @@
 \AgdaBound{p′}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSpace{}%
 \AgdaBound{un′}\AgdaSymbol{))}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\end{code}
+
+Now deadlock freedom for $P$ can be proved by induction on $P$.
+
+\begin{code}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
@@ -4139,11 +4231,20 @@
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{Live}\AgdaSpace{}%
+\AgdaFunction{Alive}\AgdaSpace{}%
 \AgdaBound{P}\<%
 \end{code}
+
+When $P$ is a thread, then it is obviously observable and hence alive. When $P$
+is a cut $\Cut\x{P}{Q}$, \AgdaFunction{deadlock-freedom} is applied recursively
+on $P$ and $Q$. If either of these applications yields a reduction, then the
+whole cut is reducible and therefore alive. If both applications yield a thread,
+then we conclude that the cut is alive first rewriting it into a canonical cut
+(\AgdaFunction{canonical-cut}) and then using
+\AgdaFunction{canonical-cut-alive}.
+
 \begin{code}[hide]%
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{link}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4157,7 +4258,7 @@
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{fail}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -4169,7 +4270,7 @@
 \AgdaFunction{fail-thread}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaInductiveConstructor{close}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{inj₁}\AgdaSpace{}%
@@ -4179,7 +4280,7 @@
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaFunction{close-thread}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{wait}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4192,7 +4293,7 @@
 \AgdaFunction{wait-thread}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{select}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -4207,7 +4308,7 @@
 \AgdaBound{x}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{case}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
@@ -4221,7 +4322,7 @@
 \AgdaFunction{case-thread}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{fork}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
@@ -4237,7 +4338,7 @@
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{join}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4250,7 +4351,7 @@
 \AgdaFunction{join-thread}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{server}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSpace{}%
@@ -4265,7 +4366,7 @@
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{client}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4278,7 +4379,7 @@
 \AgdaFunction{client-thread}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{weaken}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4291,7 +4392,7 @@
 \AgdaFunction{weaken-thread}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{contract}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4304,14 +4405,14 @@
 \AgdaFunction{contract-thread}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{live}\AgdaSpace{}%
+\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cut}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{live}\AgdaSpace{}%
+\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaBound{P}\<%
 \\
 \>[0]\AgdaSymbol{...}\AgdaSpace{}%
@@ -4338,7 +4439,7 @@
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaBound{Pt}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{live}\AgdaSpace{}%
+\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
 \AgdaBound{Q}\<%
 \\
 \>[0]\AgdaSymbol{...}\AgdaSpace{}%
@@ -4385,7 +4486,7 @@
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaBound{pcong}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{⊒Live}\AgdaSpace{}%
+\AgdaFunction{⊒Alive}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{s-tran}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{s-cong}\AgdaSpace{}%
 \AgdaBound{d}\AgdaSpace{}%
@@ -4393,27 +4494,6 @@
 \AgdaBound{Pc}\AgdaSpace{}%
 \AgdaBound{Qc}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{pcong}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{live-cut}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{canonical-cut-alive}\AgdaSpace{}%
 \AgdaBound{cc}\AgdaSymbol{)}\<%
-\end{code}
-
-\begin{code}%
-\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{DeadlockFree}\AgdaSpace{}%
-\AgdaBound{P}\<%
-\\
-\>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSpace{}%
-\AgdaBound{reds}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{live}\AgdaSpace{}%
-\AgdaBound{Q}\<%
 \end{code}
