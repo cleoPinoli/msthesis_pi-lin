@@ -156,6 +156,9 @@ distributes the free channels among the two parallel processes.
 
 \end{AgdaAlign}
 
+Permutations preserve process typeability. In a sense we can read this property
+as the fact that we can rename channels at will.
+
 \begin{code}
 #process : ∀{Γ Δ} → Γ # Δ → Process Γ → Process Δ
 \end{code}

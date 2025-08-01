@@ -50,6 +50,17 @@
 \subsection{Context Permutations}
 \label{sec:permutations-agda}
 
+According to our nameless representation of channels, it is the \emph{order} of
+channels in a typing context $\Context$ that determines the binding location in
+the structure of a process. When the binding structure of a process changes, \eg
+because a structural pre-congruence rule is applied, or when a channel
+substitution occurs, \cf the right-hand side of the \LinkRule reduction, the
+typing context must be suitably rearranged. Such rearrangement is in fact a
+\emph{permutation} of the elements of $\Context$.
+
+We define typing context permutations inductively, as a binary relation
+\AgdaDatatype{\_\#\_}:
+
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}\#\AgdaUnderscore{}}}\AgdaSpace{}%
@@ -126,9 +137,27 @@
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{\#}}\AgdaSpace{}%
 \AgdaBound{Θ}\<%
-\\
+\end{code}
+
+This definition is essentially the same as the notion of list permutation in
+Agda's standard library. Each constructor represents a particular kind of
+permutation: \AgdaInductiveConstructor{\#refl} for the trivial permutation that
+does not change anything; \AgdaInductiveConstructor{\#here} for the permutation
+that swaps the first two elements of a typing context;
+\AgdaInductiveConstructor{\#next} for the permutation that applies a
+sub-permutation to the tail of a typing context;
+\AgdaInductiveConstructor{\#tran} for the sequential composition of
+permutations.
 %
-\\[\AgdaEmptyExtraSkip]%
+We have preferred defining our own notion of permutation for simplicity: the
+\AgdaInductiveConstructor{\#here} constructor does not need a sub-permutation
+for the tail of the typing context, which can always be performed, if needed,
+using \AgdaInductiveConstructor{\#next} and \AgdaInductiveConstructor{\#tran}.
+Also, and more importantly, this definition is \emph{monomorphic} (it does not
+need to operate on lists of arbitrary type), resulting in a more streamlined
+usage in the rest of the code.
+
+\begin{code}[hide]%
 \>[0]\AgdaFunction{\#sym}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
@@ -289,9 +318,15 @@
 \AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
 \AgdaInductiveConstructor{\#here}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaInductiveConstructor{\#here}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+Just like permutations from Agda's standard library, also \AgdaDatatype{\_\#\_}
+enjoys a number of expected (and useful) properties, such as symmetry. Among all
+properties, in the following we will make use of a specific one that connects
+context splitting and permutations: if $\Context \simeq A, \ContextD$, then
+$\Context$ must be a permutation of $A~\AgdaInductiveConstructor{∷}~\ContextD$.
+
+\begin{code}%
 \>[0]\AgdaFunction{\#cons}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
@@ -332,9 +367,9 @@
 \AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{\#cons}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{))}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+\begin{code}[hide]%
 \>[0]\AgdaFunction{\#split}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%

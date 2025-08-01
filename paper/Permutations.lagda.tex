@@ -11,13 +11,44 @@ open import Context
 \subsection{Context Permutations}
 \label{sec:permutations-agda}
 
+According to our nameless representation of channels, it is the \emph{order} of
+channels in a typing context $\Context$ that determines the binding location in
+the structure of a process. When the binding structure of a process changes, \eg
+because a structural pre-congruence rule is applied, or when a channel
+substitution occurs, \cf the right-hand side of the \LinkRule reduction, the
+typing context must be suitably rearranged. Such rearrangement is in fact a
+\emph{permutation} of the elements of $\Context$.
+
+We define typing context permutations inductively, as a binary relation
+\AgdaDatatype{\_\#\_}:
+
 \begin{code}
 data _#_ : Context → Context → Set where
   #refl  : ∀{Γ} → Γ # Γ
   #here  : ∀{A B Γ} → (A ∷ B ∷ Γ) # (B ∷ A ∷ Γ)
   #next  : ∀{A Γ Δ} → Γ # Δ → (A ∷ Γ) # (A ∷ Δ)
   #tran  : ∀{Γ Δ Θ} → Γ # Δ → Δ # Θ → Γ # Θ
+\end{code}
 
+This definition is essentially the same as the notion of list permutation in
+Agda's standard library. Each constructor represents a particular kind of
+permutation: \AgdaInductiveConstructor{\#refl} for the trivial permutation that
+does not change anything; \AgdaInductiveConstructor{\#here} for the permutation
+that swaps the first two elements of a typing context;
+\AgdaInductiveConstructor{\#next} for the permutation that applies a
+sub-permutation to the tail of a typing context;
+\AgdaInductiveConstructor{\#tran} for the sequential composition of
+permutations.
+%
+We have preferred defining our own notion of permutation for simplicity: the
+\AgdaInductiveConstructor{\#here} constructor does not need a sub-permutation
+for the tail of the typing context, which can always be performed, if needed,
+using \AgdaInductiveConstructor{\#next} and \AgdaInductiveConstructor{\#tran}.
+Also, and more importantly, this definition is \emph{monomorphic} (it does not
+need to operate on lists of arbitrary type), resulting in a more streamlined
+usage in the rest of the code.
+
+\begin{code}[hide]
 #sym : ∀{Γ Δ} → Γ # Δ → Δ # Γ
 #sym #refl = #refl
 #sym #here = #here
@@ -35,12 +66,22 @@ data _#_ : Context → Context → Set where
 
 #rot : ∀{A B C Γ} → (A ∷ B ∷ C ∷ Γ) # (C ∷ A ∷ B ∷ Γ)
 #rot = #tran (#next #here) #here
+\end{code}
 
+Just like permutations from Agda's standard library, also \AgdaDatatype{\_\#\_}
+enjoys a number of expected (and useful) properties, such as symmetry. Among all
+properties, in the following we will make use of a specific one that connects
+context splitting and permutations: if $\Context \simeq A, \ContextD$, then
+$\Context$ must be a permutation of $A~\AgdaInductiveConstructor{∷}~\ContextD$.
+
+\begin{code}
 #cons : ∀{A Γ Δ} → Γ ≃ A , Δ → (A ∷ Δ) # Γ
 #cons (split-l p) with +-empty-l p
 ... | refl = #refl
 #cons (split-r p) = #tran #here (#next (#cons p))
+\end{code}
 
+\begin{code}[hide]
 #split : ∀{Γ Γ₁ Γ₂ Δ} → Γ # Δ → Γ ≃ Γ₁ + Γ₂ → ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ # Δ₁ × Γ₂ # Δ₂)
 #split #refl p = _ , _ , p , #refl , #refl
 #split (#next π) (split-l p) with #split π p
