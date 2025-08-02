@@ -74,7 +74,7 @@ binder~\citep{Vasconcelos12,GayVasconcelos25}.
 Also, the fact of working with a calculus with \emph{linear} channels and
 explicit continuations spares us the need to \emph{update} the type of channels
 in typing contexts. When a channel is used it is effectively consumed, therefore
-its type is \emph{removed} from the typing context and the type of the
+its type can be \emph{removed} from the typing context and the type of the
 continuation channel is \emph{added} back to the typing context. As is turns
 out, removing and adding types is easier than updating them. Even more so
 considering that the type of continuation channels can be conveniently added
@@ -88,5 +88,5 @@ the essential aspects of the formalization with particular emphasis on the
 representation of channel names and typing contexts. \Cref{sec:conclusion}
 summarizes our contributions, discusses some extensions and future work. The
 formalization has been carried out using Agda and its full code is available
-from a public
+from a public\Luca{Related work? Confronto con altre formalizzazioni?}
 repository.\footnote{\url{https://github.com/boystrange/LinearityChallenge/tree/main/exp}}
