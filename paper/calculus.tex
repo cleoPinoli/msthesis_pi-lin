@@ -28,19 +28,25 @@
     \end{tabular}
 \end{table}
 
-The calculus of pure sessions that is formalized in our development is dubbed
-\Calculus and is a linear version of \CP~\citep{Wadler14,GayVasconcelos25},
-where every session endpoint is meant to be used \emph{exactly once}. This
-differs from \CP and other session calculi where session endpoints can be used
-repeatedly, albeit sequentially.
+The calculus of pure sessions we formalized is dubbed \Calculus and is a linear
+version of \CP~\citep{Wadler14,GayVasconcelos25} such that every session
+endpoint is meant to be used \emph{exactly once}. This differs from \CP and
+other session calculi where session endpoints can be used repeatedly, albeit
+sequentially. The key idea is that each message sent on a session endpoint is
+paired with a \emph{fresh continuation channel} on which the rest of the
+conversation takes place.
+%
+This way of encoding sessions using explicit continuations has been first
+described by \citet{Kobayashi} and later studied extensively by
+\citet{DardhaGiachinoSangiorgi17}.
 
 The syntax of \Calculus makes use of an infinite set of \emph{channel names},
 ranged over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
 %
-A link $\Link\x\y$ denotes the merging of the $x$ and $y$ channels, so that
-every message sent on one of the channels is forwarded to the other. This form
-is useful for modeling \emph{free outputs}, as we will see later.\Luca{Mettere
-esempio!}
+A link $\Link\x\y$ denotes the merging of the channels $x$ and $y$, so that
+every message sent on one of the channels is forwarded to the other. As
+discussed in the literature, this form is useful for modeling \emph{delegation},
+that is the transmission of an existing channel over another channel.
 %
 The $\Close\x$ and $\Wait\x.P$ processes respectively model the output and input
 of a termination signal on the channel $x$. The former process has no
