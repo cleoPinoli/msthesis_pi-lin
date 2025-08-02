@@ -1,0 +1,92 @@
+\section{Introduction}
+\label{sec:introduction}
+
+The Concurrent Calculi Formalisation Benchmark~\citep{CarboneEtAl24} is a
+collection of challenges concerning the mechanisation of formal models of
+concurrent and distributed programming languages.
+%
+These models often make use of distinctive features that set them apart from the
+formal models of \emph{sequential} programming languages, such as the adoption
+of substructural (linear, affine) type systems, the dynamic scope of first-class
+channels in systems of communicating processes, the extensive use of coinduction
+for describing and reasoning on possibly infinite behaviors.
+%
+The benchmark aims at investigating effective formalization techniques that take
+these features into account so as to foster the adoption of machine-checked
+proofs in research work concerning concurrent and distributed programming
+languages.
+
+This paper reports on a solution to one of the challenges in the benchmark --
+hereafter called \emph{linearity challenge} -- which is concerned with the
+formalization of a minimal \emph{session calculus}. Sessions and session
+types~\citep{Honda93,HondaVasconcelosKubo98,HuttelEtAl16} are established
+formalisms for the static analysis of distributed programs based on peer-to-peer
+communication channels. Every session type system revolves around three key
+ideas: (1) session endpoints are \emph{linear resources} that cannot be
+discarded or duplicated without jeopardizing some key safety and liveness
+properties of a program; (2) the type of a session endpoint \emph{must be
+updated} after each use to reflect the state of the interaction it describes;
+(3) peer session endpoints are meant to be used in complementary ways so as to
+guarantee the absence of communication errors and, to some extent, progress of
+the interaction.
+
+The calculus that we formalize -- called \Calculus in the following -- and the
+one in the description of the challenge differ for two main aspects:
+\begin{enumerate}
+\item The challenge considers a minimal calculus of sessions, which is basically
+    a first-order $\pi$-calculus without replication, whereas \Calculus is
+    closely related to
+    \CP~\citep{CairesPfenning10,Wadler14,CairesPfenningToninho16}, a
+    fully-featured calculus of higher-order sessions with both linear and shared
+    channels and whose type system is based on linear logic.
+    %
+    This allows us to target a model of sessions that is well-known in the
+    literature, that is based on firm logical grounds, and that includes a
+    broader range of features.
+\item While the calculus in the challenge is equipped with native sessions,
+    \Calculus is a \emph{linear} calculus where each channel is meant to be used
+    for a \emph{single} communication. Structured conversations pertaining the
+    same session and involving the exchange of several messages can still be
+    modeled thanks to the use of \emph{explicit continuation channels}, in the
+    same spirit of the encoding of (binary) sessions into the linear
+    $\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
+    %
+    Overall, \Calculus has the same expressive power of \CP but is a lower-level
+    calculus in which sessions can be encoded instead of being featured
+    natively.
+\end{enumerate}
+
+We value these differences because their combined effect allows us to obtain a
+remarkably simple formalization of \Calculus.
+%
+The fact of working with a calculus based on linear logic prevents \emph{by
+construction} the same (sequential) process to own both endpoints of a session.
+This situation is clearly undesirable since it does not correspond to a useful
+pattern of interaction (every meaningful session requires its endpoints to be
+used by parallel processes) and is a potential source of deadlocks.
+%
+From the standpoint of the formalization, where the representation of channel
+names is a primary design choice, it spares us the need to \emph{distinguish}
+the two endpoints of a session, \eg by means of polarities~\citep{GayHole05} or
+by using different names connected by the same
+binder~\citep{Vasconcelos12,GayVasconcelos25}.
+%
+Also, the fact of working with a calculus with \emph{linear} channels and
+explicit continuations spares us the need to \emph{update} the type of channels
+in typing contexts. When a channel is used it is effectively consumed, therefore
+its type is \emph{removed} from the typing context and the type of the
+continuation channel is \emph{added} back to the typing context. As is turns
+out, removing and adding types is easier than updating them. Even more so
+considering that the type of continuation channels can be conveniently added
+\emph{at the beginning} of a typing context, since such channels are fresh by
+definition.
+
+The rest of the paper is structured as follows. \Cref{sec:calculus} describes
+the syntax and the operational semantics of \Calculus and states the properties
+of well-typed processes that we formalize and prove. \Cref{sec:agda} outlines
+the essential aspects of the formalization with particular emphasis on the
+representation of channel names and typing contexts. \Cref{sec:conclusion}
+summarizes our contributions, discusses some extensions and future work. The
+formalization has been carried out using Agda and its full code is available
+from a public
+repository.\footnote{\url{https://github.com/boystrange/LinearityChallenge/tree/main/exp}}
