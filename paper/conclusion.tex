@@ -3,7 +3,17 @@
 
 context splitting hard to read but overall doable
 
+working with an intrinsically typed calculus drastically reduces the number of
+cases that must be considered in proving properties (eg deadlock freedom)
+
+it also makes it trivial to reason about properties of sub-processes (see type
+safety, where Q is well typed)
+
 structural pre-congruence by far most involved, and it will grow even further in
 order to prove more complex properties (eg confluence)
 
 linear pi-calculus is good
+
+we think that a simple formalization is a good basis for further investigations.
+For examples, defined cut elimination, strong normalization, soundness of
+subtyping, for the linear fragment of \Calculus

@@ -37,7 +37,7 @@ paired with a \emph{fresh continuation channel} on which the rest of the
 conversation takes place.
 %
 This way of encoding sessions using explicit continuations has been first
-described by \citet{Kobayashi} and later studied extensively by
+described by \citet[extended version]{Kobayashi02b} and later studied by
 \citet{DardhaGiachinoSangiorgi17}.
 
 The syntax of \Calculus makes use of an infinite set of \emph{channel names},
@@ -45,21 +45,22 @@ ranged over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
 %
 A link $\Link\x\y$ denotes the merging of the channels $x$ and $y$, so that
 every message sent on one of the channels is forwarded to the other. As
-discussed in the literature, this form is useful for modeling \emph{delegation},
-that is the transmission of an existing channel over another channel.
+discussed in the literature, this form is useful also for modeling
+\emph{delegation}, that is the exchange of an existing session endpoint in
+another session.
 %
 The $\Close\x$ and $\Wait\x.P$ processes respectively model the output and input
 of a termination signal on the channel $x$. The former process has no
-continuation, while the latter process continues as $P$ once the signa has been
+continuation, while the latter process continues as $P$ once the signal has been
 received.
 %
 The $\Fail\x$ process denotes a runtime error concerning the channel $x$.
 %
-The $\Select\x{\InTag_i}\z.P$ and $\Case\x\z{Q_1}{Q_2}$ processes respectively
-denote the output and input of a label $\InTag_i$ along with a fresh
-continuation $z$ on the channel $x$. Depending on the label $\InTag_i$, the
-receiver continues as $Q_i$. In practice it is useful to consider arbitrary
-(domain-specific) sets of tags instead of the canonical two $\InTag_1$ and
+The $\Select\x{\InTag_i}\z.P$ for $i=1,2$ and $\Case\x\z{Q_1}{Q_2}$ processes
+respectively denote the output and input of a label $\InTag_i$ along with a
+fresh continuation $z$ on the channel $x$. The receiver continues as $Q_i$
+depending on the received label $\InTag_i$. In practice it is useful to consider
+arbitrary (domain-specific) sets of tags instead of the canonical $\InTag_1$ and
 $\InTag_2$. This generalization has no substantial impact on the formalization,
 so we stick to the classical case of ``binary choices'' in line with the usual
 presentations of linear logic.
@@ -68,22 +69,22 @@ The $\Fork\x\y\z{P}{Q}$ and $\Join\x\y\z.R$ processes respectively denote the
 output and input of a pair of fresh channels $y$ and $z$ on the channel $x$. The
 former process forks into $P$ and $Q$, each using $y$ and $z$ respectively. The
 latter process continues as $R$. These forms are often used in conjunction with
-links to model \emph{free outputs}, but can also be used to model bifurcating
+links to model \emph{delegation}, but can also be used to model bifurcating
 sessions whereby a sequential protocol continues as two parallel sub-protocols.
 
 Next we have process forms dealing with shared (non-linear) channels. The
 $\Server\x\y.P$ and $\Client\x\y.P$ processes respectively denote \emph{servers}
-and \emph{clients} acting on the $x$. Each request (from a client) spawns a copy
-of the server's body using the continuation channel $y$. The process
-$\Weaken\x.P$ denotes an explicit \emph{weakening}, that is a client that does
-\emph{not} use the server waiting on $x$. The process $\Contract\x\y\z.P$
-denotes an explicit \emph{contraction}, that is a client that uses the server
-$x$ multiple times on the channels $y$ and $z$.
+and \emph{clients} acting on the shared channel $x$. Each request (from a
+client) spawns a copy of the server's body using the continuation channel $y$.
+The process $\Weaken\x.P$ denotes an explicit \emph{weakening}, that is a client
+that \emph{does not} use the server waiting on $x$. The process
+$\Contract\x\y\z.P$ denotes an explicit \emph{contraction}, that is a client
+that uses the server $x$ multiple times on the channels $y$ and $z$.
 
 \emph{Cuts} of the form $\Cut\x{P}{Q}$ represent the parallel composition of the
 processes $P$ and $Q$ connected by a channel $x$.
 
-The notions of free and bound names are almost standard. Just bear in mind that
+The notions of free and bound names are fairly standard. Just bear in mind that
 also output action prefixes bind continuation channels in (some) continuation
 processes. In particular, $\Select\x{\Tag_i}\z.P$ binds $z$ in $P$, while
 $\Fork\x\y\z{P}{Q}$ binds $y$ in $P$ but not in $Q$ and $z$ in $Q$ but not in
@@ -134,7 +135,7 @@ identify processes up to renaming of bound names.
             \RClose &
             \Cut\x{\Close\x}{\Wait\x.P} & \red & P \\
             \RSelect &
-            \Cut\x{\Select\x{\Tag_i}\z.P}{\Case\x\z{Q_1}{Q_2}} & \red & \Cut\z{P}{Q_i} & i\in\set{1,2} \\
+            \Cut\x{\Select\x{\InTag_i}\z.P}{\Case\x\z{Q_1}{Q_2}} & \red & \Cut\z{P}{Q_i} & i\in\set{1,2} \\
             \RFork &
             \Cut\x{\Fork\x\y\z{P}{Q}}{\Join\x\y\z.R} & \red & \Cut\y{P}{\Cut\z{Q}{R}} \\
             \RConnect &
@@ -209,15 +210,18 @@ Another rule that deserves attention is \SServer. In this case, a server prefix
 $\Server\y\u$ can be pulled out of a cut only provided that the other process in
 the cut is also a server on the channel restricted by the cut.
 
+Reduction is defined by the \rulename{r-*} rules.
+%
 The reduction rules \RLink, \RClose, \RSelect, \RFork, \RConnect, \RWeaken and
 \RContract are in one-to-one correspondence with the well-known reductions of
 session calculi and the principal cut reductions of linear logic. \RLink
 eliminates a link $\Link\x\y$ by substituting $y$ for $x$. \RClose closes a
 session $x$ when a termination signal is exchanged on $x$. \RSelect and \RFork
-respectively model the communication of a tag $\Tag_i$ and of a fresh channel
+respectively model the communication of a tag $\InTag_i$ and of a fresh channel
 $y$. Each of these communications carries along a \emph{fresh continuation} $z$
-on which the rest of the conversation takes place, in line with the semantics of
-the linear $\pi$-calculus~\cite{KobayashiPierceTurner99}.
+on which the rest of the conversation takes place, in line with the encoding of
+sessions into the linear
+$\pi$-calculus~\cite{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
 %
 \RConnect, \RWeaken and \RContract describe interactions on shared channels and
 respectively represent the connection between a server and a client, the
@@ -229,7 +233,7 @@ $\Weaken{\seqof\z}.Q$ stands for $\Weaken{z_1}\dots\Weaken{z_n}.Q$ and
 $\Contract{\seqof\z}{\seqof\z'}{\seqof\z''}.R$ stands for
 $\Contract{z_1}{z_1'}{z_1''}\dots\Contract{z_n}{z_n'}{z_n''}.R$.
 
-The rule~\RCut propagates reductions through cuts and the rules \RCong closes
+The rule~\RCut propagates reductions through cuts and the rule \RCong closes
 reduction by structural pre-congruence.
 
 \subsection{Type System}
@@ -245,7 +249,7 @@ The interpretation of propositions as session types is the usual
 one~\cite{Wadler14}: the constants $\Bot$ and $\One$ describe the behavior of a
 process sending/receiving a termination signal; the additive connectives $A
 \Plus B$ and $\A \With B$ describe the behavior of a process sending/receiving a
-boolean value and then adhering to either $A$ and $B$ accordingly; the
+label $\InTag_i$ and then adhering to either $A$ and $B$ accordingly; the
 multiplicative connectives $A \Ten B$ and $A \Par B$ describe the behavior of a
 process sending/receiving a channel (to be used according to $A$) and then
 continuing as described by $B$. The additive constants $\Zero$ and $\Top$ do not
@@ -263,7 +267,9 @@ written as $x_1 : A_1, \dots, x_n : A_n$ and ranged over by $\ContextC$ and
 $\ContextD$. We write $\ContextC, \ContextD$ for the union of $\ContextC$ and
 $\ContextD$ when they have disjoint domain. We write $\WhyNot\Context$ for some
 context $\Context = x_1 : \WhyNot A_1, \dots, x_n : \WhyNot A_n$ where all the
-types in its range are prefixed by the $\WhyNot$ modality.
+types in its range are prefixed by the $\WhyNot$ modality. We call these types
+\emph{unrestricted}, since they are used to denote shared channels that can be
+(explicitly) discarded and duplicated at will.
 
 \begin{table}
     \caption{Typing rules of \Calculus.}
@@ -357,9 +363,10 @@ the sequent $\wtp{}\Context$ is derivable and $P$ is a \emph{proof term}
 corresponding to the derivation for $\wtp{}\Context$.
 %
 The typing rules are shown in \Cref{tab:typing-rules}. Since they are in
-one-to-one correspondence with the proof rules of classical linear logic, the
-reader may refer to the standard literature on linear logic~\cite{} or
-propositions as sessions~\citep{Wadler14} for their interpretation.
+one-to-one correspondence with -- and have exactly the same structure of -- the
+proof rules of classical linear logic, the reader may refer to the standard
+literature on linear logic~\cite{} or propositions as sessions~\citep{Wadler14}
+for their interpretation.
 
 \subsection{Properties of Well-Typed Processes}
 \label{sec:properties}
@@ -386,11 +393,12 @@ simple example of deadlock is the process $\Cut\x{\Close\x}{\Close\x}$. This
 process is unable to reduce (because a $\Close\x$ process is meant to interact
 with a process of the form $\Wait\x.P$) and, more generally, it is unable to
 interact regardless of the context in which it occurs because the $\Close\x$
-sub-processes it contains are blocked on the channel $x$ bound by the cut.
+sub-processes it contains are blocked on the channel $x$ that is bound by the
+cut.
 %
 In general, the property of being a deadlock is not simply the inability to
 reduce: there are irreducible processes that are not a deadlock because they
-would be able to reduce if put in a suitable context. For example, $\Wait\x.P$
+would be able to reduce if put into a suitable context. For example, $\Wait\x.P$
 does not reduce, and yet it is not a deadlock because it would be able to make
 progress when composed in parallel with $\Close\x$. In general, even a process
 like $\Cut\y{\Wait\y.P}{\Wait\z.Q}$ where $x\ne y,z$ cannot be considered a
@@ -402,8 +410,8 @@ a thread is either a link or a process that starts with an input/output action
 of some sort. Note that a thread may contain cuts, but these cuts must all
 guarded underneath the topmost action prefix.
 %
-We also say that $P$ is \emph{observable} if $P \pcong Q$ for some thread $Q$.
-An observable process is a process that exposes an action on a free channel name
+We say that $P$ is \emph{observable} if $P \pcong Q$ for some thread $Q$. An
+observable process is a process that exposes an action on a free channel name
 and therefore can interact through that channel, if put into some appropriate
 context. We say that $P$ is \emph{reducible} if $P \red Q$ for some $Q$. A
 reducible process may perform a reduction step.
@@ -411,14 +419,20 @@ reducible process may perform a reduction step.
 We say that a process is \emph{alive} if it is either observable or reducible
 and that it is a \emph{deadlock} if it is not alive.
 
+Well-typed \Calculus processes are deadlock free:
+
 \begin{theorem}[deadlock freedom]
     \label{thm:df}
     If $\wtp{P}\Context$ then $P$ is alive.
 \end{theorem}
 
-In order to formulate \emph{well formedness}~\cite{CarboneEtAl24}, we define
-\emph{reduction contexts} as partial processes with a single unguarded hole
-$\Hole$, thus:
+We now shift the attention to \emph{well formedness}. In the linearity
+challenge~\cite{CarboneEtAl24}, this property ensures that, whenever two
+processes composed in parallel begin with actions concerning the very same
+session, then such actions are \emph{complementary}, in the sense that they
+describe opposite forms of interaction. To define well formedness in our
+setting, we introduce \emph{reduction contexts} as partial processes with a
+single unguarded hole $\Hole$, thus:
 \[
     \ReductionContext ::= \Hole \mid \Cut\x\ReductionContext{P} \mid \Cut\x{P}\ReductionContext
 \]
@@ -428,14 +442,19 @@ the hole in $\ReductionContext$ with $P$, noting that such replacement may
 capture channel names that are bound in $\ReductionContext$ and occur free in
 $P$.
 %
-Now we observe that if $P$ and $Q$ both act on the same channel $x$ in
-complementary ways, then their parallel composition $\Cut\x{P}{Q}$ is reducible
-according to one of the principal cut reductions described in
+Now we observe that if $Q_1$ and $Q_2$ both act on the same channel $x$ in
+complementary ways, then their parallel composition $\Cut\x{Q_1}{Q_2}$ is
+reducible according to one of the principal cut reductions described in
 \Cref{tab:semantics}. Therefore, an alternative (and more general) way of
 formulating well formedness is simply this:
 %
 we say that $P$ is \emph{well formed} if $P \pcong \ReductionContext[Q]$ implies
-that $Q$ is alive.
+that $Q$ is alive. In the particular case when $Q = \Cut\x{Q_1}{Q_2}$ and both
+$Q_1$ and $Q_2$ start with an action on $x$, then $Q$ is not observable (because
+actions on $x$ cannot be pulled out of the cut that binds $x$) and therefore it
+must be reducible by \Cref{thm:df}.
+
+Well-typed processes are well formed:
 
 \begin{theorem}[type safety]
     \label{thm:type-safety}
