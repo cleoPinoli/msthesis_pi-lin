@@ -8,8 +8,9 @@ concurrent and distributed programming languages.
 These models often make use of distinctive features that set them apart from the
 formal models of \emph{sequential} programming languages, such as the adoption
 of substructural (linear, affine) type systems, the dynamic scope of first-class
-channels in systems of communicating processes, the extensive use of coinduction
-for describing and reasoning on possibly infinite behaviors.
+channels in systems of communicating processes, the need for coinductive
+definitions and proof methods for describing and reasoning on possibly infinite
+behaviors.
 %
 The benchmark aims at investigating effective formalization techniques that take
 these features into account so as to foster the adoption of machine-checked
@@ -18,7 +19,7 @@ languages.
 
 This paper reports on a solution to one of the challenges in the benchmark
 concerned with the formalization of a minimal \emph{session calculus}. Hereafter
-we will refer to this as the \emph{linearity challenge}.
+we will refer to this challenge as the \emph{linearity challenge}.
 %
 Sessions and session types~\citep{Honda93,HondaVasconcelosKubo98,HuttelEtAl16}
 are established formalisms for the static analysis of distributed programs based
@@ -85,6 +86,8 @@ out, removing and adding types is easier than updating them. Even more so
 considering that the type of continuation channels can be conveniently added
 \emph{at the beginning} of a typing context, since such channels are fresh by
 definition.
+
+BISOGNA PARLARE DI RELATED WORK
 
 The rest of the paper is structured as follows. \Cref{sec:calculus} describes
 the syntax and the operational semantics of \Calculus and states the properties
