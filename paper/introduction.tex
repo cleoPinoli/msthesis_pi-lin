@@ -89,6 +89,22 @@ definition.
 
 BISOGNA PARLARE DI RELATED WORK
 
+\begin{itemize}
+\item lavoro di Simon su formalizzazione pi calcolo con type system (anche
+    lineari?) \cite{Gay01} Il codice non c'è più online, ma si parla di 650 +
+    6500 linee di codice e prove. controllare che risultati vengono dimostrati
+\item \cite{GotoEtAl16} formalizzazione session calculus con polimorfismo, no
+    deadlock freedom, 18000 righe di formalizzazione senza contare gli esempi
+\item \cite{Thiemann19} 3000 loc Agda, linguaggio funzionale con thread ma
+    semantica complicata, c'è una sezione introduttiva con le sfide
+\item \cite{CastroFerreiraYoshida20}
+\item \cite{CicconePadovani20}
+\item \cite{RouvoetPoulsenKrebbersVisser20}
+\item Jacobs Balzer Krebbers 2022, first mechanization of deadlock freedom with
+    connectivity graphs
+\item Sano, Kavanagh, Pientka 2023, "mechanization is an art"
+\end{itemize}
+
 The rest of the paper is structured as follows. \Cref{sec:calculus} describes
 the syntax and the operational semantics of \Calculus and states the properties
 of well-typed processes that we formalize and prove. \Cref{sec:agda} outlines
