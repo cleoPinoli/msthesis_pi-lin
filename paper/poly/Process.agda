@@ -1,4 +1,4 @@
-open import Data.Nat using (ℕ; suc)
+{-# OPTIONS --rewriting #-}
 open import Data.Bool using (Bool; true; false; if_then_else_)
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
@@ -8,35 +8,35 @@ open import Type
 open import Context
 open import Permutations
 
-data Process : ∀{n} -> Context n → Set where
-   link      : ∀{n} {Γ : Context n} {A B : Type n} (d : Dual A B) (p : Γ ≃ [ A ] + [ B ]) → Process Γ
-   fail      : ∀{n} {Γ Δ : Context n} (p : Γ ≃ ⊤ , Δ) → Process Γ
-   close     : ∀{n} -> Process {n} [ 𝟙 ]
-   wait      : ∀{n} {Γ Δ : Context n} (p : Γ ≃ ⊥ , Δ) → Process Δ → Process Γ
-   select    : ∀{n} {A B : Type n} {Γ Δ} (x : Bool) (p : Γ ≃ A ⊕ B , Δ) →
+data Process : Context → Set where
+   link      : ∀{Γ A} (p : Γ ≃ [ A ] + [ dual A ]) → Process Γ
+   fail      : ∀{Γ Δ} (p : Γ ≃ ⊤ , Δ) → Process Γ
+   close     : Process  [ 𝟙 ]
+   wait      : ∀{Γ Δ} (p : Γ ≃ ⊥ , Δ) → Process Δ → Process Γ
+   select    : ∀{A B Γ Δ} (x : Bool) (p : Γ ≃ A ⊕ B , Δ) →
                Process ((if x then A else B) ∷ Δ) → Process Γ
-   case      : ∀{n} {A B : Type n} {Γ Δ} (p : Γ ≃ A & B , Δ) →
+   case      : ∀{A B Γ Δ} (p : Γ ≃ A & B , Δ) →
                Process (A ∷ Δ) → Process (B ∷ Δ) → Process Γ
-   fork      : ∀{n} {A B : Type n} {Γ Δ Γ₁ Γ₂} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Γ₁ + Γ₂) →
+   fork      : ∀{A B Γ Δ Γ₁ Γ₂} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Γ₁ + Γ₂) →
                Process (A ∷ Γ₁) → Process (B ∷ Γ₂) → Process Γ
-   join      : ∀{n} {A B : Type n} {Γ Δ} (p : Γ ≃ A ⅋ B , Δ) →
+   join      : ∀{A B Γ Δ} (p : Γ ≃ A ⅋ B , Δ) →
                Process (B ∷ A ∷ Δ) → Process Γ
-   server    : ∀{n} {A : Type n} {Γ Δ} (p : Γ ≃ ¡ A , Δ) (un : Un Δ) →
+   server    : ∀{A Γ Δ} (p : Γ ≃ ¡ A , Δ) (un : Un Δ) →
                Process (A ∷ Δ) → Process Γ
-   client    : ∀{n} {A : Type n} {Γ Δ} (p : Γ ≃ ¿ A , Δ) → Process (A ∷ Δ) → Process Γ
-   weaken    : ∀{n} {A : Type n} {Γ Δ} (p : Γ ≃ ¿ A , Δ) → Process Δ → Process Γ
-   contract  : ∀{n} {A : Type n} {Γ Δ} (p : Γ ≃ ¿ A , Δ) → Process (¿ A ∷ ¿ A ∷ Δ) → Process Γ
-   ex        : ∀{n} {A : Type (suc n)} {B C : Type n} {Γ Δ} (p : Γ ≃ $∃ A , Δ) ->
-               Subst (make-subst C) A B -> Process (B ∷ Δ) -> Process Γ
-   all       : ∀{n} {A : Type (suc n)} {Γ Δ : Context n} (p : Γ ≃ $∀ A , Δ) ->
-               ({B C : Type n} -> Subst (make-subst C) A B -> Process (B ∷ Δ)) -> Process Γ
-   cut       : ∀{n} {A B : Type n} {Γ Γ₁ Γ₂} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) →
-               Process (A ∷ Γ₁) → Process (B ∷ Γ₂) → Process Γ
+   client    : ∀{A Γ Δ} (p : Γ ≃ ¿ A , Δ) → Process (A ∷ Δ) → Process Γ
+   weaken    : ∀{A Γ Δ} (p : Γ ≃ ¿ A , Δ) → Process Δ → Process Γ
+   contract  : ∀{A Γ Δ} (p : Γ ≃ ¿ A , Δ) → Process (¿ A ∷ ¿ A ∷ Δ) → Process Γ
+   ex        : ∀{A B Γ Δ} (p : Γ ≃ $∃ A , Δ) ->
+               Process (subst (make-subst B) A ∷ Δ) -> Process Γ
+   all       : ∀{A Γ Δ} (p : Γ ≃ $∀ A , Δ) ->
+               ((B : Type) -> Process (subst (make-subst B) A ∷ Δ)) -> Process Γ
+   cut       : ∀{A Γ Γ₁ Γ₂} (p : Γ ≃ Γ₁ + Γ₂) →
+               Process (A ∷ Γ₁) → Process (dual A ∷ Γ₂) → Process Γ
 
-#process : ∀{n} {Γ Δ : Context n} → Γ # Δ → Process Γ → Process Δ
-#process π (link d p) with #one+ π p
+#process : ∀{Γ Δ} → Γ # Δ → Process Γ → Process Δ
+#process π (link p) with #one+ π p
 ... | Δ′ , q , π′ with #singleton-inv π′
-... | refl = link d q
+... | refl = link q
 #process π close with #singleton-inv π
 ... | refl = close
 #process π (fail p) with #one+ π p
@@ -52,8 +52,8 @@ data Process : ∀{n} -> Context n → Set where
 ... | Δ₁ , Δ₂ , q′ , π₁ , π₂ = fork p′ q′ (#process (#next π₁) P) (#process (#next π₂) Q)
 #process π (join p P) with #one+ π p
 ... | Δ′ , q , π′ = join q (#process (#next (#next π′)) P)
-#process π (cut d p P Q) with #split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut d q (#process (#next π₁) P) (#process (#next π₂) Q)
+#process π (cut p P Q) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut q (#process (#next π₁) P) (#process (#next π₂) Q)
 #process π (server p un P) with #one+ π p
 ... | Δ′ , q , π′ = server q (#un π′ un) (#process (#next π′) P)
 #process π (client p P) with #one+ π p
@@ -64,5 +64,5 @@ data Process : ∀{n} -> Context n → Set where
 ... | Δ′ , q , π′ = contract q (#process (#next (#next π′)) P)
 #process π (all p P) with #one+ π p
 ... | Δ' , q , π' = all q λ B → #process (#next π') (P B)
-#process π (ex p σ P) with #one+ π p
-... | Δ' , q , π' = ex q σ (#process (#next π') P)
+#process π (ex p P) with #one+ π p
+... | Δ' , q , π' = ex q (#process (#next π') P)
