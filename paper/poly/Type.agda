@@ -1,6 +1,4 @@
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; trans; sym; cong; cong₂)
-open import Relation.Binary.PropositionalEquality.Properties as Eq
-open Eq.≡-Reasoning
 
 open import Data.Nat
 open import Data.Fin
