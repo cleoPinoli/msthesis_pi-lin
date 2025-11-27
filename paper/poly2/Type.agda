@@ -1,0 +1,111 @@
+{-# OPTIONS --rewriting #-}
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
+
+open import Agda.Builtin.Equality
+open import Agda.Builtin.Equality.Rewrite
+
+open import Data.Nat
+open import Data.Fin
+
+data Type : ℕ -> Set where
+  𝟘 𝟙 ⊥ ⊤          : ∀{n} -> Type n
+  var ort          : ∀{n} -> Fin n -> Type n
+  ¡ ¿              : ∀{n} -> Type n → Type n
+  _&_ _⊕_ _⊗_ _⅋_  : ∀{n} -> Type n → Type n → Type n
+  $∀ $∃            : ∀{n} -> Type (suc n) -> Type n
+
+dual : ∀{n} -> Type n -> Type n
+dual 𝟘 = ⊤
+dual 𝟙 = ⊥
+dual ⊥ = 𝟙
+dual ⊤ = 𝟘
+dual (var x) = ort x
+dual (ort x) = var x
+dual (¡ A) = ¿ (dual A)
+dual (¿ A) = ¡ (dual A)
+dual (A & B) = dual A ⊕ dual B
+dual (A ⊕ B) = dual A & dual B
+dual (A ⊗ B) = dual A ⅋ dual B
+dual (A ⅋ B) = dual A ⊗ dual B
+dual ($∀ A) = $∃ (dual A)
+dual ($∃ A) = $∀ (dual A)
+
+dual-inv : ∀{n} {A : Type n} -> dual (dual A) ≡ A
+dual-inv {_} {𝟘} = refl
+dual-inv {_} {𝟙} = refl
+dual-inv {_} {⊥} = refl
+dual-inv {_} {⊤} = refl
+dual-inv {_} {var x} = refl
+dual-inv {_} {ort x} = refl
+dual-inv {_} {¡ A} = cong ¡ dual-inv
+dual-inv {_} {¿ A} = cong ¿ dual-inv
+dual-inv {_} {A & B} = cong₂ _&_ dual-inv dual-inv
+dual-inv {_} {A ⊕ B} = cong₂ _⊕_ dual-inv dual-inv
+dual-inv {_} {A ⊗ B} = cong₂ _⊗_ dual-inv dual-inv
+dual-inv {_} {A ⅋ B} = cong₂ _⅋_ dual-inv dual-inv
+dual-inv {_} {$∀ A} = cong $∀ dual-inv
+dual-inv {_} {$∃ A} = cong $∃ dual-inv
+
+{-# REWRITE dual-inv #-}
+
+ext : ∀{m n} -> (Fin m -> Fin n) -> Fin (suc m) -> Fin (suc n)
+ext ρ zero = zero
+ext ρ (suc k) = suc (ρ k)
+
+rename : ∀{m n} -> (Fin m -> Fin n) -> Type m -> Type n
+rename ρ 𝟘 = 𝟘
+rename ρ 𝟙 = 𝟙
+rename ρ ⊥ = ⊥
+rename ρ ⊤ = ⊤
+rename ρ (var x) = var (ρ x)
+rename ρ (ort x) = ort (ρ x)
+rename ρ (¡ A) = ¡ (rename ρ A)
+rename ρ (¿ A) = ¿ (rename ρ A)
+rename ρ (A & B) = rename ρ A & rename ρ B
+rename ρ (A ⊕ B) = rename ρ A ⊕ rename ρ B
+rename ρ (A ⊗ B) = rename ρ A ⊗ rename ρ B
+rename ρ (A ⅋ B) = rename ρ A ⅋ rename ρ B
+rename ρ ($∀ A) = $∀ (rename (ext ρ) A)
+rename ρ ($∃ A) = $∃ (rename (ext ρ) A)
+
+exts : ∀{m n} -> (Fin m -> Type n) -> Fin (suc m) -> Type (suc n)
+exts σ zero = var zero
+exts σ (suc k) = rename suc (σ k)
+
+subst : ∀{m n} -> (Fin m -> Type n) -> Type m -> Type n
+subst σ 𝟘 = 𝟘
+subst σ 𝟙 = 𝟙
+subst σ ⊥ = ⊥
+subst σ ⊤ = ⊤
+subst σ (var x) = σ x
+subst σ (ort x) = dual (σ x)
+subst σ (¡ A) = ¡ (subst σ A)
+subst σ (¿ A) = ¿ (subst σ A)
+subst σ (A & B) = subst σ A & subst σ B
+subst σ (A ⊕ B) = subst σ A ⊕ subst σ B
+subst σ (A ⊗ B) = subst σ A ⊗ subst σ B
+subst σ (A ⅋ B) = subst σ A ⅋ subst σ B
+subst σ ($∀ A) = $∀ (subst (exts σ) A)
+subst σ ($∃ A) = $∃ (subst (exts σ) A)
+
+make-subst : ∀{n} -> Type n -> Fin (suc n) -> Type n
+make-subst A zero = A
+make-subst A (suc k) = var k
+
+dual-subst : ∀{m n} {σ : Fin m -> Type n} {A : Type m} -> subst σ (dual A) ≡ dual (subst σ A)
+dual-subst {_} {_} {σ} {𝟘} = refl
+dual-subst {_} {_} {σ} {𝟙} = refl
+dual-subst {_} {_} {σ} {⊥} = refl
+dual-subst {_} {_} {σ} {⊤} = refl
+dual-subst {_} {_} {σ} {var x} = refl
+dual-subst {_} {_} {σ} {ort x} = refl
+dual-subst {_} {_} {σ} {¡ A} = cong ¿ (dual-subst {σ = σ} {A})
+dual-subst {_} {_} {σ} {¿ A} = cong ¡ (dual-subst {σ = σ} {A})
+dual-subst {_} {_} {σ} {A & B} = cong₂ _⊕_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
+dual-subst {_} {_} {σ} {A ⊕ B} = cong₂ _&_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
+dual-subst {_} {_} {σ} {A ⊗ B} = cong₂ _⅋_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
+dual-subst {_} {_} {σ} {A ⅋ B} = cong₂ _⊗_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
+dual-subst {_} {_} {σ} {$∀ A} = cong $∃ (dual-subst {σ = exts σ} {A})
+dual-subst {_} {_} {σ} {$∃ A} = cong $∀ (dual-subst {σ = exts σ} {A})
+
+{-# REWRITE dual-subst #-}
