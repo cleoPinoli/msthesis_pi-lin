@@ -237,9 +237,6 @@ data CanonicalCut {n} {Γ : Context n} : Process Γ → Set where
 output-output :
   ∀{n} {A B : Type n} {Γ Δ} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Output P × Output Q)
 output-output d-𝟙-⊥ (close , ())
-output-output (d-⊕-& d d₁) (select x p , ())
-output-output (d-⊗-⅋ d d₁) (fork p q₁ , ())
-output-output (d-∃-∀ d) (ex p , ())
 
 output-client :
   ∀{n} {A B : Type n} {Γ Δ} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Output P × Client Q)
@@ -256,10 +253,6 @@ output-delayed-server () (close , server p un)
 input-input :
   ∀{n} {A B : Type n} {Γ Δ} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Input P × Input Q)
 input-input d-⊤-𝟘 (fail p , ())
-input-input d-⊥-𝟙 (wait p , ())
-input-input (d-&-⊕ d d₁) (case p , ())
-input-input (d-⅋-⊗ d d₁) (join p , ())
-input-input (d-∀-∃ d) (all p , ())
 
 input-client :
   ∀{n} {A B : Type n} {Γ Δ} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Input P × Client Q)

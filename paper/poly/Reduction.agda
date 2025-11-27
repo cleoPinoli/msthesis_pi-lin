@@ -50,8 +50,8 @@ dual-subst (d-∃-∀ d) (s-∃ s) with dual-subst d s
 ... | B' , d' , s' = $∀ B' , d-∃-∀ d' , s-∀ s'
 dual-subst (d-∀-∃ d) (s-∀ s) with dual-subst d s
 ... | B' , d' , s' = $∃ B' , d-∀-∃ d' , s-∃ s'
-dual-subst d-v-o (s-r (s-var d)) = _ , d , s-r (s-ort d)
-dual-subst d-o-v (s-r (s-ort d)) = _ , dual-symm d , s-r (s-var d)
+dual-subst d-v-o (s-v d) = _ , d , s-o d
+dual-subst d-o-v (s-o d) = _ , dual-symm d , s-v d
 
 data _↝_ {n} {Γ : Context n} : Process Γ → Process Γ → Set where
   r-link      : ∀{Δ A B} {P : Process (B ∷ Δ)}

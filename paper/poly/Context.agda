@@ -61,13 +61,3 @@ _≃_,_ : ∀{n} -> Context n → Type n → Context n → Set
 data Un {n} : Context n → Set where
   un-[]  : Un []
   un-∷   : ∀{A Γ} → Un Γ → Un (¿ A ∷ Γ)
-
--- rename* : ∀{m n} -> (Fin m -> Fin n) -> Context m -> Context n
--- rename* ρ = map (rename ρ)
-
--- subst* : ∀{m n} -> (Fin m -> Type n) -> Context m -> Context n
--- subst* σ = map (subst σ)
-
--- subst-un : ∀{m n} {Γ : Context m} (σ : Fin m -> Type n) -> Un Γ -> Un (subst* σ Γ)
--- subst-un σ un-[] = un-[]
--- subst-un σ (un-∷ un) = un-∷ (subst-un σ un)
