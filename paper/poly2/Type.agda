@@ -8,19 +8,19 @@ open import Data.Nat
 open import Data.Fin
 
 data Type : ℕ -> Set where
-  𝟘 𝟙 ⊥ ⊤          : ∀{n} -> Type n
-  var ort          : ∀{n} -> Fin n -> Type n
-  ¡ ¿              : ∀{n} -> Type n → Type n
-  _&_ _⊕_ _⊗_ _⅋_  : ∀{n} -> Type n → Type n → Type n
-  $∀ $∃            : ∀{n} -> Type (suc n) -> Type n
+  𝟘 𝟙 ⊥ ⊤         : ∀{n} -> Type n
+  var rav         : ∀{n} -> Fin n -> Type n
+  ¡ ¿             : ∀{n} -> Type n → Type n
+  _&_ _⊕_ _⊗_ _⅋_ : ∀{n} -> Type n → Type n → Type n
+  $∀ $∃           : ∀{n} -> Type (suc n) -> Type n
 
 dual : ∀{n} -> Type n -> Type n
 dual 𝟘 = ⊤
 dual 𝟙 = ⊥
 dual ⊥ = 𝟙
 dual ⊤ = 𝟘
-dual (var x) = ort x
-dual (ort x) = var x
+dual (var x) = rav x
+dual (rav x) = var x
 dual (¡ A) = ¿ (dual A)
 dual (¿ A) = ¡ (dual A)
 dual (A & B) = dual A ⊕ dual B
@@ -36,7 +36,7 @@ dual-inv {_} {𝟙} = refl
 dual-inv {_} {⊥} = refl
 dual-inv {_} {⊤} = refl
 dual-inv {_} {var x} = refl
-dual-inv {_} {ort x} = refl
+dual-inv {_} {rav x} = refl
 dual-inv {_} {¡ A} = cong ¡ dual-inv
 dual-inv {_} {¿ A} = cong ¿ dual-inv
 dual-inv {_} {A & B} = cong₂ _&_ dual-inv dual-inv
@@ -58,7 +58,7 @@ rename ρ 𝟙 = 𝟙
 rename ρ ⊥ = ⊥
 rename ρ ⊤ = ⊤
 rename ρ (var x) = var (ρ x)
-rename ρ (ort x) = ort (ρ x)
+rename ρ (rav x) = rav (ρ x)
 rename ρ (¡ A) = ¡ (rename ρ A)
 rename ρ (¿ A) = ¿ (rename ρ A)
 rename ρ (A & B) = rename ρ A & rename ρ B
@@ -78,7 +78,7 @@ subst σ 𝟙 = 𝟙
 subst σ ⊥ = ⊥
 subst σ ⊤ = ⊤
 subst σ (var x) = σ x
-subst σ (ort x) = dual (σ x)
+subst σ (rav x) = dual (σ x)
 subst σ (¡ A) = ¡ (subst σ A)
 subst σ (¿ A) = ¿ (subst σ A)
 subst σ (A & B) = subst σ A & subst σ B
@@ -98,7 +98,7 @@ dual-subst {_} {_} {σ} {𝟙} = refl
 dual-subst {_} {_} {σ} {⊥} = refl
 dual-subst {_} {_} {σ} {⊤} = refl
 dual-subst {_} {_} {σ} {var x} = refl
-dual-subst {_} {_} {σ} {ort x} = refl
+dual-subst {_} {_} {σ} {rav x} = refl
 dual-subst {_} {_} {σ} {¡ A} = cong ¿ (dual-subst {σ = σ} {A})
 dual-subst {_} {_} {σ} {¿ A} = cong ¡ (dual-subst {σ = σ} {A})
 dual-subst {_} {_} {σ} {A & B} = cong₂ _⊕_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
