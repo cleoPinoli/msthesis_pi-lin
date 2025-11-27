@@ -1,6 +1,4 @@
 {-# OPTIONS --rewriting #-}
-open import Data.Fin using (Fin; suc)
-open import Data.Nat using (suc)
 open import Data.Bool using (Bool; true; false; if_then_else_)
 open import Data.Product using (_×_; _,_; ∃; Σ; Σ-syntax; ∃-syntax)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; cong; cong₂)
@@ -13,24 +11,24 @@ open import Permutations
 open import Process
 open import Congruence
 
-weakening : ∀{n} {Γ Γ₁ Γ₂ : Context n} (un : Un Γ₁) → Γ ≃ Γ₁ + Γ₂ → Process Γ₂ → Process Γ
+weakening : ∀{Γ Γ₁ Γ₂} (un : Un Γ₁) → Γ ≃ Γ₁ + Γ₂ → Process Γ₂ → Process Γ
 weakening un p P = #process (+++# p) (aux un P)
   where
     aux : ∀{Γ₁ Γ₂} (un : Un Γ₁) → Process Γ₂ → Process (Γ₁ ++ Γ₂)
     aux un-[] P = P
     aux (un-∷ un) P = weaken (split-l +-unit-l) (aux un P)
 
-contraction : ∀{n} {Γ Γ₁ Γ₂ : Context n} (un : Un Γ₁) → Γ ≃ Γ₁ + Γ₂ → Process (Γ₁ ++ Γ) → Process Γ
+contraction : ∀{Γ Γ₁ Γ₂} (un : Un Γ₁) → Γ ≃ Γ₁ + Γ₂ → Process (Γ₁ ++ Γ) → Process Γ
 contraction un p P = #process (+++# p) (aux un (#process (#left (#sym (+++# p))) P))
   where
     aux : ∀{Γ₁ Γ₂} → Un Γ₁ → Process (Γ₁ ++ Γ₁ ++ Γ₂) → Process (Γ₁ ++ Γ₂)
     aux un-[] P = P
-    aux {¿ A ∷ Γ₁} {Γ₂} (un-∷ un) P with contract (split-l +-unit-l) (#process (#shift {_} {¿ A} {¿ A ∷ Γ₁} {Γ₁ ++ Γ₂}) P)
-    ... | P₁ rewrite sym (++-assoc (¿ A ∷ Γ₁) Γ₁ Γ₂) with #process (#sym (#shift {_} {¿ A} {Γ₁ ++ Γ₁})) P₁
+    aux {¿ A ∷ Γ₁} {Γ₂} (un-∷ un) P with contract (split-l +-unit-l) (#process (#shift {¿ A} {¿ A ∷ Γ₁} {Γ₁ ++ Γ₂}) P)
+    ... | P₁ rewrite sym (++-assoc (¿ A ∷ Γ₁) Γ₁ Γ₂) with #process (#sym (#shift {¿ A} {Γ₁ ++ Γ₁})) P₁
     ... | P₂ rewrite ++-assoc Γ₁ Γ₁ (¿ A ∷ Γ₂) with aux un P₂
     ... | P₃ = #process #shift P₃
 
-data _↝_ {n} {Γ : Context n} : Process Γ → Process Γ → Set where
+data _↝_ {Γ} : Process Γ → Process Γ → Set where
   r-link      : ∀{Δ A} {P : Process (dual A ∷ Δ)}
                 (p : Γ ≃ dual A , Δ) →
                 cut {A = A} p (link (split-l (split-r split-e))) P ↝ #process (#cons p) P
@@ -76,9 +74,9 @@ data _↝_ {n} {Γ : Context n} : Process Γ → Process Γ → Set where
           (cut ++≃+ (server (split-l p₀) un P)
                     (cut (split-r p) (server (split-l p₀) un P) Q))
   r-poly :
-    ∀{A : Type (suc n)} {B : Type n} {Γ₁ Γ₂ : Context n}
+    ∀{A B Γ₁ Γ₂}
     {P : Process (subst (make-subst B) A ∷ Γ₁)}
-    {F : (C : Type n) -> Process (subst (make-subst C) (dual A) ∷ Γ₂)}
+    {F : (C : Type) -> Process (subst (make-subst C) (dual A) ∷ Γ₂)}
     (p : Γ ≃ Γ₁ + Γ₂) (p₀ : Γ₁ ≃ [] + Γ₁) (q₀ : Γ₂ ≃ [] + Γ₂) ->
     cut p (ex {A = A} (split-l p₀) P) (all (split-l q₀) F) ↝ cut p P (F B)
   r-cut       : ∀{Γ₁ Γ₂ A} {P Q : Process (A ∷ Γ₁)} {R : Process (dual A ∷ Γ₂)}

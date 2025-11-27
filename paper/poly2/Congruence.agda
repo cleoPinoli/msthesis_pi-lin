@@ -9,7 +9,7 @@ open import Context
 open import Permutations
 open import Process
 
-data _⊒_ {n} : ∀{Γ : Context n} → Process Γ → Process Γ → Set where
+data _⊒_ : ∀{Γ} → Process Γ → Process Γ → Set where
   s-comm :
     ∀{A Γ Γ₁ Γ₂ P Q} (p : Γ ≃ Γ₁ + Γ₂) →
     cut {A = A} p P Q ⊒ cut (+-comm p) Q P
@@ -107,7 +107,7 @@ data _⊒_ {n} : ∀{Γ : Context n} → Process Γ → Process Γ → Set where
     cut p (ex (split-r q) P) Q ⊒ ex q' (cut (split-l p') (#process #here P) Q)
   s-all :
     ∀{Γ A B Γ₁ Γ₂ Δ}
-    {F : (C : Type n) -> Process (subst (make-subst C) B ∷ A ∷ Δ)}
+    {F : (C : Type) -> Process (subst (make-subst C) B ∷ A ∷ Δ)}
     {Q : Process (dual A ∷ Γ₂)}
     (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ $∀ B , Δ) ->
     let _ , p' , q' = +-assoc-l p q in

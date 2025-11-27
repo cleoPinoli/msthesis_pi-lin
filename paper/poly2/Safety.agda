@@ -11,7 +11,7 @@ open import Congruence
 open import Reduction
 open import DeadlockFreedom
 
-data ReductionContext {n} (Δ : Context n) : Context n → Set where
+data ReductionContext (Δ : Context) : Context → Set where
   hole   : ReductionContext Δ Δ
   cut-l  : ∀{Γ Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂) →
            ReductionContext Δ (A ∷ Γ₁) → Process (dual A ∷ Γ₂) →
@@ -20,14 +20,14 @@ data ReductionContext {n} (Δ : Context n) : Context n → Set where
            Process (A ∷ Γ₁) → ReductionContext Δ (dual A ∷ Γ₂) →
            ReductionContext Δ Γ
 
-_⟦_⟧ : ∀{n} {Γ Δ : Context n} → ReductionContext Δ Γ → Process Δ → Process Γ
+_⟦_⟧ : ∀{Γ Δ} → ReductionContext Δ Γ → Process Δ → Process Γ
 hole ⟦ P ⟧           = P
 cut-l p 𝒞 Q ⟦ P ⟧  = cut p (𝒞 ⟦ P ⟧) Q
 cut-r p Q 𝒞 ⟦ P ⟧  = cut p Q (𝒞 ⟦ P ⟧)
 
-WellFormed        : ∀{n} {Γ : Context n} → Process Γ → Set
-WellFormed {n} {Γ} P = ∀{Δ : Context n} {𝒞 : ReductionContext Δ Γ} {Q : Process Δ} →
-                    P ⊒ (𝒞 ⟦ Q ⟧) → Alive Q
+WellFormed       : ∀{Γ} → Process Γ → Set
+WellFormed {Γ} P = ∀{Δ} {𝒞 : ReductionContext Δ Γ} {Q : Process Δ} →
+                   P ⊒ (𝒞 ⟦ Q ⟧) → Alive Q
 
-type-safety : ∀{n} {Γ : Context n} (P : Process Γ) → WellFormed P
+type-safety : ∀{Γ} (P : Process Γ) → WellFormed P
 type-safety P {_} {_} {Q} _ = deadlock-freedom Q
