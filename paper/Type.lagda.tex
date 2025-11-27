@@ -73,12 +73,115 @@ dual-inv {_} {$∃ A} = cong $∃ dual-inv
 \end{code}
 
 In fact, this property is so important in the rest of the formalization that it
-is worth defining an implicit rewriting rules so that Agda can autonomously
-apply it whenever possible. This is achieved by means of the following pragma
+is worth defining an implicit rewriting rule so that Agda can autonomously apply
+it whenever possible. This is achieved by means of the following pragma
 directive.
 
 \begin{code}
 {-# REWRITE dual-inv #-}
 \end{code}
 
+\begin{code}[hide]
+ext : ∀{m n} → (Fin m → Fin n) → Fin (suc m) → Fin (suc n)
+ext ρ zero = zero
+ext ρ (suc k) = suc (ρ k)
 
+rename : ∀{m n} → (Fin m → Fin n) → PreType m → PreType n
+rename ρ 𝟘 = 𝟘
+rename ρ 𝟙 = 𝟙
+rename ρ ⊥ = ⊥
+rename ρ ⊤ = ⊤
+rename ρ (var x) = var (ρ x)
+rename ρ (rav x) = rav (ρ x)
+rename ρ (¡ A) = ¡ (rename ρ A)
+rename ρ (¿ A) = ¿ (rename ρ A)
+rename ρ (A & B) = rename ρ A & rename ρ B
+rename ρ (A ⊕ B) = rename ρ A ⊕ rename ρ B
+rename ρ (A ⊗ B) = rename ρ A ⊗ rename ρ B
+rename ρ (A ⅋ B) = rename ρ A ⅋ rename ρ B
+rename ρ ($∀ A) = $∀ (rename (ext ρ) A)
+rename ρ ($∃ A) = $∃ (rename (ext ρ) A)
+
+exts : ∀{m n} → (Fin m → PreType n) → Fin (suc m) → PreType (suc n)
+exts σ zero = var zero
+exts σ (suc k) = rename suc (σ k)
+\end{code}
+
+Next we define the function \AgdaFunction{subst} that simultaneously substitutes
+the type variables of a (pre)type with other (pre)types. Even though in practice
+we will always substitute one variable at a time, it is technically easier to
+substitutes \emph{all} variables of a (pre)type. The definition of
+\AgdaFunction{subst} relies on some auxiliary functions for \emph{renaming} type
+variables and \emph{lifting} substitutions across quantifiers. All such
+definitions are straightforward adaptations of those describe by
+\cite{KokkeWadler}.
+
+\begin{code}
+subst : ∀{m n} → (Fin m → PreType n) → PreType m → PreType n
+\end{code}
+\begin{code}[hide]
+subst σ 𝟘 = 𝟘
+subst σ 𝟙 = 𝟙
+subst σ ⊥ = ⊥
+subst σ ⊤ = ⊤
+subst σ (var x) = σ x
+subst σ (rav x) = dual (σ x)
+subst σ (¡ A) = ¡ (subst σ A)
+subst σ (¿ A) = ¿ (subst σ A)
+subst σ (A & B) = subst σ A & subst σ B
+subst σ (A ⊕ B) = subst σ A ⊕ subst σ B
+subst σ (A ⊗ B) = subst σ A ⊗ subst σ B
+subst σ (A ⅋ B) = subst σ A ⅋ subst σ B
+subst σ ($∀ A) = $∀ (subst (exts σ) A)
+subst σ ($∃ A) = $∃ (subst (exts σ) A)
+\end{code}
+
+Among all substitutions, we will use the one that substitutes the 0-indexed type
+variable with a (pre)type. It is convenient to introduce this substitution once
+and for all, which we do here.
+
+\begin{code}
+make-subst : ∀{n} → PreType n → Fin (suc n) → PreType n
+make-subst A zero = A
+make-subst A (suc k) = var k
+\end{code}
+
+Duality and substitutions are meant to commute.
+
+\begin{code}
+dual-subst : ∀{m n} {σ : Fin m → PreType n} {A : PreType m} →
+             subst σ (dual A) ≡ dual (subst σ A)
+\end{code}
+\begin{code}[hide]
+dual-subst {_} {_} {σ} {𝟘} = refl
+dual-subst {_} {_} {σ} {𝟙} = refl
+dual-subst {_} {_} {σ} {⊥} = refl
+dual-subst {_} {_} {σ} {⊤} = refl
+dual-subst {_} {_} {σ} {var x} = refl
+dual-subst {_} {_} {σ} {rav x} = refl
+dual-subst {_} {_} {σ} {¡ A} = cong ¿ (dual-subst {σ = σ} {A})
+dual-subst {_} {_} {σ} {¿ A} = cong ¡ (dual-subst {σ = σ} {A})
+dual-subst {_} {_} {σ} {A & B} = cong₂ _⊕_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
+dual-subst {_} {_} {σ} {A ⊕ B} = cong₂ _&_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
+dual-subst {_} {_} {σ} {A ⊗ B} = cong₂ _⅋_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
+dual-subst {_} {_} {σ} {A ⅋ B} = cong₂ _⊗_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
+dual-subst {_} {_} {σ} {$∀ A} = cong $∃ (dual-subst {σ = exts σ} {A})
+dual-subst {_} {_} {σ} {$∃ A} = cong $∀ (dual-subst {σ = exts σ} {A})
+\end{code}
+
+Just like \AgdaFunction{dual-inv}, \AgdaFunction{dual-subst} too is key in the
+formalization that follows. Therefore, we add it to the set of implicit
+rewriting rules used by Agda so that we do not have to think about it again.
+
+\begin{code}
+{-# REWRITE dual-subst #-}
+\end{code}
+
+At this stage we are finally ready to define the type of closed pre-types, those
+having no free type variables. We call \AgdaDatatype{Type} closed pre-types.
+Hereafter, we will seldom use pre-types again.
+
+\begin{code}
+Type : Set
+Type = PreType zero
+\end{code}
