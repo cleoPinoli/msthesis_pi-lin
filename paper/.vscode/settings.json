@@ -9,6 +9,7 @@
         "**/*.aux": true,
         "**/*.gz": true,
         "**/*.fdb*": true,
-        "**/*.bbl": true
+        "**/*.bbl": true,
+        "**/*~": true
     }
 }
