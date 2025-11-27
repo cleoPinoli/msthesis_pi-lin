@@ -14,109 +14,79 @@ open import Reduction
 open import Congruence
 
 data Cut {n} : ∀{Γ : Context n} → Process Γ → Set where
-  cut :
-    ∀{Γ Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)} →
-    Cut (cut d p P Q)
+  cut : ∀{Γ Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
+        {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)} →
+        Cut (cut d p P Q)
 
 data Link {n} : ∀{Γ : Context n} → Process Γ → Set where
-  link :
-    ∀{Γ A B} (d : Dual A B) (p : Γ ≃ [ A ] + [ B ]) → Link (link d p)
+  link : ∀{Γ A B} (d : Dual A B) (p : Γ ≃ [ A ] + [ B ]) → Link (link d p)
 
 data Input {n} : ∀{Γ : Context n} → Process Γ → Set where
-  fail :
-    ∀{Γ Δ}
-    (p : Γ ≃ [] + Δ) → Input (fail (split-l p))
+  fail : ∀{Γ Δ} (p : Γ ≃ [] + Δ) → Input (fail (split-l p))
   wait : ∀{Γ Δ} (p : Γ ≃ [] + Δ) {P : Process Δ} → Input (wait (split-l p) P)
-  case :
-    ∀{Γ Δ A B} (p : Γ ≃ [] + Δ) {P : Process (A ∷ Δ)} {Q : Process (B ∷ Δ)} →
-    Input (case (split-l p) P Q)
-  join :
-    ∀{Γ Δ A B} (p : Γ ≃ [] + Δ) {P : Process (B ∷ A ∷ Δ)} →
-    Input (join (split-l p) P)
-  all :
-    ∀{A : Type (suc n)} {Γ Δ : Context n} (p : Γ ≃ [] + Δ)
-    {F : {B C : Type n} -> Subst (make-subst C) A B -> Process (B ∷ Δ)} ->
-    Input (all (split-l p) F)
+  case : ∀{Γ Δ A B} (p : Γ ≃ [] + Δ) {P : Process (A ∷ Δ)} {Q : Process (B ∷ Δ)} →
+         Input (case (split-l p) P Q)
+  join : ∀{Γ Δ A B} (p : Γ ≃ [] + Δ) {P : Process (B ∷ A ∷ Δ)} →
+         Input (join (split-l p) P)
+  all  : ∀{A : Type (suc n)} {Γ Δ : Context n} (p : Γ ≃ [] + Δ)
+         {F : {B C : Type n} -> Subst (make-subst C) A B -> Process (B ∷ Δ)} ->
+         Input (all (split-l p) F)
 
 data Output {n} : ∀{Γ : Context n} → Process Γ → Set where
-  close : Output close
-  select :
-    ∀{Γ Δ A B} (x : Bool) (p : Γ ≃ [] + Δ) {P : Process ((if x then A else B) ∷ Δ)} →
-    Output (select x (split-l p) P)
-  fork :
-    ∀{Γ Δ Δ₁ Δ₂ A B} (p : Γ ≃ [] + Δ) (q : Δ ≃ Δ₁ + Δ₂)
-    {P : Process (A ∷ Δ₁)} {Q : Process (B ∷ Δ₂)} →
-    Output (fork (split-l p) q P Q)
-  ex :
-    ∀{A : Type (suc n)} {B C : Type n} {Γ Δ} (p : Γ ≃ [] + Δ)
-    {σ : Subst (make-subst C) A B} {P : Process (B ∷ Δ)} ->
-    Output (ex (split-l p) σ P)
+  close  : Output close
+  select : ∀{Γ Δ A B} (x : Bool) (p : Γ ≃ [] + Δ) {P : Process ((if x then A else B) ∷ Δ)} →
+           Output (select x (split-l p) P)
+  fork   : ∀{Γ Δ Δ₁ Δ₂ A B} (p : Γ ≃ [] + Δ) (q : Δ ≃ Δ₁ + Δ₂)
+           {P : Process (A ∷ Δ₁)} {Q : Process (B ∷ Δ₂)} →
+           Output (fork (split-l p) q P Q)
+  ex     : ∀{A : Type (suc n)} {B C : Type n} {Γ Δ} (p : Γ ≃ [] + Δ)
+           {σ : Subst (make-subst C) A B} {P : Process (B ∷ Δ)} ->
+           Output (ex (split-l p) σ P)
 
 data Delayed {n} : ∀{Γ : Context n} → Process Γ → Set where
-  fail :
-    ∀{A Γ Δ}
-    (p : Γ ≃ ⊤ , Δ) → Delayed (fail (split-r {_} {A} p))
-  wait : ∀{C Γ Δ} (p : Γ ≃ ⊥ , Δ) {P : Process (C ∷ Δ)} →
-         Delayed (wait (split-r p) P)
-  case :
-    ∀{Γ Δ C A B} (p : Γ ≃ A & B , Δ) {P : Process (A ∷ C ∷ Δ)} {Q : Process (B ∷ C ∷ Δ)} →
-    Delayed (case (split-r p) P Q)
-  join :
-    ∀{Γ Δ C A B} (p : Γ ≃ A ⅋ B , Δ) {P : Process (B ∷ A ∷ C ∷ Δ)} →
-    Delayed (join (split-r p) P)
-  select :
-    ∀{Γ Δ C A B} (x : Bool) (p : Γ ≃ A ⊕ B , Δ) {P : Process ((if x then A else B) ∷ C ∷ Δ)} →
-    Delayed (select x (split-r p) P)
-  fork-l :
-    ∀{Γ Δ Δ₁ Δ₂ C A B} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Δ₁ + Δ₂)
-    {P : Process (A ∷ C ∷ Δ₁)} {Q : Process (B ∷ Δ₂)} →
-    Delayed (fork (split-r p) (split-l q) P Q)
-  fork-r :
-    ∀{Γ Δ Δ₁ Δ₂ C A B} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Δ₁ + Δ₂)
-    {P : Process (A ∷ Δ₁)} {Q : Process (B ∷ C ∷ Δ₂)} →
-    Delayed (fork (split-r p) (split-r q) P Q)
-  client :
-    ∀{Γ Δ A C} (p : Γ ≃ ¿ A , Δ) {P : Process (A ∷ C ∷ Δ)} →
-    Delayed (client (split-r p) P)
-  weaken :
-    ∀{Γ Δ A C} (p : Γ ≃ ¿ A , Δ) {P : Process (C ∷ Δ)} →
-    Delayed (weaken (split-r p) P)
-  contract :
-    ∀{Γ Δ A C} (p : Γ ≃ ¿ A , Δ) {P : Process (¿ A ∷ ¿ A ∷ C ∷ Δ)} →
-    Delayed (contract (split-r p) P)
-  ex :
-    ∀{A : Type (suc n)} {B C D : Type n} {Γ Δ} (p : Γ ≃ $∃ A , Δ)
-    {σ : Subst (make-subst C) A B} {P : Process (B ∷ D ∷ Δ)} ->
-    Delayed (ex (split-r p) σ P)
-  all :
-    ∀{A : Type (suc n)} {D : Type n} {Γ Δ : Context n} (p : Γ ≃ $∀ A , Δ)
-    {F : {B C : Type n} -> Subst (make-subst C) A B -> Process (B ∷ D ∷ Δ)} ->
-    Delayed (all (split-r p) F)
+  fail     : ∀{A Γ Δ} (p : Γ ≃ ⊤ , Δ) → Delayed (fail (split-r {_} {A} p))
+  wait     : ∀{C Γ Δ} (p : Γ ≃ ⊥ , Δ) {P : Process (C ∷ Δ)} →
+             Delayed (wait (split-r p) P)
+  case     : ∀{Γ Δ C A B} (p : Γ ≃ A & B , Δ) {P : Process (A ∷ C ∷ Δ)} {Q : Process (B ∷ C ∷ Δ)} →
+             Delayed (case (split-r p) P Q)
+  join     : ∀{Γ Δ C A B} (p : Γ ≃ A ⅋ B , Δ) {P : Process (B ∷ A ∷ C ∷ Δ)} →
+             Delayed (join (split-r p) P)
+  select   : ∀{Γ Δ C A B} (x : Bool) (p : Γ ≃ A ⊕ B , Δ) {P : Process ((if x then A else B) ∷ C ∷ Δ)} →
+             Delayed (select x (split-r p) P)
+  fork-l   : ∀{Γ Δ Δ₁ Δ₂ C A B} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Δ₁ + Δ₂)
+             {P : Process (A ∷ C ∷ Δ₁)} {Q : Process (B ∷ Δ₂)} →
+             Delayed (fork (split-r p) (split-l q) P Q)
+  fork-r   : ∀{Γ Δ Δ₁ Δ₂ C A B} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Δ₁ + Δ₂)
+             {P : Process (A ∷ Δ₁)} {Q : Process (B ∷ C ∷ Δ₂)} →
+             Delayed (fork (split-r p) (split-r q) P Q)
+  client   : ∀{Γ Δ A C} (p : Γ ≃ ¿ A , Δ) {P : Process (A ∷ C ∷ Δ)} →
+             Delayed (client (split-r p) P)
+  weaken   : ∀{Γ Δ A C} (p : Γ ≃ ¿ A , Δ) {P : Process (C ∷ Δ)} →
+             Delayed (weaken (split-r p) P)
+  contract : ∀{Γ Δ A C} (p : Γ ≃ ¿ A , Δ) {P : Process (¿ A ∷ ¿ A ∷ C ∷ Δ)} →
+             Delayed (contract (split-r p) P)
+  ex       : ∀{A : Type (suc n)} {B C D : Type n} {Γ Δ} (p : Γ ≃ $∃ A , Δ)
+             {σ : Subst (make-subst C) A B} {P : Process (B ∷ D ∷ Δ)} ->
+             Delayed (ex (split-r p) σ P)
+  all      : ∀{A : Type (suc n)} {D : Type n} {Γ Δ : Context n} (p : Γ ≃ $∀ A , Δ)
+             {F : {B C : Type n} -> Subst (make-subst C) A B -> Process (B ∷ D ∷ Δ)} ->
+             Delayed (all (split-r p) F)
 
 data Client {n} : ∀{Γ : Context n} → Process Γ → Set where
-  client :
-    ∀{Γ Δ A} (p : Γ ≃ [] + Δ)
-    {P : Process (A ∷ Δ)} →
-    Client (client (split-l p) P)
-  weaken :
-    ∀{Γ Δ A} (p : Γ ≃ [] + Δ)
-    {P : Process Δ} →
-    Client (weaken {A = A} (split-l p) P)
-  contract :
-    ∀{Γ Δ A} (p : Γ ≃ [] + Δ)
-    {P : Process (¿ A ∷ ¿ A ∷ Δ)} →
-    Client (contract (split-l p) P)
+  client   : ∀{Γ Δ A} (p : Γ ≃ [] + Δ) {P : Process (A ∷ Δ)} →
+             Client (client (split-l p) P)
+  weaken   : ∀{Γ Δ A} (p : Γ ≃ [] + Δ) {P : Process Δ} →
+             Client (weaken {A = A} (split-l p) P)
+  contract : ∀{Γ Δ A} (p : Γ ≃ [] + Δ) {P : Process (¿ A ∷ ¿ A ∷ Δ)} →
+             Client (contract (split-l p) P)
 
 data Server {n} : ∀{Γ : Context n} → Process Γ → Set where
-  server :
-    ∀{Γ Δ A} (p : Γ ≃ [] + Δ) (un : Un Δ) {P : Process (A ∷ Δ)} →
-    Server (server (split-l p) un P)
+  server : ∀{Γ Δ A} (p : Γ ≃ [] + Δ) (un : Un Δ) {P : Process (A ∷ Δ)} →
+           Server (server (split-l p) un P)
 
 data DelayedServer {n} : ∀{Γ : Context n} → Process Γ → Set where
-  server :
-    ∀{Γ Δ A C} (p : Γ ≃ ¡ A , Δ) (un : Un Δ) {P : Process (A ∷ ¿ C ∷ Δ)} →
-    DelayedServer (server (split-r p) (un-∷ un) P)
+  server : ∀{Γ Δ A C} (p : Γ ≃ ¡ A , Δ) (un : Un Δ) {P : Process (A ∷ ¿ C ∷ Δ)} →
+           DelayedServer (server (split-r p) (un-∷ un) P)
 
 Thread : ∀{n} {Γ : Context n} → Process Γ → Set
 Thread P = Link P ⊎ Delayed P ⊎ Output P ⊎ Input P ⊎

@@ -129,7 +129,6 @@ data _⊒_ {n} : ∀{Γ : Context n} → Process Γ → Process Γ → Set where
     let _ , p' , q' = +-assoc-l p q in
     cut d p (all (split-r q) F) Q ⊒
     all q' λ σ → cut d (split-l p') (#process #here (F σ)) Q
-
   s-refl  : ∀{Γ} {P : Process Γ} → P ⊒ P
   s-tran  : ∀{Γ} {P Q R : Process Γ} → P ⊒ Q → Q ⊒ R → P ⊒ R
   s-cong  : ∀{Γ Γ₁ Γ₂ A B} {P Q : Process (A ∷ Γ₁)} {P′ Q′ : Process (B ∷ Γ₂)}

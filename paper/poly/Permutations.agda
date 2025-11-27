@@ -1,4 +1,3 @@
-open import Data.Fin using (Fin; suc)
 open import Data.Bool using (Bool; true; false; if_then_else_)
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
@@ -77,9 +76,3 @@ data _#_ {n} : Context n → Context n → Set where
 #un+ split-e un-[] un-[] = un-[]
 #un+ (split-l p) (un-∷ un₁) un₂ = un-∷ (#un+ p un₁ un₂)
 #un+ (split-r p) un₁ (un-∷ un₂) = un-∷ (#un+ p un₁ un₂)
-
--- #rename* : ∀{n} {Γ Δ : Context n} -> Γ # Δ -> rename* suc Γ # rename* suc Δ
--- #rename* #refl = #refl
--- #rename* #here = #here
--- #rename* (#next π) = #next (#rename* π)
--- #rename* (#tran π π') = #tran (#rename* π) (#rename* π')

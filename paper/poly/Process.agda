@@ -1,4 +1,3 @@
-open import Data.Fin using (Fin; suc)
 open import Data.Nat using (ℕ; suc)
 open import Data.Bool using (Bool; true; false; if_then_else_)
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
