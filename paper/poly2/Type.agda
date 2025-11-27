@@ -1,11 +1,8 @@
 {-# OPTIONS --rewriting #-}
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
-
-open import Agda.Builtin.Equality
-open import Agda.Builtin.Equality.Rewrite
-
 open import Data.Nat
 open import Data.Fin
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
+open import Agda.Builtin.Equality.Rewrite
 
 data PreType : ℕ -> Set where
   𝟘 𝟙 ⊥ ⊤         : ∀{n} -> PreType n

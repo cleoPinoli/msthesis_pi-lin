@@ -183,26 +183,21 @@ all-thread (split-l p) = inj₂ (inj₂ (inj₂ (inj₁ (all p))))
 all-thread (split-r p) = inj₂ (inj₁ (all p))
 
 data CanonicalCut {Γ} : Process Γ → Set where
-  cc-link :
-    ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
-    Link P → CanonicalCut (cut p P Q)
-  cc-delayed :
-    ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
-    Delayed P → CanonicalCut (cut p P Q)
-  cc-delayed-server :
-    ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
-    DelayedServer P → Server Q → CanonicalCut (cut p P Q)
-  cc-redex :
-    ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
-    Output P → Input Q → CanonicalCut (cut p P Q)
-  cc-connect :
-    ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
-    Server P → Client Q → CanonicalCut (cut p P Q)
+  cc-link           : ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
+                      {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
+                      Link P → CanonicalCut (cut p P Q)
+  cc-delayed        : ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
+                      {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
+                      Delayed P → CanonicalCut (cut p P Q)
+  cc-delayed-server : ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
+                      {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
+                      DelayedServer P → Server Q → CanonicalCut (cut p P Q)
+  cc-redex          : ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
+                      {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
+                      Output P → Input Q → CanonicalCut (cut p P Q)
+  cc-connect        : ∀{Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂)
+                      {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} →
+                      Server P → Client Q → CanonicalCut (cut p P Q)
 
 output-output :
   ∀{A Γ Δ} {P : Process (A ∷ Γ)} {Q : Process (dual A ∷ Δ)} → ¬ (Output P × Output Q)
@@ -253,10 +248,8 @@ delayed-server-delayed-served :
 delayed-server-delayed-served (server p un , ())
 
 canonical-cut :
-  ∀{A Γ Γ₁ Γ₂} {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)}
-  (p : Γ ≃ Γ₁ + Γ₂) →
+  ∀{A Γ Γ₁ Γ₂} {P : Process (A ∷ Γ₁)} {Q : Process (dual A ∷ Γ₂)} (p : Γ ≃ Γ₁ + Γ₂) →
   Thread P → Thread Q → ∃[ R ] CanonicalCut R × cut p P Q ⊒ R
-
 canonical-cut pc (inj₁ x) Qt = _ , cc-link pc x , s-refl
 canonical-cut pc (inj₂ x) (inj₁ y) = _ , cc-link (+-comm pc) y , s-comm pc
 canonical-cut pc (inj₂ (inj₁ x)) (inj₂ y) = _ , cc-delayed pc x , s-refl

@@ -1,7 +1,6 @@
 {-# OPTIONS --rewriting #-}
 open import Data.Bool using (Bool; true; false; if_then_else_)
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 open import Data.List.Base using (List; []; _∷_; [_]; _++_)
 
 open import Type

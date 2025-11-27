@@ -1,6 +1,4 @@
 {-# OPTIONS --rewriting #-}
-open import Data.Sum
-open import Data.Product using (_,_)
 open import Relation.Nullary using (¬_; contradiction)
 open import Data.List.Base using ([]; _∷_; [_])
 
