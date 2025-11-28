@@ -58,4 +58,4 @@ _≃_,_ : Context → Type → Context → Set
 
 data Un : Context → Set where
   un-[]  : Un []
-  un-∷   : ∀{A Γ} → Un Γ → Un (¿ A ∷ Γ)
+  un-∷   : ∀{A Γ} → Un Γ → Un (`? A ∷ Γ)

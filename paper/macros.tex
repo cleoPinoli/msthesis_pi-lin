@@ -16,9 +16,9 @@
 
 \newcommand{\Calculus}{\textsf{LCP}\xspace}
 
-\newcommand{\eg}{\textit{e.g.}\xspace}
-\newcommand{\ie}{\textit{i.e.}\xspace}
-\newcommand{\cf}{\textit{cf.}\xspace}
+\newcommand{\eg}{e.g.\xspace}
+\newcommand{\ie}{i.e.\xspace}
+\newcommand{\cf}{cf.\xspace}
 
 \newcommand{\mktag}[1]{\mathsf{\color{teal}#1}}
 \newcommand{\mkkeyword}[1]{\mathsf{\color{blue}#1}}
@@ -146,7 +146,9 @@
 \newcommand{\Server}[2]{{!}#1\parens{#2}}
 \newcommand{\Weaken}[1]{{?}#1\bracks{}}
 \newcommand{\Contract}[3]{{?}#1\bracks{#2,#3}}
-\newcommand{\Cut}[3]{\parens{#1}\parens{#2\parop#3}}
+\newcommand{\Forall}[3]{#1\parens{#2,#3}}
+\newcommand{\Exists}[3]{#1\bracks{#2,#3}}
+\newcommand{\Cut}[4][]{\parens{#2\ifblank{#1}{}{:#1}}\parens{#3\parop#4}}
 \newcommand{\BigCut}[3]{\parens{#1}\left(#2\,\middle|\,#3\right)}
 
 \newcommand{\Hole}{\bracks\,}
@@ -194,6 +196,8 @@
 \newcommand{\SForkL}{\rulename{s-fork-l}}
 \newcommand{\SForkR}{\rulename{s-fork-r}}
 \newcommand{\SJoin}{\rulename{s-join}}
+\newcommand{\SExists}{\rulename{s-exists}}
+\newcommand{\SForall}{\rulename{s-forall}}
 \newcommand{\SClient}{\rulename{s-client}}
 \newcommand{\SWeaken}{\rulename{s-weaken}}
 \newcommand{\SContract}{\rulename{s-contract}}
@@ -204,6 +208,7 @@
 \newcommand{\RClose}{\rulename{r-close}}
 \newcommand{\RFork}{\rulename{r-fork}}
 \newcommand{\RSelect}{\rulename{r-select}}
+\newcommand{\RExists}{\rulename{r-exists}}
 \newcommand{\RConnect}{\rulename{r-connect}}
 \newcommand{\RWeaken}{\rulename{r-weaken}}
 \newcommand{\RContract}{\rulename{r-contract}}
@@ -241,6 +246,8 @@
 \newcommand{\JoinRule}{\rulename{$\Par$}}
 \newcommand{\SelectRule}{\rulename{$\Plus$}}
 \newcommand{\CaseRule}{\rulename{$\With$}}
+\newcommand{\ForallRule}{\rulename{$\forall$}}
+\newcommand{\ExistsRule}{\rulename{$\exists$}}
 \newcommand{\ServerRule}{\rulename{server}}
 \newcommand{\ClientRule}{\rulename{client}}
 \newcommand{\WeakenRule}{\rulename{weaken}}

@@ -72,8 +72,8 @@ data _⊒_ : ∀{Γ} → Process Γ → Process Γ → Set where
     join q′ (cut (split-l (split-l p′)) (#process #rot P) Q)
   s-server :
     ∀{Γ A B Γ₁ Γ₂ Δ₁}
-    {P : Process (B ∷ ¿ A ∷ Δ₁)} {Q : Process (dual A ∷ Γ₂)}
-    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¡ B , Δ₁) (r : Γ₂ ≃ [] + Γ₂)
+    {P : Process (B ∷ `? A ∷ Δ₁)} {Q : Process (dual A ∷ Γ₂)}
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ `! B , Δ₁) (r : Γ₂ ≃ [] + Γ₂)
     (un₁ : Un Δ₁) (un₂ : Un Γ₂) →
     let _ , p′ , q′ = +-assoc-l p q in
     cut p (server (split-r q) (un-∷ un₁) P) (server (split-l r) un₂ Q) ⊒
@@ -81,19 +81,19 @@ data _⊒_ : ∀{Γ} → Process Γ → Process Γ → Set where
   s-client :
     ∀{Γ A B Γ₁ Γ₂ Δ}
     {P : Process (B ∷ A ∷ Δ)} {Q : Process (dual A ∷ Γ₂)}
-    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¿ B , Δ) →
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ `? B , Δ) →
     let _ , p′ , q′ = +-assoc-l p q in
     cut p (client (split-r q) P) Q ⊒ client q′ (cut (split-l p′) (#process #here P) Q)
   s-weaken :
     ∀{Γ A B Γ₁ Γ₂ Δ}
     {P : Process (A ∷ Δ)} {Q : Process (dual A ∷ Γ₂)}
-    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¿ B , Δ) →
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ `? B , Δ) →
     let _ , p′ , q′ = +-assoc-l p q in
     cut p (weaken (split-r q) P) Q ⊒ weaken q′ (cut p′ P Q)
   s-contract :
     ∀{Γ A B Γ₁ Γ₂ Δ}
-    {P : Process (¿ B ∷ ¿ B ∷ A ∷ Δ)} {Q : Process (dual A ∷ Γ₂)}
-    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¿ B , Δ) →
+    {P : Process (`? B ∷ `? B ∷ A ∷ Δ)} {Q : Process (dual A ∷ Γ₂)}
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ `? B , Δ) →
     let _ , p′ , q′ = +-assoc-l p q in
     cut p (contract (split-r q) P) Q ⊒
     contract q′ (cut (split-l (split-l p′)) (#process #rot P) Q)
@@ -101,14 +101,14 @@ data _⊒_ : ∀{Γ} → Process Γ → Process Γ → Set where
     ∀{Γ A B C Γ₁ Γ₂ Δ}
     {P : Process (subst (make-subst C) B ∷ A ∷ Δ)}
     {Q : Process (dual A ∷ Γ₂)}
-    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ $∃ B , Δ) ->
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ `∃ B , Δ) ->
     let _ , p' , q' = +-assoc-l p q in
     cut p (ex (split-r q) P) Q ⊒ ex q' (cut (split-l p') (#process #here P) Q)
   s-all :
     ∀{Γ A B Γ₁ Γ₂ Δ}
     {F : (C : Type) -> Process (subst (make-subst C) B ∷ A ∷ Δ)}
     {Q : Process (dual A ∷ Γ₂)}
-    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ $∀ B , Δ) ->
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ `∀ B , Δ) ->
     let _ , p' , q' = +-assoc-l p q in
     cut p (all (split-r q) F) Q ⊒ all q' λ σ → cut (split-l p') (#process #here (F σ)) Q
   s-refl  : ∀{Γ} {P : Process Γ} → P ⊒ P

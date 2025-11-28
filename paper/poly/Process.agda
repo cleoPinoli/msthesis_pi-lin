@@ -21,14 +21,14 @@ data Process : Context → Set where
                Process (A ∷ Γ₁) → Process (B ∷ Γ₂) → Process Γ
    join      : ∀{A B Γ Δ} (p : Γ ≃ A ⅋ B , Δ) →
                Process (B ∷ A ∷ Δ) → Process Γ
-   server    : ∀{A Γ Δ} (p : Γ ≃ ¡ A , Δ) (un : Un Δ) →
+   server    : ∀{A Γ Δ} (p : Γ ≃ `! A , Δ) (un : Un Δ) →
                Process (A ∷ Δ) → Process Γ
-   client    : ∀{A Γ Δ} (p : Γ ≃ ¿ A , Δ) → Process (A ∷ Δ) → Process Γ
-   weaken    : ∀{A Γ Δ} (p : Γ ≃ ¿ A , Δ) → Process Δ → Process Γ
-   contract  : ∀{A Γ Δ} (p : Γ ≃ ¿ A , Δ) → Process (¿ A ∷ ¿ A ∷ Δ) → Process Γ
-   ex        : ∀{A B Γ Δ} (p : Γ ≃ $∃ A , Δ) ->
+   client    : ∀{A Γ Δ} (p : Γ ≃ `? A , Δ) → Process (A ∷ Δ) → Process Γ
+   weaken    : ∀{A Γ Δ} (p : Γ ≃ `? A , Δ) → Process Δ → Process Γ
+   contract  : ∀{A Γ Δ} (p : Γ ≃ `? A , Δ) → Process (`? A ∷ `? A ∷ Δ) → Process Γ
+   ex        : ∀{A B Γ Δ} (p : Γ ≃ `∃ A , Δ) ->
                Process (subst (make-subst B) A ∷ Δ) -> Process Γ
-   all       : ∀{A Γ Δ} (p : Γ ≃ $∀ A , Δ) ->
+   all       : ∀{A Γ Δ} (p : Γ ≃ `∀ A , Δ) ->
                ((B : Type) -> Process (subst (make-subst B) A ∷ Δ)) -> Process Γ
    cut       : ∀{A Γ Γ₁ Γ₂} (p : Γ ≃ Γ₁ + Γ₂) →
                Process (A ∷ Γ₁) → Process (dual A ∷ Γ₂) → Process Γ

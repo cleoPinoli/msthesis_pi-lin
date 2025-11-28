@@ -1,12 +1,10 @@
 {-# OPTIONS --rewriting #-}
-open import Relation.Nullary using (¬_; contradiction)
 open import Data.List.Base using ([]; _∷_; [_])
 
 open import Type
 open import Context
 open import Process
 open import Congruence
-open import Reduction
 open import DeadlockFreedom
 
 data ReductionContext (Δ : Context) : Context → Set where

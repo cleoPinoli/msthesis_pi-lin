@@ -23,9 +23,9 @@ contraction un p P = #process (+++# p) (aux un (#process (#left (#sym (+++# p)))
   where
     aux : ∀{Γ₁ Γ₂} → Un Γ₁ → Process (Γ₁ ++ Γ₁ ++ Γ₂) → Process (Γ₁ ++ Γ₂)
     aux un-[] P = P
-    aux {¿ A ∷ Γ₁} {Γ₂} (un-∷ un) P with contract (split-l +-unit-l) (#process (#shift {¿ A} {¿ A ∷ Γ₁} {Γ₁ ++ Γ₂}) P)
-    ... | P₁ rewrite sym (++-assoc (¿ A ∷ Γ₁) Γ₁ Γ₂) with #process (#sym (#shift {¿ A} {Γ₁ ++ Γ₁})) P₁
-    ... | P₂ rewrite ++-assoc Γ₁ Γ₁ (¿ A ∷ Γ₂) with aux un P₂
+    aux {`? A ∷ Γ₁} {Γ₂} (un-∷ un) P with contract (split-l +-unit-l) (#process (#shift {`? A} {`? A ∷ Γ₁} {Γ₁ ++ Γ₂}) P)
+    ... | P₁ rewrite sym (++-assoc (`? A ∷ Γ₁) Γ₁ Γ₂) with #process (#sym (#shift {`? A} {Γ₁ ++ Γ₁})) P₁
+    ... | P₂ rewrite ++-assoc Γ₁ Γ₁ (`? A ∷ Γ₂) with aux un P₂
     ... | P₃ = #process #shift P₃
 
 data _↝_ {Γ} : Process Γ → Process Γ → Set where
@@ -58,7 +58,7 @@ data _↝_ {Γ} : Process Γ → Process Γ → Set where
                 cut p (server (split-l p₀) un P)
                       (weaken (split-l q₀) Q) ↝ weakening un p Q
   r-contract  : ∀{Γ₁ Γ₂ A}
-                {P : Process (A ∷ Γ₁)} {Q : Process (¿ (dual A) ∷ ¿ (dual A) ∷ Γ₂)}
+                {P : Process (A ∷ Γ₁)} {Q : Process (`? (dual A) ∷ `? (dual A) ∷ Γ₂)}
                 (p : Γ ≃ Γ₁ + Γ₂) (p₀ : Γ₁ ≃ [] + Γ₁) (q₀ : Γ₂ ≃ [] + Γ₂) (un : Un Γ₁) →
                 cut p (server (split-l p₀) un P)
                       (contract (split-l q₀) Q) ↝
