@@ -9,45 +9,45 @@ open import Agda.Builtin.Equality.Rewrite
 \subsection{Type Representation}
 \label{sec:type-agda}
 
-The representation of types is fairly standard, with one constructor for each of
-the forms described in \Cref{sec:calculus}. We use de Bruijn indices for
-denoting type variables and we make sure that types are well-scoped by indexing
-them with the number of variables that must be bound.
+The representation of types is standard, with one constructor for each of the
+forms described in \Cref{sec:calculus}. We start by defining \emph{pre-types} as
+an indexed data type $\AgdaDatatype{PreType}~n$ where $n$ is the number of bound
+type variables and we use de Bruijn indices for denoting type variables. In this
+way, we make sure that pre-types are well-scoped.
 
 \begin{code}
 data PreType : ℕ → Set where
-  𝟘 𝟙 ⊥ ⊤          : ∀{n} → PreType n
+  ⊤ 𝟘 ⊥ 𝟙          : ∀{n} → PreType n
   var rav          : ∀{n} → Fin n → PreType n
-  ¡ ¿              : ∀{n} → PreType n → PreType n
-  _&_ _⊕_ _⊗_ _⅋_  : ∀{n} → PreType n → PreType n → PreType n
-  $∀ $∃            : ∀{n} → PreType (suc n) → PreType n
+  _&_ _⊕_ _⅋_ _⊗_  : ∀{n} → PreType n → PreType n → PreType n
+  `∀ `∃            : ∀{n} → PreType (suc n) → PreType n
+  `! `?            : ∀{n} → PreType n → PreType n
 \end{code}
 
 Note the constructors \AgdaInductiveConstructor{var} and
 \AgdaInductiveConstructor{rav}, which respectively represent type variables and
-their dual, and the quantifiers \AgdaInductiveConstructor{\$∀} and
-\AgdaInductiveConstructor{\$∃} which increase the number of bound variables in
-the scoped (pre)type.
+their dual, and the quantifiers \AgdaInductiveConstructor{`∀} and
+\AgdaInductiveConstructor{`∃} which increase the number of bound type variables
+in the scoped (pre)type.
 
-The dual of a (pre)type is computed by the following \emph{function}
-\AgdaFunction{dual}.
+The dual of a (pre)type is computed by the following function:
 
 \begin{code}
 dual : ∀{n} → PreType n → PreType n
-dual 𝟘        = ⊤
-dual 𝟙        = ⊥
-dual ⊥        = 𝟙
 dual ⊤        = 𝟘
+dual 𝟘        = ⊤
+dual ⊥        = 𝟙
+dual 𝟙        = ⊥
 dual (var x)  = rav x
 dual (rav x)  = var x
-dual (¡ A)    = ¿ (dual A)
-dual (¿ A)    = ¡ (dual A)
 dual (A & B)  = dual A ⊕ dual B
 dual (A ⊕ B)  = dual A & dual B
-dual (A ⊗ B)  = dual A ⅋ dual B
 dual (A ⅋ B)  = dual A ⊗ dual B
-dual ($∀ A)   = $∃ (dual A)
-dual ($∃ A)   = $∀ (dual A)
+dual (A ⊗ B)  = dual A ⅋ dual B
+dual (`∀ A)   = `∃ (dual A)
+dual (`∃ A)   = `∀ (dual A)
+dual (`! A)    = `? (dual A)
+dual (`? A)    = `! (dual A)
 \end{code}
 
 It is straightforward to prove that duality is a an involution.
@@ -56,26 +56,28 @@ It is straightforward to prove that duality is a an involution.
 dual-inv : ∀{n} {A : PreType n} → dual (dual A) ≡ A
 \end{code}
 \begin{code}[hide]
-dual-inv {_} {𝟘} = refl
-dual-inv {_} {𝟙} = refl
-dual-inv {_} {⊥} = refl
 dual-inv {_} {⊤} = refl
+dual-inv {_} {𝟘} = refl
+dual-inv {_} {⊥} = refl
+dual-inv {_} {𝟙} = refl
 dual-inv {_} {var x} = refl
 dual-inv {_} {rav x} = refl
-dual-inv {_} {¡ A} = cong ¡ dual-inv
-dual-inv {_} {¿ A} = cong ¿ dual-inv
 dual-inv {_} {A & B} = cong₂ _&_ dual-inv dual-inv
 dual-inv {_} {A ⊕ B} = cong₂ _⊕_ dual-inv dual-inv
-dual-inv {_} {A ⊗ B} = cong₂ _⊗_ dual-inv dual-inv
 dual-inv {_} {A ⅋ B} = cong₂ _⅋_ dual-inv dual-inv
-dual-inv {_} {$∀ A} = cong $∀ dual-inv
-dual-inv {_} {$∃ A} = cong $∃ dual-inv
+dual-inv {_} {A ⊗ B} = cong₂ _⊗_ dual-inv dual-inv
+dual-inv {_} {`∀ A} = cong `∀ dual-inv
+dual-inv {_} {`∃ A} = cong `∃ dual-inv
+dual-inv {_} {`! A} = cong `! dual-inv
+dual-inv {_} {`? A} = cong `? dual-inv
 \end{code}
 
-In fact, this property is so important in the rest of the formalization that it
-is worth defining an implicit rewriting rule so that Agda can autonomously apply
-it whenever possible. This is achieved by means of the following pragma
-directive.
+This property is so important in the rest of the formalization that it is worth
+defining an implicit rewriting rule so that Agda can autonomously apply it
+whenever possible. This is achieved by means of the following pragma
+directive.\footnote{The directive is effective provided that the option
+\texttt{--rewriting} is enabled, either globally when invoking Agda or in the
+module's preamble.}
 
 \begin{code}
 {-# REWRITE dual-inv #-}
@@ -87,20 +89,20 @@ ext ρ zero = zero
 ext ρ (suc k) = suc (ρ k)
 
 rename : ∀{m n} → (Fin m → Fin n) → PreType m → PreType n
-rename ρ 𝟘 = 𝟘
-rename ρ 𝟙 = 𝟙
-rename ρ ⊥ = ⊥
 rename ρ ⊤ = ⊤
+rename ρ 𝟘 = 𝟘
+rename ρ ⊥ = ⊥
+rename ρ 𝟙 = 𝟙
 rename ρ (var x) = var (ρ x)
 rename ρ (rav x) = rav (ρ x)
-rename ρ (¡ A) = ¡ (rename ρ A)
-rename ρ (¿ A) = ¿ (rename ρ A)
 rename ρ (A & B) = rename ρ A & rename ρ B
 rename ρ (A ⊕ B) = rename ρ A ⊕ rename ρ B
-rename ρ (A ⊗ B) = rename ρ A ⊗ rename ρ B
 rename ρ (A ⅋ B) = rename ρ A ⅋ rename ρ B
-rename ρ ($∀ A) = $∀ (rename (ext ρ) A)
-rename ρ ($∃ A) = $∃ (rename (ext ρ) A)
+rename ρ (A ⊗ B) = rename ρ A ⊗ rename ρ B
+rename ρ (`∀ A) = `∀ (rename (ext ρ) A)
+rename ρ (`∃ A) = `∃ (rename (ext ρ) A)
+rename ρ (`! A) = `! (rename ρ A)
+rename ρ (`? A) = `? (rename ρ A)
 
 exts : ∀{m n} → (Fin m → PreType n) → Fin (suc m) → PreType (suc n)
 exts σ zero = var zero
@@ -113,27 +115,27 @@ we will always substitute one variable at a time, it is technically easier to
 substitutes \emph{all} variables of a (pre)type. The definition of
 \AgdaFunction{subst} relies on some auxiliary functions for \emph{renaming} type
 variables and \emph{lifting} substitutions across quantifiers. All such
-definitions are straightforward adaptations of those describe by
+definitions are straightforward adaptations of those described by
 \cite{KokkeWadler}.
 
 \begin{code}
 subst : ∀{m n} → (Fin m → PreType n) → PreType m → PreType n
 \end{code}
 \begin{code}[hide]
-subst σ 𝟘 = 𝟘
-subst σ 𝟙 = 𝟙
-subst σ ⊥ = ⊥
 subst σ ⊤ = ⊤
+subst σ 𝟘 = 𝟘
+subst σ ⊥ = ⊥
+subst σ 𝟙 = 𝟙
 subst σ (var x) = σ x
 subst σ (rav x) = dual (σ x)
-subst σ (¡ A) = ¡ (subst σ A)
-subst σ (¿ A) = ¿ (subst σ A)
 subst σ (A & B) = subst σ A & subst σ B
 subst σ (A ⊕ B) = subst σ A ⊕ subst σ B
-subst σ (A ⊗ B) = subst σ A ⊗ subst σ B
 subst σ (A ⅋ B) = subst σ A ⅋ subst σ B
-subst σ ($∀ A) = $∀ (subst (exts σ) A)
-subst σ ($∃ A) = $∃ (subst (exts σ) A)
+subst σ (A ⊗ B) = subst σ A ⊗ subst σ B
+subst σ (`∀ A) = `∀ (subst (exts σ) A)
+subst σ (`∃ A) = `∃ (subst (exts σ) A)
+subst σ (`! A) = `! (subst σ A)
+subst σ (`? A) = `? (subst σ A)
 \end{code}
 
 Among all substitutions, we will use the one that substitutes the 0-indexed type
@@ -141,9 +143,9 @@ variable with a (pre)type. It is convenient to introduce this substitution once
 and for all, which we do here.
 
 \begin{code}
-make-subst : ∀{n} → PreType n → Fin (suc n) → PreType n
-make-subst A zero = A
-make-subst A (suc k) = var k
+[_/_] : ∀{n} → PreType n → Fin (suc n) → PreType n
+[ A / zero  ]  = A
+[ A / suc k ]  = var k
 \end{code}
 
 Duality and substitutions are meant to commute.
@@ -153,20 +155,41 @@ dual-subst : ∀{m n} {σ : Fin m → PreType n} {A : PreType m} →
              subst σ (dual A) ≡ dual (subst σ A)
 \end{code}
 \begin{code}[hide]
-dual-subst {_} {_} {σ} {𝟘} = refl
-dual-subst {_} {_} {σ} {𝟙} = refl
-dual-subst {_} {_} {σ} {⊥} = refl
 dual-subst {_} {_} {σ} {⊤} = refl
+dual-subst {_} {_} {σ} {𝟘} = refl
+dual-subst {_} {_} {σ} {⊥} = refl
+dual-subst {_} {_} {σ} {𝟙} = refl
 dual-subst {_} {_} {σ} {var x} = refl
+\end{code}
+
+It is worth discussing one case in the proof of \AgdaFunction{dual-subst}:
+\begin{code}
 dual-subst {_} {_} {σ} {rav x} = refl
-dual-subst {_} {_} {σ} {¡ A} = cong ¿ (dual-subst {σ = σ} {A})
-dual-subst {_} {_} {σ} {¿ A} = cong ¡ (dual-subst {σ = σ} {A})
+\end{code}
+
+Here we are supposed to prove
+$\AgdaFunction{subst}~\sigma~(\AgdaFunction{dual}~(\AgdaInductiveConstructor{rav}~x))
+  \equiv
+  \AgdaFunction{dual}~(\AgdaFunction{subst}~\sigma~(\AgdaInductiveConstructor{rav}~x))$
+  which is definitionally the same of $\sigma~x \equiv
+  \AgdaFunction{dual}~(\AgdaFunction{dual}~(\sigma~x))$.
+%
+We could easily prove this equivalence by invoking \AgdaFunction{dual-inv}, but
+thanks to the added rewriting rule a use of \AgdaInductiveConstructor{refl}
+suffices. In this case the saved effort is negligible, but in later results,
+where it is necessary to use \AgdaFunction{dual-inv} for rewriting part of the
+\emph{index} of some type families, having an implicit rewriting rule allows us
+to avoid writing some quite obscure Agda code.
+
+\begin{code}[hide]
 dual-subst {_} {_} {σ} {A & B} = cong₂ _⊕_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
 dual-subst {_} {_} {σ} {A ⊕ B} = cong₂ _&_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
-dual-subst {_} {_} {σ} {A ⊗ B} = cong₂ _⅋_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
 dual-subst {_} {_} {σ} {A ⅋ B} = cong₂ _⊗_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
-dual-subst {_} {_} {σ} {$∀ A} = cong $∃ (dual-subst {σ = exts σ} {A})
-dual-subst {_} {_} {σ} {$∃ A} = cong $∀ (dual-subst {σ = exts σ} {A})
+dual-subst {_} {_} {σ} {A ⊗ B} = cong₂ _⅋_ (dual-subst {σ = σ} {A}) (dual-subst {σ = σ} {B})
+dual-subst {_} {_} {σ} {`∀ A} = cong `∃ (dual-subst {σ = exts σ} {A})
+dual-subst {_} {_} {σ} {`∃ A} = cong `∀ (dual-subst {σ = exts σ} {A})
+dual-subst {_} {_} {σ} {`! A} = cong `? (dual-subst {σ = σ} {A})
+dual-subst {_} {_} {σ} {`? A} = cong `! (dual-subst {σ = σ} {A})
 \end{code}
 
 Just like \AgdaFunction{dual-inv}, \AgdaFunction{dual-subst} too is key in the

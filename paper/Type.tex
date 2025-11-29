@@ -29,10 +29,11 @@
 \subsection{Type Representation}
 \label{sec:type-agda}
 
-The representation of types is fairly standard, with one constructor for each of
-the forms described in \Cref{sec:calculus}. We use de Bruijn indices for
-denoting type variables and we make sure that types are well-scoped by indexing
-them with the number of variables that must be bound.
+The representation of types is standard, with one constructor for each of the
+forms described in \Cref{sec:calculus}. We start by defining \emph{pre-types} as
+an indexed data type $\AgdaDatatype{PreType}~n$ where $n$ is the number of bound
+type variables and we use de Bruijn indices for denoting type variables. In this
+way, we make sure that pre-types are well-scoped.
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -44,10 +45,10 @@ them with the number of variables that must be bound.
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
-\>[2]\AgdaInductiveConstructor{𝟘}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟙}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{⊤}\AgdaSpace{}%
+\AgdaInductiveConstructor{𝟘}\AgdaSpace{}%
 \AgdaInductiveConstructor{⊥}\AgdaSpace{}%
-\AgdaInductiveConstructor{⊤}%
+\AgdaInductiveConstructor{𝟙}%
 \>[19]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -67,22 +68,10 @@ them with the number of variables that must be bound.
 \AgdaBound{n}\<%
 \\
 %
-\>[2]\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}%
-\>[19]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{PreType}\AgdaSpace{}%
-\AgdaBound{n}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{PreType}\AgdaSpace{}%
-\AgdaBound{n}\<%
-\\
-%
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}\&\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⊕\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⊗\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⅋\AgdaUnderscore{}}}%
+\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⅋\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⊗\AgdaUnderscore{}}}%
 \>[19]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -96,8 +85,8 @@ them with the number of variables that must be bound.
 \AgdaBound{n}\<%
 \\
 %
-\>[2]\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∃}%
+\>[2]\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∃}%
 \>[19]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -107,16 +96,27 @@ them with the number of variables that must be bound.
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{PreType}\AgdaSpace{}%
 \AgdaBound{n}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}%
+\>[19]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{PreType}\AgdaSpace{}%
+\AgdaBound{n}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{PreType}\AgdaSpace{}%
+\AgdaBound{n}\<%
 \end{code}
 
 Note the constructors \AgdaInductiveConstructor{var} and
 \AgdaInductiveConstructor{rav}, which respectively represent type variables and
-their dual, and the quantifiers \AgdaInductiveConstructor{\$∀} and
-\AgdaInductiveConstructor{\$∃} which increase the number of bound variables in
-the scoped (pre)type.
+their dual, and the quantifiers \AgdaInductiveConstructor{`∀} and
+\AgdaInductiveConstructor{`∃} which increase the number of bound type variables
+in the scoped (pre)type.
 
-The dual of a (pre)type is computed by the following \emph{function}
-\AgdaFunction{dual}.
+The dual of a (pre)type is computed by the following function:
 
 \begin{code}%
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
@@ -130,14 +130,14 @@ The dual of a (pre)type is computed by the following \emph{function}
 \AgdaBound{n}\<%
 \\
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaInductiveConstructor{⊤}%
+\>[14]\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{𝟘}\<%
+\\
+\>[0]\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaInductiveConstructor{𝟘}%
 \>[14]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{⊤}\<%
-\\
-\>[0]\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟙}%
-\>[14]\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{⊥}\<%
 \\
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaInductiveConstructor{⊥}%
@@ -145,9 +145,9 @@ The dual of a (pre)type is computed by the following \emph{function}
 \AgdaInductiveConstructor{𝟙}\<%
 \\
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaInductiveConstructor{⊤}%
+\AgdaInductiveConstructor{𝟙}%
 \>[14]\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟘}\<%
+\AgdaInductiveConstructor{⊥}\<%
 \\
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{var}\AgdaSpace{}%
@@ -164,22 +164,6 @@ The dual of a (pre)type is computed by the following \emph{function}
 \AgdaBound{x}\<%
 \\
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}%
-\>[14]\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}%
-\>[14]\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{\&}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}%
@@ -203,39 +187,55 @@ The dual of a (pre)type is computed by the following \emph{function}
 \\
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}%
 \>[14]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
 \AgdaFunction{dual}\AgdaSpace{}%
 \AgdaBound{B}\<%
 \\
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}%
 \>[14]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaFunction{dual}\AgdaSpace{}%
 \AgdaBound{B}\<%
 \\
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}%
 \>[14]\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\<%
 \\
 \>[0]\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}%
 \>[14]\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}%
+\>[15]\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}%
+\>[15]\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{`!}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\<%
 \end{code}
@@ -260,13 +260,13 @@ It is straightforward to prove that duality is a an involution.
 \begin{code}[hide]%
 \>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{𝟘}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{⊤}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
 \\
 \>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{𝟙}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{𝟘}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
 \\
@@ -278,7 +278,7 @@ It is straightforward to prove that duality is a an involution.
 \\
 \>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{⊤}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{𝟙}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
 \\
@@ -295,24 +295,6 @@ It is straightforward to prove that duality is a an involution.
 \AgdaBound{x}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
-\\
-\>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
-\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{cong}\AgdaSpace{}%
-\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaFunction{dual-inv}\<%
-\\
-\>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
-\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{cong}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaFunction{dual-inv}\<%
 \\
 \>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
@@ -339,17 +321,6 @@ It is straightforward to prove that duality is a an involution.
 \>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{cong₂}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⊗\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaFunction{dual-inv}\AgdaSpace{}%
-\AgdaFunction{dual-inv}\<%
-\\
-\>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
-\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -360,27 +331,58 @@ It is straightforward to prove that duality is a an involution.
 \\
 \>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{cong}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
+\AgdaFunction{cong₂}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⊗\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaFunction{dual-inv}\AgdaSpace{}%
 \AgdaFunction{dual-inv}\<%
 \\
 \>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{cong}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
+\AgdaFunction{dual-inv}\<%
+\\
+\>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{cong}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
+\AgdaFunction{dual-inv}\<%
+\\
+\>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{cong}\AgdaSpace{}%
+\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaFunction{dual-inv}\<%
+\\
+\>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{cong}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}\AgdaSpace{}%
 \AgdaFunction{dual-inv}\<%
 \end{code}
 
-In fact, this property is so important in the rest of the formalization that it
-is worth defining an implicit rewriting rule so that Agda can autonomously apply
-it whenever possible. This is achieved by means of the following pragma
-directive.
+This property is so important in the rest of the formalization that it is worth
+defining an implicit rewriting rule so that Agda can autonomously apply it
+whenever possible. This is achieved by means of the following pragma
+directive.\footnote{The directive is effective provided that the option
+\texttt{--rewriting} is enabled, either globally when invoking Agda or in the
+module's preamble.}
 
 \begin{code}%
 \>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
@@ -445,15 +447,15 @@ directive.
 \\
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟘}\AgdaSpace{}%
+\AgdaInductiveConstructor{⊤}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟘}\<%
+\AgdaInductiveConstructor{⊤}\<%
 \\
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟙}\AgdaSpace{}%
+\AgdaInductiveConstructor{𝟘}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟙}\<%
+\AgdaInductiveConstructor{𝟘}\<%
 \\
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
@@ -463,9 +465,9 @@ directive.
 \\
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
-\AgdaInductiveConstructor{⊤}\AgdaSpace{}%
+\AgdaInductiveConstructor{𝟙}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{⊤}\<%
+\AgdaInductiveConstructor{𝟙}\<%
 \\
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
@@ -487,26 +489,6 @@ directive.
 \\
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{rename}\AgdaSpace{}%
-\AgdaBound{ρ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{rename}\AgdaSpace{}%
-\AgdaBound{ρ}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{rename}\AgdaSpace{}%
-\AgdaBound{ρ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{rename}\AgdaSpace{}%
-\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{\&}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
@@ -536,13 +518,13 @@ directive.
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaBound{B}\<%
@@ -550,23 +532,23 @@ directive.
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
 \AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaBound{B}\<%
 \\
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{ext}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSymbol{)}\AgdaSpace{}%
@@ -574,13 +556,33 @@ directive.
 \\
 \>[0]\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{rename}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{ext}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{rename}\AgdaSpace{}%
+\AgdaBound{ρ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{rename}\AgdaSpace{}%
+\AgdaBound{ρ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{rename}\AgdaSpace{}%
+\AgdaBound{ρ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{rename}\AgdaSpace{}%
+\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\<%
 \\
 %
@@ -628,7 +630,7 @@ we will always substitute one variable at a time, it is technically easier to
 substitutes \emph{all} variables of a (pre)type. The definition of
 \AgdaFunction{subst} relies on some auxiliary functions for \emph{renaming} type
 variables and \emph{lifting} substitutions across quantifiers. All such
-definitions are straightforward adaptations of those describe by
+definitions are straightforward adaptations of those described by
 \cite{KokkeWadler}.
 
 \begin{code}%
@@ -652,15 +654,15 @@ definitions are straightforward adaptations of those describe by
 \begin{code}[hide]%
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟘}\AgdaSpace{}%
+\AgdaInductiveConstructor{⊤}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟘}\<%
+\AgdaInductiveConstructor{⊤}\<%
 \\
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟙}\AgdaSpace{}%
+\AgdaInductiveConstructor{𝟘}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟙}\<%
+\AgdaInductiveConstructor{𝟘}\<%
 \\
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
@@ -670,9 +672,9 @@ definitions are straightforward adaptations of those describe by
 \\
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
-\AgdaInductiveConstructor{⊤}\AgdaSpace{}%
+\AgdaInductiveConstructor{𝟙}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{⊤}\<%
+\AgdaInductiveConstructor{𝟙}\<%
 \\
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
@@ -693,26 +695,6 @@ definitions are straightforward adaptations of those describe by
 \\
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{subst}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{subst}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{subst}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{subst}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{\&}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
@@ -742,13 +724,13 @@ definitions are straightforward adaptations of those describe by
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaBound{B}\<%
@@ -756,23 +738,23 @@ definitions are straightforward adaptations of those describe by
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
 \AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaBound{B}\<%
 \\
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{exts}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSymbol{)}\AgdaSpace{}%
@@ -780,13 +762,33 @@ definitions are straightforward adaptations of those describe by
 \\
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{exts}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{subst}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{subst}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{subst}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{subst}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\<%
 \end{code}
 
@@ -795,7 +797,7 @@ variable with a (pre)type. It is convenient to introduce this substitution once
 and for all, which we do here.
 
 \begin{code}%
-\>[0]\AgdaFunction{make-subst}\AgdaSpace{}%
+\>[0]\AgdaOperator{\AgdaFunction{[\AgdaUnderscore{}/\AgdaUnderscore{}]}}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -809,17 +811,21 @@ and for all, which we do here.
 \AgdaDatatype{PreType}\AgdaSpace{}%
 \AgdaBound{n}\<%
 \\
-\>[0]\AgdaFunction{make-subst}\AgdaSpace{}%
+\>[0]\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaInductiveConstructor{zero}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{/}}\AgdaSpace{}%
+\AgdaInductiveConstructor{zero}%
+\>[12]\AgdaOperator{\AgdaFunction{]}}%
+\>[15]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{A}\<%
 \\
-\>[0]\AgdaFunction{make-subst}\AgdaSpace{}%
+\>[0]\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
-\AgdaBound{k}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{/}}\AgdaSpace{}%
+\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{k}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}%
+\>[15]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{var}\AgdaSpace{}%
 \AgdaBound{k}\<%
 \end{code}
@@ -829,7 +835,7 @@ Duality and substitutions are meant to commute.
 \begin{code}%
 \>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[582I]\AgdaSymbol{∀\{}\AgdaBound{m}\AgdaSpace{}%
+\>[583I]\AgdaSymbol{∀\{}\AgdaBound{m}\AgdaSpace{}%
 \AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{σ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -844,7 +850,7 @@ Duality and substitutions are meant to commute.
 \AgdaBound{m}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[582I]%
+\>[.][@{}l@{}]\<[583I]%
 \>[13]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
@@ -860,7 +866,7 @@ Duality and substitutions are meant to commute.
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{𝟘}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{⊤}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
 \\
@@ -868,7 +874,7 @@ Duality and substitutions are meant to commute.
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{𝟙}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{𝟘}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
 \\
@@ -884,7 +890,7 @@ Duality and substitutions are meant to commute.
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{⊤}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{𝟙}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
 \\
@@ -896,7 +902,10 @@ Duality and substitutions are meant to commute.
 \AgdaBound{x}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
-\\
+\end{code}
+
+It is worth discussing one case in the proof of \AgdaFunction{dual-subst}:
+\begin{code}%
 \>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
@@ -905,37 +914,23 @@ Duality and substitutions are meant to commute.
 \AgdaBound{x}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
-\\
-\>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
-\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{cong}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\})}\<%
-\\
-\>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
-\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{cong}\AgdaSpace{}%
-\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\})}\<%
-\\
+\end{code}
+
+Here we are supposed to prove
+$\AgdaFunction{subst}~\sigma~(\AgdaFunction{dual}~(\AgdaInductiveConstructor{rav}~x))
+  \equiv
+  \AgdaFunction{dual}~(\AgdaFunction{subst}~\sigma~(\AgdaInductiveConstructor{rav}~x))$
+  which is definitionally the same of $\sigma~x \equiv
+  \AgdaFunction{dual}~(\AgdaFunction{dual}~(\sigma~x))$.
+%
+We could easily prove this equivalence by invoking \AgdaFunction{dual-inv}, but
+thanks to the added rewriting rule a use of \AgdaInductiveConstructor{refl}
+suffices. In this case the saved effort is negligible, but in later results,
+where it is necessary to use \AgdaFunction{dual-inv} for rewriting part of the
+\emph{index} of some type families, having an implicit rewriting rule allows us
+to avoid writing some quite obscure Agda code.
+
+\begin{code}[hide]%
 \>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
@@ -983,27 +978,6 @@ Duality and substitutions are meant to commute.
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{cong₂}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⅋\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\})}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{B}\AgdaSymbol{\})}\<%
-\\
-\>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
-\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -1024,11 +998,32 @@ Duality and substitutions are meant to commute.
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{cong₂}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⅋\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\})}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{B}\AgdaSymbol{\})}\<%
+\\
+\>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{cong}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -1040,15 +1035,45 @@ Duality and substitutions are meant to commute.
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaInductiveConstructor{\$∃}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{cong}\AgdaSpace{}%
-\AgdaInductiveConstructor{\$∀}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{exts}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\})}\<%
+\\
+\>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{cong}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\})}\<%
+\\
+\>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{cong}\AgdaSpace{}%
+\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{dual-subst}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaArgument{σ}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\})}\<%
 \end{code}
