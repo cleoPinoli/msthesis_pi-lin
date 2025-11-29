@@ -1,5 +1,5 @@
 \begin{code}[hide]
-open import Data.Bool using (Bool; true; false; if_then_else_)
+{-# OPTIONS --rewriting #-}
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 open import Data.List.Base using (List; []; _∷_; [_]; _++_)
@@ -72,7 +72,9 @@ Just like permutations from Agda's standard library, also \AgdaDatatype{\_\#\_}
 enjoys a number of expected (and useful) properties, such as symmetry. Among all
 properties, in the following we will make use of a specific one that connects
 context splitting and permutations: if $\Context \simeq A, \ContextD$, then
-$\Context$ must be a permutation of $A~\AgdaInductiveConstructor{∷}~\ContextD$.
+$\Context$ must be a permutation of
+$A~\AgdaInductiveConstructor{∷}~\ContextD$.\Luca{Ci sono molte altre proprietà
+non descritte, controllare quelle che servono davvero.}
 
 \begin{code}
 #cons : ∀{A Γ Δ} → Γ ≃ A , Δ → (A ∷ Δ) # Γ
@@ -100,9 +102,9 @@ $\Context$ must be a permutation of $A~\AgdaInductiveConstructor{∷}~\ContextD$
 #one+ π p with #split π p
 ... | _ , _ , q , π₁ , π₂ rewrite #singleton-inv π₁ = _ , q , π₂
 
-#shift : ∀{Γ A Δ} → (Γ ++ A ∷ Δ) # (A ∷ Γ ++ Δ)
-#shift {[]} = #refl
-#shift {B ∷ Γ} = #tran (#next #shift) #here
+#shift : ∀{A Γ Δ} → (Γ ++ A ∷ Δ) # (A ∷ Γ ++ Δ)
+#shift {_} {[]} = #refl
+#shift {_} {B ∷ Γ} = #tran (#next #shift) #here
 
 +++# : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → (Γ₁ ++ Γ₂) # Γ
 +++# split-e = #refl

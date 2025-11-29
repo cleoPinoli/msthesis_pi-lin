@@ -1,12 +1,8 @@
 \begin{code}[hide]%
-\>[0]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Data.Bool}\AgdaSpace{}%
-\AgdaKeyword{using}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaDatatype{Bool}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaInductiveConstructor{true}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaInductiveConstructor{false}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{if\AgdaUnderscore{}then\AgdaUnderscore{}else\AgdaUnderscore{}}}\AgdaSymbol{)}\<%
+\>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
+\AgdaKeyword{OPTIONS}\AgdaSpace{}%
+\AgdaPragma{--rewriting}\AgdaSpace{}%
+\AgdaSymbol{\#-\}}\<%
 \\
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
@@ -324,7 +320,9 @@ Just like permutations from Agda's standard library, also \AgdaDatatype{\_\#\_}
 enjoys a number of expected (and useful) properties, such as symmetry. Among all
 properties, in the following we will make use of a specific one that connects
 context splitting and permutations: if $\Context \simeq A, \ContextD$, then
-$\Context$ must be a permutation of $A~\AgdaInductiveConstructor{∷}~\ContextD$.
+$\Context$ must be a permutation of
+$A~\AgdaInductiveConstructor{∷}~\ContextD$.\Luca{Ci sono molte altre proprietà
+non descritte, controllare quelle che servono davvero.}
 
 \begin{code}%
 \>[0]\AgdaFunction{\#cons}\AgdaSpace{}%
@@ -682,8 +680,8 @@ $\Context$ must be a permutation of $A~\AgdaInductiveConstructor{∷}~\ContextD$
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{\#shift}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{Γ}\AgdaSpace{}%
@@ -699,11 +697,13 @@ $\Context$ must be a permutation of $A~\AgdaInductiveConstructor{∷}~\ContextD$
 \AgdaBound{Δ}\AgdaSymbol{)}\<%
 \\
 \>[0]\AgdaFunction{\#shift}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaInductiveConstructor{[]}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{\#refl}\<%
 \\
 \>[0]\AgdaFunction{\#shift}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{B}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%

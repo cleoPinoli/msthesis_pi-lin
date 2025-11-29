@@ -1,12 +1,8 @@
 \begin{code}[hide]%
-\>[0]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Data.Bool}\AgdaSpace{}%
-\AgdaKeyword{using}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaDatatype{Bool}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaInductiveConstructor{true}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaInductiveConstructor{false}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{if\AgdaUnderscore{}then\AgdaUnderscore{}else\AgdaUnderscore{}}}\AgdaSymbol{)}\<%
+\>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
+\AgdaKeyword{OPTIONS}\AgdaSpace{}%
+\AgdaPragma{--rewriting}\AgdaSpace{}%
+\AgdaSymbol{\#-\}}\<%
 \\
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
@@ -34,7 +30,8 @@
 \AgdaInductiveConstructor{[]}\AgdaSymbol{;}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}∷\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[\AgdaUnderscore{}]}}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}++\AgdaUnderscore{}}}\AgdaSymbol{)}\<%
+\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}++\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
+\AgdaFunction{map}\AgdaSymbol{)}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
@@ -53,7 +50,7 @@ explicitly by a natural number, is computable from the \emph{proof} that the
 type of the channel belong to the typing context.
 %
 Typing contexts are represented using \emph{lists} of types, where the
-(polymorphic) \AgdaDatatype{List} type is defined in Agda′s standard library.
+(polymorphic) \AgdaDatatype{List} type is defined in Agda's standard library.
 
 \begin{code}%
 \>[0]\AgdaFunction{Context}\AgdaSpace{}%
@@ -63,7 +60,7 @@ Typing contexts are represented using \emph{lists} of types, where the
 \>[0]\AgdaFunction{Context}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaDatatype{List}\AgdaSpace{}%
-\AgdaDatatype{Type}\<%
+\AgdaFunction{Type}\<%
 \end{code}
 
 The most important operation concerning typing contexts is \emph{splitting}. The
@@ -169,7 +166,7 @@ types in $[A, B, C, D]$ ends up in $[A, D]$ and $[B, C]$.
 \AgdaPostulate{C}\AgdaSpace{}%
 \AgdaPostulate{D}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Type}\<%
+\AgdaFunction{Type}\<%
 \end{code}
 \begin{code}%
 %
@@ -218,7 +215,7 @@ $\SimpleSplitting\ContextC{A}\ContextE$.
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Context}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Type}\AgdaSpace{}%
+\AgdaFunction{Type}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaFunction{Context}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -325,10 +322,9 @@ left and right unit of splitting.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{+-comm}\AgdaSpace{}%
 \AgdaFunction{+-unit-l}\<%
-\end{code}
-
-E QUESTO?
-\begin{code}%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{++≃+}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
@@ -363,7 +359,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \begin{code}%
 \>[0]\AgdaFunction{+-assoc-r}%
 \>[11]\AgdaSymbol{:}%
-\>[226I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\>[223I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{Θ}\AgdaSpace{}%
 \AgdaBound{Δ′}\AgdaSpace{}%
@@ -382,7 +378,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaBound{Θ′}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[226I]%
+\>[.][@{}l@{}]\<[223I]%
 \>[13]\AgdaFunction{∃[}\AgdaSpace{}%
 \AgdaBound{Γ′}\AgdaSpace{}%
 \AgdaFunction{]}\AgdaSpace{}%
@@ -400,7 +396,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \\
 \>[0]\AgdaFunction{+-assoc-l}%
 \>[11]\AgdaSymbol{:}%
-\>[257I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\>[254I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{Θ}\AgdaSpace{}%
 \AgdaBound{Δ′}\AgdaSpace{}%
@@ -419,7 +415,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaBound{Θ′}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[257I]%
+\>[.][@{}l@{}]\<[254I]%
 \>[13]\AgdaFunction{∃[}\AgdaSpace{}%
 \AgdaBound{Γ′}\AgdaSpace{}%
 \AgdaFunction{]}\AgdaSpace{}%
@@ -613,9 +609,14 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaInductiveConstructor{refl}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+To conclude, we define a predicate $\AgdaDatatype{Un}~\Context$ that holds
+whenever $\Context$ is \emph{unrestricted}, namely when it is made of types of
+the form $?A$. We will need this predicate in the definition of a server, which
+must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
+
+\begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{Un}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -640,7 +641,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Un}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{¿}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSymbol{)}\<%

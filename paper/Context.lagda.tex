@@ -1,8 +1,8 @@
 \begin{code}[hide]
-open import Data.Bool using (Bool; true; false; if_then_else_)
+{-# OPTIONS --rewriting #-}
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
-open import Data.List.Base using (List; []; _∷_; [_]; _++_)
+open import Data.List.Base using (List; []; _∷_; [_]; _++_; map)
 
 open import Type
 \end{code}
@@ -17,7 +17,7 @@ explicitly by a natural number, is computable from the \emph{proof} that the
 type of the channel belong to the typing context.
 %
 Typing contexts are represented using \emph{lists} of types, where the
-(polymorphic) \AgdaDatatype{List} type is defined in Agda′s standard library.
+(polymorphic) \AgdaDatatype{List} type is defined in Agda's standard library.
 
 \begin{code}
 Context : Set
@@ -86,10 +86,7 @@ left and right unit of splitting.
 +-unit-l {_ ∷ _} = split-r +-unit-l
 
 +-unit-r = +-comm +-unit-l
-\end{code}
 
-E QUESTO?
-\begin{code}
 ++≃+ : ∀{Γ Δ} → Γ ++ Δ ≃ Γ + Δ
 ++≃+ {[]} = +-unit-l
 ++≃+ {_ ∷ _} = split-l ++≃+
@@ -123,8 +120,15 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 
 +-sing-l : ∀{A B Γ} → [ A ] ≃ B , Γ → A ≡ B × Γ ≡ []
 +-sing-l (split-l split-e) = refl , refl
+\end{code}
 
+To conclude, we define a predicate $\AgdaDatatype{Un}~\Context$ that holds
+whenever $\Context$ is \emph{unrestricted}, namely when it is made of types of
+the form $?A$. We will need this predicate in the definition of a server, which
+must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
+
+\begin{code}
 data Un : Context → Set where
   un-[]  : Un []
-  un-∷   : ∀{A Γ} → Un Γ → Un (¿ A ∷ Γ)
+  un-∷   : ∀{A Γ} → Un Γ → Un (`? A ∷ Γ)
 \end{code}
