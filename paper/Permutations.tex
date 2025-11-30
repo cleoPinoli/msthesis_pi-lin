@@ -140,9 +140,9 @@ Agda's standard library. Each constructor represents a particular kind of
 permutation: \AgdaInductiveConstructor{refl} for the trivial permutation that
 does not change anything; \AgdaInductiveConstructor{swap} for the permutation
 that swaps the first two elements of a typing context;
-\AgdaInductiveConstructor{prep} for the permutation that applies a
-sub-permutation to the tail of a typing context;
-\AgdaInductiveConstructor{trans} for the sequential composition of permutations.
+\AgdaInductiveConstructor{prep} for the permutation that applies a permutation
+to the tail of a typing context; \AgdaInductiveConstructor{trans} for the
+sequential composition of permutations.
 %
 We have preferred defining our own notion of permutation for simplicity: the
 \AgdaInductiveConstructor{swap} constructor does not need a sub-permutation for
