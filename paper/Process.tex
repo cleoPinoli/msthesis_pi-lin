@@ -1,4 +1,9 @@
 \begin{code}[hide]%
+\>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
+\AgdaKeyword{OPTIONS}\AgdaSpace{}%
+\AgdaPragma{--rewriting}\AgdaSpace{}%
+\AgdaSymbol{\#-\}}\<%
+\\
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
 \AgdaModule{Data.Bool}\AgdaSpace{}%
@@ -59,8 +64,8 @@ CO-DE BRUIJN INDICES
 We adopt an \emph{intrinsically typed} representation of processes, so that a
 process is also a proof derivation showing that the process is well typed. This
 choice increases the effort in the definition of the datatypes for processes and
-their operational semantics, but it pays off in the rest of the formalization
-for a number of reasons:
+their operational semantics, but pays off in the rest of the formalization for a
+number of reasons:
 
 \begin{itemize}
 \item channel names are encoded in the context splitting proofs occurring within
@@ -75,7 +80,6 @@ We now illustrate the definition of the \AgdaDatatype{Process} datatype and
 describe each constructor in detail. The datatype is indexed by a typing
 context:
 
-\begin{AgdaAlign}
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
@@ -86,18 +90,11 @@ context:
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
-\>[3]\AgdaInductiveConstructor{link}%
-\>[13]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{d}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Dual}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{link}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
@@ -105,102 +102,107 @@ context:
 \AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{]}}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\<%
-\end{code}
-
-A \AgdaInductiveConstructor{link} process is well typed in a typing context with
-exactly two types $A$ and $B$ which must be related by duality. We use a proof
-$p$ that $\Context \simeq [A] + [B]$ instead of requiring $\Context$ to be
-simply $[A,B]$ so that it becomes straightforward to define \SLink using
-\AgdaFunction{dual-symm} and \AgdaFunction{+-comm}.
-
-\begin{code}%
+\\
 %
-\>[3]\AgdaInductiveConstructor{fail}%
-\>[13]\AgdaSymbol{:}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{fail}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
 \AgdaInductiveConstructor{⊤}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\<%
-\end{code}
-
-A \AgdaInductiveConstructor{fail} process simply requires the presence of $\Top$
-in the typing context.
-
-\begin{code}%
+\\
 %
-\>[3]\AgdaInductiveConstructor{close}%
-\>[13]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟙}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{]}}\<%
-\end{code}
-
-A \AgdaInductiveConstructor{close} process is well typed in the singleton
-context $[\One]$.
-
-\begin{code}%
-%
-\>[3]\AgdaInductiveConstructor{wait}%
-\>[13]\AgdaSymbol{:}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{wait}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
 \AgdaInductiveConstructor{⊥}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\<%
-\end{code}
-
-A \AgdaInductiveConstructor{wait} process is well typed in any context
-$\ContextC$ that contains $\Bot$ and whose residual $\ContextD$ allows the
-continuation to be well typed.
-
-\begin{code}%
+\\
 %
-\>[3]\AgdaInductiveConstructor{select}%
-\>[13]\AgdaSymbol{:}%
-\>[94I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{close}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
+\AgdaInductiveConstructor{𝟙}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{case}%
+\>[12]\AgdaSymbol{:}%
+\>[89I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{\&}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[.][@{}l@{}]\<[89I]%
+\>[14]\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{select}%
+\>[12]\AgdaSymbol{:}%
+\>[113I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Bool}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⊕}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[94I]%
-\>[15]\AgdaDatatype{Process}\AgdaSpace{}%
+\>[.][@{}l@{}]\<[113I]%
+\>[14]\AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaOperator{\AgdaFunction{if}}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{then}}\AgdaSpace{}%
@@ -212,87 +214,60 @@ continuation to be well typed.
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\<%
-\end{code}
-
-We represent the tags $\InTag_1$ and $\InTag_2$ with Agda′s boolean values
-\AgdaInductiveConstructor{true} and \AgdaInductiveConstructor{false}. In this
-way we can use a single constructor \AgdaInductiveConstructor{select} for the
-selections $\Select\x{\InTag_i}.P$. According to the semantics of \Calculus, the
-channel on which the selection is performed is consumed and the continuation
-process uses a fresh continuation channel. As a consequence, the type of the
-continuation channel, which is either $A$ or $B$ depending on the value of the
-tag $x$, is \emph{prepended} in front of the typing context used to type the
-continuation process.
-
-\begin{code}%
+\\
 %
-\>[3]\AgdaInductiveConstructor{case}%
-\>[13]\AgdaSymbol{:}%
-\>[122I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{join}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{\&}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
-\\
-\>[.][@{}l@{}]\<[122I]%
-\>[15]\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\<%
-\end{code}
-
-A \AgdaInductiveConstructor{case} process has two possible continuations. Note
-again that the continuation channel, which is received along with the tag, has
-either type $A$ or type $B$ depending on the tag and its type is prepended to
-the typing context of the continuation process since it is the newest channel.
-
-\begin{code}%
+\\
 %
-\>[3]\AgdaInductiveConstructor{fork}%
-\>[13]\AgdaSymbol{:}%
-\>[147I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{fork}%
+\>[12]\AgdaSymbol{:}%
+\>[162I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{Γ₁}\AgdaSpace{}%
-\AgdaBound{Γ₂}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{Γ₂}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
 \AgdaBound{Γ₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
-\AgdaBound{Γ₂}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Γ₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[147I]%
-\>[15]\AgdaDatatype{Process}\AgdaSpace{}%
+\>[.][@{}l@{}]\<[162I]%
+\>[14]\AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaBound{Γ₁}\AgdaSymbol{)}\AgdaSpace{}%
@@ -304,7 +279,247 @@ the typing context of the continuation process since it is the newest channel.
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{all}%
+\>[12]\AgdaSymbol{:}%
+\>[194I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[.][@{}l@{}]\<[194I]%
+\>[14]\AgdaSymbol{((}\AgdaBound{B}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{Type}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{subst}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{/\AgdaUnderscore{}]}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{))}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{ex}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
+\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{subst}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{/\AgdaUnderscore{}]}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{server}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
+\AgdaInductiveConstructor{`!}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Un}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{client}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{weaken}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{contract}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaInductiveConstructor{`?}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\\
+%
+\>[2]\AgdaInductiveConstructor{cut}%
+\>[12]\AgdaSymbol{:}%
+\>[319I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Γ₁}\AgdaSpace{}%
+\AgdaBound{Γ₂}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
+\AgdaBound{Γ₁}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
+\AgdaBound{Γ₂}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[.][@{}l@{}]\<[319I]%
+\>[14]\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{Γ₁}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{Γ₂}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
 \end{code}
+
+A \AgdaInductiveConstructor{link} process is well typed in a typing context with
+exactly two types $A$ and $B$ which must be related by duality. We use a proof
+$p$ that $\Context \simeq [A] + [B]$ instead of requiring $\Context$ to be
+simply $[A,B]$ so that it becomes straightforward to define \SLink using
+\AgdaFunction{dual-symm} and \AgdaFunction{+-comm}.
+
+% \begin{code}
+%    fail      : ∀{Γ Δ} (p : Γ ≃ ⊤ , Δ) → Process Γ
+% \end{code}
+
+A \AgdaInductiveConstructor{fail} process simply requires the presence of $\Top$
+in the typing context.
+
+% \begin{code}
+%    close     : Process  [ 𝟙 ]
+% \end{code}
+
+A \AgdaInductiveConstructor{close} process is well typed in the singleton
+context $[\One]$.
+
+% \begin{code}
+%    wait      : ∀{Γ Δ} (p : Γ ≃ ⊥ , Δ) → Process Δ → Process Γ
+% \end{code}
+
+A \AgdaInductiveConstructor{wait} process is well typed in any context
+$\ContextC$ that contains $\Bot$ and whose residual $\ContextD$ allows the
+continuation to be well typed.
+
+% \begin{code}
+%    select    : ∀{A B Γ Δ} (x : Bool) (p : Γ ≃ A ⊕ B , Δ) →
+%                Process ((if x then A else B) ∷ Δ) → Process Γ
+% \end{code}
+
+We represent the tags $\InTag_1$ and $\InTag_2$ with Agda's boolean values
+\AgdaInductiveConstructor{true} and \AgdaInductiveConstructor{false}. In this
+way we can use a single constructor \AgdaInductiveConstructor{select} for the
+selections $\Select\x{\InTag_i}.P$. According to the semantics of \Calculus, the
+channel on which the selection is performed is consumed and the continuation
+process uses a fresh continuation channel. As a consequence, the type of the
+continuation channel, which is either $A$ or $B$ depending on the value of the
+tag $x$, is \emph{prepended} in front of the typing context used to type the
+continuation process.
+
+% \begin{code}
+%    case      : ∀{A B Γ Δ} (p : Γ ≃ A & B , Δ) →
+%                Process (A ∷ Δ) → Process (B ∷ Δ) → Process Γ
+% \end{code}
+
+A \AgdaInductiveConstructor{case} process has two possible continuations. Note
+again that the continuation channel, which is received along with the tag, has
+either type $A$ or type $B$ depending on the tag and its type is prepended to
+the typing context of the continuation process since it is the newest channel.
+
+% \begin{code}
+%    fork      : ∀{A B Γ Δ Γ₁ Γ₂} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Γ₁ + Γ₂) →
+%                Process (A ∷ Γ₁) → Process (B ∷ Γ₂) → Process Γ
+% \end{code}
 
 A \AgdaInductiveConstructor{fork} process creates two fresh continuation
 channels and spaws two continuation processes. Since context splitting is a
@@ -312,36 +527,10 @@ ternary relation, we need two splitting proofs $p$ and $q$ to isolate the type
 $A \Ten B$ of channel on which the pair of continuation channels is sent and to
 distribute the remaining channel across the two continuation processes.
 
-\begin{code}%
-%
-\>[3]\AgdaInductiveConstructor{join}%
-\>[13]\AgdaSymbol{:}%
-\>[181I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
-\\
-\>[.][@{}l@{}]\<[181I]%
-\>[15]\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\<%
-\end{code}
+% \begin{code}
+%    join      : ∀{A B Γ Δ} (p : Γ ≃ A ⅋ B , Δ) → Process (B ∷ A ∷ Δ) →
+%                Process Γ
+% \end{code}
 
 The \AgdaInductiveConstructor{join} process has a single continuation which uses
 the pair of continuation channels received from a channel of type $A \Par B$.
@@ -351,36 +540,10 @@ standpoint, both continuations are bound simultaneously. We could have prepended
 the types $A$ and $B$ also in the opposite order, provided that the reduction
 rule \RFork (formalized in \Cref{sec:reduction-agda}) is suitably adjusted.
 
-\begin{code}%
-%
-\>[3]\AgdaInductiveConstructor{server}%
-\>[13]\AgdaSymbol{:}%
-\>[203I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
-\AgdaInductiveConstructor{¡}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{un}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Un}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
-\\
-\>[.][@{}l@{}]\<[203I]%
-\>[15]\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\<%
-\end{code}
+% \begin{code}
+%    server    : ∀{A Γ Δ} (p : Γ ≃ `! A , Δ) (un : Un Δ) →
+%                Process (A ∷ Δ) → Process Γ
+% \end{code}
 
 A \AgdaInductiveConstructor{server} constructor introduces a channel of type
 $\OfCourse A$ given a continuation process that consumes a channel of type $A$
@@ -388,78 +551,12 @@ and a proof $\mathit{un}$ that every other channel in $\ContextD$ is
 unrestricted.\Luca{Introdurre terminologia e dire che unrestricted vuol dire che
 il canale può essere ``duplicato'' e scartato.}
 
-\begin{code}%
-%
-\>[3]\AgdaInductiveConstructor{client}%
-\>[13]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\<%
-\\
-%
-\>[3]\AgdaInductiveConstructor{weaken}%
-\>[13]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\<%
-\\
-%
-\>[3]\AgdaInductiveConstructor{contract}%
-\>[13]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{¿}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\<%
-\end{code}
+% \begin{code}
+%    client    : ∀{A Γ Δ} (p : Γ ≃ `? A , Δ) → Process (A ∷ Δ) → Process Γ
+%    weaken    : ∀{A Γ Δ} (p : Γ ≃ `? A , Δ) → Process Δ → Process Γ
+%    contract  : ∀{A Γ Δ} (p : Γ ≃ `? A , Δ) → Process (`? A ∷ `? A ∷ Δ) →
+%                Process Γ
+% \end{code}
 
 The constructors \AgdaInductiveConstructor{client},
 \AgdaInductiveConstructor{weaken} and \AgdaInductiveConstructor{contract}
@@ -473,49 +570,19 @@ continuation process. In a pen-and-paper presentation, like the one by
 Wadler~\citep{Wadler14}, it is arguably more convenient to have weaking and
 contraction typing rules without the corresponding process forms.
 
-\begin{code}%
-%
-\>[3]\AgdaInductiveConstructor{cut}%
-\>[13]\AgdaSymbol{:}%
-\>[284I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{Γ₁}\AgdaSpace{}%
-\AgdaBound{Γ₂}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{d}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Dual}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{p}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
-\AgdaBound{Γ₁}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
-\AgdaBound{Γ₂}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
-\\
-\>[.][@{}l@{}]\<[284I]%
-\>[15]\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Γ₁}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Γ₂}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaBound{Γ}\<%
-\end{code}
+% \begin{code}
+%    cut       : ∀{A Γ Γ₁ Γ₂} (p : Γ ≃ Γ₁ + Γ₂) →
+%                Process (A ∷ Γ₁) → Process (dual A ∷ Γ₂) → Process Γ
+
+%    all       : ∀{A Γ Δ} (p : Γ ≃ `∀ A , Δ) →
+%                ((B : Type) → Process (subst [ B /_] A ∷ Δ)) → Process Γ
+%    ex        : ∀{A B Γ Δ} (p : Γ ≃ `∃ A , Δ) →
+%                Process (subst [ B /_] A ∷ Δ) → Process Γ
+% \end{code}
 
 A \AgdaInductiveConstructor{cut} process incorporates a duality proof for the
 peer endpoints of the channel being restricted and a splitting proof that
 distributes the free channels among the two parallel processes.
-
-\end{AgdaAlign}
 
 Permutations preserve process typeability. In a sense we can read this property
 as the fact that we can rename channels at will.
@@ -540,7 +607,6 @@ as the fact that we can rename channels at will.
 \>[0]\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{link}\AgdaSpace{}%
-\AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
 \AgdaFunction{\#one+}\AgdaSpace{}%
@@ -563,21 +629,7 @@ as the fact that we can rename channels at will.
 \AgdaInductiveConstructor{refl}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{link}\AgdaSpace{}%
-\AgdaBound{d}\AgdaSpace{}%
 \AgdaBound{q}\<%
-\\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaBound{π}\AgdaSpace{}%
-\AgdaInductiveConstructor{close}\AgdaSpace{}%
-\AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#singleton-inv}\AgdaSpace{}%
-\AgdaBound{π}\<%
-\\
-\>[0]\AgdaSymbol{...}\AgdaSpace{}%
-\AgdaSymbol{|}\AgdaSpace{}%
-\AgdaInductiveConstructor{refl}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{close}\<%
 \\
 \>[0]\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
@@ -625,30 +677,16 @@ as the fact that we can rename channels at will.
 \\
 \>[0]\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{select}\AgdaSpace{}%
-\AgdaBound{x}\AgdaSpace{}%
-\AgdaBound{p}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaInductiveConstructor{close}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
-\AgdaBound{π}\AgdaSpace{}%
-\AgdaBound{p}\<%
+\AgdaFunction{\#singleton-inv}\AgdaSpace{}%
+\AgdaBound{π}\<%
 \\
 \>[0]\AgdaSymbol{...}\AgdaSpace{}%
 \AgdaSymbol{|}\AgdaSpace{}%
-\AgdaBound{Δ′}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaBound{q}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaBound{π′}\AgdaSpace{}%
+\AgdaInductiveConstructor{refl}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{select}\AgdaSpace{}%
-\AgdaBound{x}\AgdaSpace{}%
-\AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
-\AgdaBound{π′}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSymbol{)}\<%
+\AgdaInductiveConstructor{close}\<%
 \\
 \>[0]\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
@@ -679,6 +717,59 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaBound{π}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{select}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaBound{p}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaKeyword{with}\AgdaSpace{}%
+\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaBound{π}\AgdaSpace{}%
+\AgdaBound{p}\<%
+\\
+\>[0]\AgdaSymbol{...}\AgdaSpace{}%
+\AgdaSymbol{|}\AgdaSpace{}%
+\AgdaBound{Δ′}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{q}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{π′}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{select}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSpace{}%
+\AgdaBound{q}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaBound{π′}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaBound{π}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{join}\AgdaSpace{}%
+\AgdaBound{p}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaKeyword{with}\AgdaSpace{}%
+\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaBound{π}\AgdaSpace{}%
+\AgdaBound{p}\<%
+\\
+\>[0]\AgdaSymbol{...}\AgdaSpace{}%
+\AgdaSymbol{|}\AgdaSpace{}%
+\AgdaBound{Δ′}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{q}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{π′}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{join}\AgdaSpace{}%
+\AgdaBound{q}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaBound{π′}\AgdaSymbol{))}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSymbol{)}\<%
 \\
 \>[0]\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
@@ -730,7 +821,7 @@ as the fact that we can rename channels at will.
 \\
 \>[0]\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{join}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{all}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
@@ -740,55 +831,47 @@ as the fact that we can rename channels at will.
 \\
 \>[0]\AgdaSymbol{...}\AgdaSpace{}%
 \AgdaSymbol{|}\AgdaSpace{}%
-\AgdaBound{Δ′}\AgdaSpace{}%
+\AgdaBound{Δ'}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaBound{π′}\AgdaSpace{}%
+\AgdaBound{π'}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{join}\AgdaSpace{}%
+\AgdaInductiveConstructor{all}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaSymbol{λ}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
-\AgdaBound{π′}\AgdaSymbol{))}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSymbol{)}\<%
+\AgdaBound{π'}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{)}\<%
 \\
 \>[0]\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{cut}\AgdaSpace{}%
-\AgdaBound{d}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{ex}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#split}\AgdaSpace{}%
+\AgdaFunction{\#one+}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
 \>[0]\AgdaSymbol{...}\AgdaSpace{}%
 \AgdaSymbol{|}\AgdaSpace{}%
-\AgdaBound{Δ₁}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaBound{Δ₂}\AgdaSpace{}%
+\AgdaBound{Δ'}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaBound{π₁}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaBound{π₂}\AgdaSpace{}%
+\AgdaBound{π'}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{cut}\AgdaSpace{}%
-\AgdaBound{d}\AgdaSpace{}%
+\AgdaInductiveConstructor{ex}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
-\AgdaBound{π₁}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
-\AgdaBound{π₂}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSymbol{)}\<%
+\AgdaBound{π'}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSymbol{)}\<%
 \\
 \>[0]\AgdaFunction{\#process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
@@ -893,4 +976,38 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaBound{π}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{cut}\AgdaSpace{}%
+\AgdaBound{p}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaKeyword{with}\AgdaSpace{}%
+\AgdaFunction{\#split}\AgdaSpace{}%
+\AgdaBound{π}\AgdaSpace{}%
+\AgdaBound{p}\<%
+\\
+\>[0]\AgdaSymbol{...}\AgdaSpace{}%
+\AgdaSymbol{|}\AgdaSpace{}%
+\AgdaBound{Δ₁}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{Δ₂}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{q}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{π₁}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{π₂}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{cut}\AgdaSpace{}%
+\AgdaBound{q}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaBound{π₁}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaBound{π₂}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSymbol{)}\<%
 \end{code}

@@ -38,34 +38,24 @@ infix 4 _≃_+_ _≃_,_
 \end{code}
 \begin{code}
 data _≃_+_ : Context → Context → Context → Set where
-  split-e  : [] ≃ [] + []
-  split-l  : ∀{A Γ Δ Θ} → Γ ≃ Δ + Θ → A ∷ Γ ≃ A ∷ Δ + Θ
-  split-r  : ∀{A Γ Δ Θ} → Γ ≃ Δ + Θ → A ∷ Γ ≃ Δ + A ∷ Θ
+  •   : [] ≃ [] + []
+  <_  : ∀{A Γ Δ Θ} → Γ ≃ Δ + Θ → A ∷ Γ ≃ A ∷ Δ + Θ
+  >_  : ∀{A Γ Δ Θ} → Γ ≃ Δ + Θ → A ∷ Γ ≃ Δ + A ∷ Θ
 \end{code}
 
-As an example, below is the splitting of the context $[A, B, C, D]$ into $[A,
-D]$ and $[B, C]$. Note how the sequence of \AgdaInductiveConstructor{split-l}
-and \AgdaInductiveConstructor{split-r} applications determines where each of the
-types in $[A, B, C, D]$ ends up in $[A, D]$ and $[B, C]$.
+When splitting a context $\Context$ into $\ContextD + \ContextE$,
+for each type in $\Context$ we use one of the prefix operators \AgdaInductiveConstructor{<\_} and \AgdaInductiveConstructor{>\_} to indicate whether it is meant to be placed in $\ContextD$ or $\ContextE$,
+respectively.
+%
+As an example, below is the splitting of the context $[A, B, C, D]$ into $[B] + [A, C, D]$.
 
 \begin{code}[hide]
 module _ where
   postulate A B C D : Type
 \end{code}
 \begin{code}
-  splitting-example : (A ∷ B ∷ C ∷ D ∷ []) ≃ (A ∷ D ∷ []) + (B ∷ C ∷ [])
-  splitting-example = split-l (split-r (split-r (split-l split-e)))
-\end{code}
-
-It is often the case that the context $\ContextD$ in a splitting
-$\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. For this
-particular case, we introduce a dedicated notation that allows us to represent
-this case in a more compact and readable way, as
-$\SimpleSplitting\ContextC{A}\ContextE$.
-
-\begin{code}
-_≃_,_ : Context → Type → Context → Set
-Γ ≃ A , Δ = Γ ≃ [ A ] + Δ
+  splitting-example₁ : (A ∷ B ∷ C ∷ D ∷ []) ≃ (B ∷ []) + (A ∷ C ∷ D ∷ [])
+  splitting-example₁ = > < > > •
 \end{code}
 
 Context splitting enjoys a number of expected properties. In particular, it is
@@ -74,22 +64,22 @@ left and right unit of splitting.
 
 \begin{code}
 +-comm    : ∀{Γ Δ Θ} → Γ ≃ Δ + Θ → Γ ≃ Θ + Δ
-+-unit-l  : ∀{Γ} → Γ ≃ [] + Γ
-+-unit-r  : ∀{Γ} → Γ ≃ Γ + []
+≫         : ∀{Γ} → Γ ≃ [] + Γ
+≪         : ∀{Γ} → Γ ≃ Γ + []
 \end{code}
 \begin{code}[hide]
-+-comm split-e = split-e
-+-comm (split-l p) = split-r (+-comm p)
-+-comm (split-r p) = split-l (+-comm p)
-
-+-unit-l {[]} = split-e
-+-unit-l {_ ∷ _} = split-r +-unit-l
-
-+-unit-r = +-comm +-unit-l
++-comm • = •
++-comm (< p) = > (+-comm p)
++-comm (> p) = < (+-comm p)
 
 ++≃+ : ∀{Γ Δ} → Γ ++ Δ ≃ Γ + Δ
-++≃+ {[]} = +-unit-l
-++≃+ {_ ∷ _} = split-l ++≃+
+++≃+ {[]}    {[]}    = •
+++≃+ {[]}    {_ ∷ _} = > ++≃+
+++≃+ {_ ∷ _} {_}     = < ++≃+
+
+≫ = ++≃+ {[]}
+
+≪ = +-comm ≫
 \end{code}
 
 Context splitting is also associative in a sense that is made precise below. If
@@ -103,23 +93,48 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
              ∃[ Γ′ ] Γ′ ≃ Θ′ + Θ × Γ ≃ Δ′ + Γ′
 \end{code}
 \begin{code}[hide]
-+-assoc-r split-e split-e = [] , split-e , split-e
-+-assoc-r (split-l p) q with +-assoc-r p q
-... | _ , p′ , q′ = _ , split-l p′ , split-l q′
-+-assoc-r (split-r p) (split-l q) with +-assoc-r p q
-... | _ , p′ , q′ = _ , split-r p′ , split-l q′
-+-assoc-r (split-r p) (split-r q) with +-assoc-r p q
-... | _ , p′ , q′ = _ , p′ , split-r q′
++-assoc-r • • = [] , • , •
++-assoc-r (< p) q with +-assoc-r p q
+... | _ , p′ , q′ = _ , < p′ , < q′
++-assoc-r (> p) (< q) with +-assoc-r p q
+... | _ , p′ , q′ = _ , > p′ , < q′
++-assoc-r (> p) (> q) with +-assoc-r p q
+... | _ , p′ , q′ = _ , p′ , > q′
 
 +-assoc-l p q with +-assoc-r (+-comm p) (+-comm q)
 ... | Δ , r , p′ = Δ , +-comm r , +-comm p′
+\end{code}
 
+It is often the case that the context $\ContextD$ in a splitting
+$\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. For this
+particular case, we introduce a dedicated notation that allows us to represent
+this case in a more compact and readable way, as
+$\SimpleSplitting\ContextC{A}\ContextE$.
+
+\begin{code}
+_≃_,_ : Context → Type → Context → Set
+Γ ≃ A , Δ = Γ ≃ [ A ] + Δ
+\end{code}
+\begin{code}[hide]
 +-empty-l : ∀{Γ Δ} → Γ ≃ [] + Δ → Γ ≡ Δ
-+-empty-l split-e = refl
-+-empty-l (split-r p) = cong (_ ∷_) (+-empty-l p)
++-empty-l • = refl
++-empty-l (> p) = cong (_ ∷_) (+-empty-l p)
 
 +-sing-l : ∀{A B Γ} → [ A ] ≃ B , Γ → A ≡ B × Γ ≡ []
-+-sing-l (split-l split-e) = refl , refl
++-sing-l (< •) = refl , refl
+\end{code}
+
+Note that, when specifying a splitting $\SimpleSplitting\ContextC{A}\ContextE$, it may be convenient
+to use \AgdaFunction{≫} as a shortcut for a sequence of applications of \AgdaInductiveConstructor{>\_}
+after the $A$ type has been reached. For instance, the same sample splitting shown earlier can be
+written equivalently and in a more compact way as shown below. More examples will be given in \Cref{sec:examples}.
+
+\begin{code}[hide]
+module _ where
+\end{code}
+\begin{code}
+  splitting-example₂ : (A ∷ B ∷ C ∷ D ∷ []) ≃ (B ∷ []) + (A ∷ C ∷ D ∷ [])
+  splitting-example₂ = > < ≫
 \end{code}
 
 To conclude, we define a predicate $\AgdaDatatype{Un}~\Context$ that holds

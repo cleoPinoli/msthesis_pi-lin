@@ -71,29 +71,22 @@ usage in the rest of the code.
 Just like permutations from Agda's standard library, also \AgdaDatatype{\_\#\_}
 enjoys a number of expected (and useful) properties, such as symmetry. Among all
 properties, in the following we will make use of a specific one that connects
-context splitting and permutations: if $\Context \simeq A, \ContextD$, then
-$\Context$ must be a permutation of
-$A~\AgdaInductiveConstructor{∷}~\ContextD$.\Luca{Ci sono molte altre proprietà
-non descritte, controllare quelle che servono davvero.}
-
-\begin{code}
-#cons : ∀{A Γ Δ} → Γ ≃ A , Δ → (A ∷ Δ) # Γ
-#cons (split-l p) with +-empty-l p
-... | refl = #refl
-#cons (split-r p) = #tran #here (#next (#cons p))
-\end{code}
+context splitting and permutations: if $\Splitting\ContextC\ContextD\ContextE$,
+then $\ContextC$ is a permutation of the concatenation of $\ContextD$ and
+$\ContextE$.\Luca{Ci sono molte altre proprietà non descritte, controllare
+quelle che servono davvero.}
 
 \begin{code}[hide]
 #split : ∀{Γ Γ₁ Γ₂ Δ} → Γ # Δ → Γ ≃ Γ₁ + Γ₂ → ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ # Δ₁ × Γ₂ # Δ₂)
 #split #refl p = _ , _ , p , #refl , #refl
-#split (#next π) (split-l p) with #split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = _ ∷ Δ₁ , Δ₂ , split-l q , #next π₁ , π₂
-#split (#next π) (split-r p) with #split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = Δ₁ , _ ∷ Δ₂ , split-r q , π₁ , #next π₂
-#split #here (split-l (split-l p)) = _ , _ , split-l (split-l p) , #here , #refl
-#split #here (split-l (split-r p)) = _ , _ , split-r (split-l p) , #refl , #refl
-#split #here (split-r (split-l p)) = _ , _ , split-l (split-r p) , #refl , #refl
-#split #here (split-r (split-r p)) = _ , _ , split-r (split-r p) , #refl , #here
+#split (#next π) (< p) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = _ ∷ Δ₁ , Δ₂ , < q , #next π₁ , π₂
+#split (#next π) (> p) with #split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = Δ₁ , _ ∷ Δ₂ , > q , π₁ , #next π₂
+#split #here (< < p) = _ , _ , < < p , #here , #refl
+#split #here (< > p) = _ , _ , > < p , #refl , #refl
+#split #here (> < p) = _ , _ , < > p , #refl , #refl
+#split #here (> > p) = _ , _ , > > p , #refl , #here
 #split (#tran π π′) p with #split π p
 ... | Θ₁ , Θ₂ , p′ , π₁ , π₂ with #split π′ p′
 ... | Δ₁ , Δ₂ , q , π₁′ , π₂′ = Δ₁ , Δ₂ , q , #tran π₁ π₁′ , #tran π₂ π₂′
@@ -105,11 +98,15 @@ non descritte, controllare quelle che servono davvero.}
 #shift : ∀{A Γ Δ} → (Γ ++ A ∷ Δ) # (A ∷ Γ ++ Δ)
 #shift {_} {[]} = #refl
 #shift {_} {B ∷ Γ} = #tran (#next #shift) #here
+\end{code}
 
-+++# : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → (Γ₁ ++ Γ₂) # Γ
-+++# split-e = #refl
-+++# (split-l p) = #next (+++# p)
-+++# (split-r p) = #tran #shift (#next (+++# p))
+\begin{code}
+#append : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → (Γ₁ ++ Γ₂) # Γ
+\end{code}
+\begin{code}[hide]
+#append • = #refl
+#append (< p) = #next (#append p)
+#append (> p) = #tran #shift (#next (#append p))
 
 #left : ∀{Γ Δ Θ} → Γ # Δ → (Θ ++ Γ) # (Θ ++ Δ)
 #left {Θ = []} π = π
@@ -122,7 +119,7 @@ non descritte, controllare quelle che servono davvero.}
 #un (#tran π π′) un = #un π′ (#un π un)
 
 #un+ : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → Un Γ₁ → Un Γ₂ → Un Γ
-#un+ split-e un-[] un-[] = un-[]
-#un+ (split-l p) (un-∷ un₁) un₂ = un-∷ (#un+ p un₁ un₂)
-#un+ (split-r p) un₁ (un-∷ un₂) = un-∷ (#un+ p un₁ un₂)
+#un+ • un-[] un-[] = un-[]
+#un+ (< p) (un-∷ un₁) un₂ = un-∷ (#un+ p un₁ un₂)
+#un+ (> p) un₁ (un-∷ un₂) = un-∷ (#un+ p un₁ un₂)
 \end{code}

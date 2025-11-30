@@ -8,4 +8,5 @@
 *.gz
 *.fdb*
 *.bbl
+*.ptb
 *~
