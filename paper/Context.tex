@@ -658,7 +658,7 @@ written equivalently and in a more compact way as shown below. More examples wil
 \AgdaFunction{≫}\<%
 \end{code}
 
-To conclude, we define a predicate $\AgdaDatatype{Un}~\Context$ that holds
+To conclude the modeling of typing contexts, we define a predicate $\AgdaDatatype{Un}~\Context$ that holds
 whenever $\Context$ is \emph{unrestricted}, namely when it is made of types of
 the form $?A$. We will need this predicate in the definition of a server, which
 must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
@@ -692,4 +692,64 @@ must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSymbol{)}\<%
+\end{code}
+
+It is a simple fact that the merging of two unrestricted contexts
+$\Context_1$ and $\Context_2$ results in an unrestricted context.\Luca{Serve?}
+
+\begin{code}%
+\>[0]\AgdaFunction{+-un}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Γ₁}\AgdaSpace{}%
+\AgdaBound{Γ₂}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
+\AgdaBound{Γ₁}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
+\AgdaBound{Γ₂}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Un}\AgdaSpace{}%
+\AgdaBound{Γ₁}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Un}\AgdaSpace{}%
+\AgdaBound{Γ₂}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Un}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\end{code}
+\begin{code}[hide]%
+\>[0]\AgdaFunction{+-un}\AgdaSpace{}%
+\AgdaInductiveConstructor{•}\AgdaSpace{}%
+\AgdaInductiveConstructor{un-[]}\AgdaSpace{}%
+\AgdaInductiveConstructor{un-[]}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{un-[]}\<%
+\\
+\>[0]\AgdaFunction{+-un}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
+\AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{un-∷}\AgdaSpace{}%
+\AgdaBound{un₁}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{un₂}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{un-∷}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{+-un}\AgdaSpace{}%
+\AgdaBound{p}\AgdaSpace{}%
+\AgdaBound{un₁}\AgdaSpace{}%
+\AgdaBound{un₂}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaFunction{+-un}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
+\AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{un₁}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{un-∷}\AgdaSpace{}%
+\AgdaBound{un₂}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{un-∷}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{+-un}\AgdaSpace{}%
+\AgdaBound{p}\AgdaSpace{}%
+\AgdaBound{un₁}\AgdaSpace{}%
+\AgdaBound{un₂}\AgdaSymbol{)}\<%
 \end{code}

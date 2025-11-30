@@ -137,7 +137,7 @@ module _ where
   splitting-example₂ = > < ≫
 \end{code}
 
-To conclude, we define a predicate $\AgdaDatatype{Un}~\Context$ that holds
+To conclude the modeling of typing contexts, we define a predicate $\AgdaDatatype{Un}~\Context$ that holds
 whenever $\Context$ is \emph{unrestricted}, namely when it is made of types of
 the form $?A$. We will need this predicate in the definition of a server, which
 must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
@@ -146,4 +146,16 @@ must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
 data Un : Context → Set where
   un-[]  : Un []
   un-∷   : ∀{A Γ} → Un Γ → Un (`? A ∷ Γ)
+\end{code}
+
+It is a simple fact that the merging of two unrestricted contexts
+$\Context_1$ and $\Context_2$ results in an unrestricted context.\Luca{Serve?}
+
+\begin{code}
++-un : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → Un Γ₁ → Un Γ₂ → Un Γ
+\end{code}
+\begin{code}[hide]
++-un • un-[] un-[] = un-[]
++-un (< p) (un-∷ un₁) un₂ = un-∷ (+-un p un₁ un₂)
++-un (> p) un₁ (un-∷ un₂) = un-∷ (+-un p un₁ un₂)
 \end{code}

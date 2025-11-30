@@ -61,24 +61,38 @@
 
 CO-DE BRUIJN INDICES
 
-We adopt an \emph{intrinsically typed} representation of processes, so that a
-process is also a proof derivation showing that the process is well typed. This
-choice increases the effort in the definition of the datatypes for processes and
-their operational semantics, but pays off in the rest of the formalization for a
-number of reasons:
-
+We adopt a \emph{nameless, intrinsically typed} representation of processes,
+that is: a channel is identified simply by the presence of its type in the
+typing context; a process is also a proof derivation showing that the process is
+well typed. This choice increases the effort in the definition of the datatypes
+for processes and their operational semantics, but pays off in the rest of the
+formalization for a number of reasons:
 \begin{itemize}
-\item channel names are encoded in the context splitting proofs occurring within
-  processes, hence they do not need to be represented explicitly.
-\item processes and typing rules are conflated in the same datatype, thus
-  reducing the overall number of datatypes in the formalization;
-\item the typing preservation results are embedded in the definition of the
-  operational semantics of processes and do not need to be proved separately.
+\item we use context splitting not only to separate resources used by parallel
+  processes (\cf \ForkRule and \CutRule), but also to witness that a channel is
+  present in the typing context;
+\item we conflate processes and typing rules in the same datatype, thus reducing
+  the overall number of datatypes defined in the formalization;
+\item we embed the typing preservation results within the very definition of the
+  operational semantics of processes instead of proving them separately
+  (\Cref{sec:agda-semantics}).
 \end{itemize}
 
+Our nameless modeling of channels is known in the literature as the \emph{co-de
+Bruijn} representation~\cite{McBride18}. The proof that the type of a channel is
+found within a typing context essentially encodes the de Bruijn index of the
+channel in the typing context of a given process. However, the typing context
+only contains types for those channels that actually occur in the process.
+Context splitting makes sure that channels are appropriately (and above all
+linearly) distributed among sub-processes, so that each channel occurs (and is
+used) exactly once.\footnote{Strictly speaking, the typing context of a
+\AgdaInductiveConstructor{fail} process may contain channels that do not occur
+(and therefore are not used) by the process, but we consider this case as an
+exception that does not alter in a substantial way the provided intuition
+underlying the use of co-de Bruijn representation.}
+
 We now illustrate the definition of the \AgdaDatatype{Process} datatype and
-describe each constructor in detail. The datatype is indexed by a typing
-context:
+describe its key aspects in detail. The datatype is indexed by a typing context:
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -96,11 +110,9 @@ context:
 \AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaFunction{dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
@@ -153,7 +165,7 @@ context:
 %
 \>[2]\AgdaInductiveConstructor{case}%
 \>[12]\AgdaSymbol{:}%
-\>[89I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[87I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -167,7 +179,7 @@ context:
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[89I]%
+\>[.][@{}l@{}]\<[87I]%
 \>[14]\AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
@@ -184,7 +196,7 @@ context:
 %
 \>[2]\AgdaInductiveConstructor{select}%
 \>[12]\AgdaSymbol{:}%
-\>[113I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[111I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -201,7 +213,7 @@ context:
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[113I]%
+\>[.][@{}l@{}]\<[111I]%
 \>[14]\AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaOperator{\AgdaFunction{if}}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSpace{}%
@@ -244,7 +256,7 @@ context:
 %
 \>[2]\AgdaInductiveConstructor{fork}%
 \>[12]\AgdaSymbol{:}%
-\>[162I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[160I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
@@ -266,7 +278,7 @@ context:
 \AgdaBound{Γ₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[162I]%
+\>[.][@{}l@{}]\<[160I]%
 \>[14]\AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
@@ -283,7 +295,7 @@ context:
 %
 \>[2]\AgdaInductiveConstructor{all}%
 \>[12]\AgdaSymbol{:}%
-\>[194I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[192I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -295,7 +307,7 @@ context:
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[194I]%
+\>[.][@{}l@{}]\<[192I]%
 \>[14]\AgdaSymbol{((}\AgdaBound{B}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Type}\AgdaSymbol{)}\AgdaSpace{}%
@@ -435,7 +447,7 @@ context:
 %
 \>[2]\AgdaInductiveConstructor{cut}%
 \>[12]\AgdaSymbol{:}%
-\>[319I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[317I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Γ₁}\AgdaSpace{}%
 \AgdaBound{Γ₂}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -447,7 +459,7 @@ context:
 \AgdaBound{Γ₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[319I]%
+\>[.][@{}l@{}]\<[317I]%
 \>[14]\AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
@@ -588,13 +600,13 @@ Permutations preserve process typeability. In a sense we can read this property
 as the fact that we can rename channels at will.
 
 \begin{code}%
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{\#}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↭}}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
@@ -604,12 +616,12 @@ as the fact that we can rename channels at will.
 \AgdaBound{Δ}\<%
 \end{code}
 \begin{code}[hide]%
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{link}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -620,23 +632,19 @@ as the fact that we can rename channels at will.
 \AgdaBound{q}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSpace{}%
-\AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#singleton-inv}\AgdaSpace{}%
-\AgdaBound{π′}\<%
-\\
-\>[0]\AgdaSymbol{...}\AgdaSpace{}%
-\AgdaSymbol{|}\AgdaSpace{}%
-\AgdaInductiveConstructor{refl}\AgdaSpace{}%
+\AgdaKeyword{rewrite}\AgdaSpace{}%
+\AgdaFunction{↭solo-inv}\AgdaSpace{}%
+\AgdaBound{π′}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{link}\AgdaSpace{}%
 \AgdaBound{q}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{fail}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -651,13 +659,13 @@ as the fact that we can rename channels at will.
 \AgdaInductiveConstructor{fail}\AgdaSpace{}%
 \AgdaBound{q}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{wait}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -671,31 +679,27 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{wait}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaInductiveConstructor{close}\AgdaSpace{}%
-\AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#singleton-inv}\AgdaSpace{}%
-\AgdaBound{π}\<%
-\\
-\>[0]\AgdaSymbol{...}\AgdaSpace{}%
-\AgdaSymbol{|}\AgdaSpace{}%
-\AgdaInductiveConstructor{refl}\AgdaSpace{}%
+\AgdaKeyword{rewrite}\AgdaSpace{}%
+\AgdaFunction{↭solo-inv}\AgdaSpace{}%
+\AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{close}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{case}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -709,23 +713,23 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{case}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{select}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -740,18 +744,18 @@ as the fact that we can rename channels at will.
 \AgdaInductiveConstructor{select}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{join}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -765,13 +769,13 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{join}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{fork}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
@@ -779,7 +783,7 @@ as the fact that we can rename channels at will.
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -791,7 +795,7 @@ as the fact that we can rename channels at will.
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#split}\AgdaSpace{}%
+\AgdaFunction{↭split}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSpace{}%
 \AgdaBound{q}\<%
 \\
@@ -810,22 +814,22 @@ as the fact that we can rename channels at will.
 \AgdaInductiveConstructor{fork}\AgdaSpace{}%
 \AgdaBound{p′}\AgdaSpace{}%
 \AgdaBound{q′}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π₁}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{all}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -842,19 +846,19 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{λ}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π'}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{ex}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -868,19 +872,19 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{ex}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π'}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{server}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -894,21 +898,21 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{server}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#un}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭un}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSpace{}%
 \AgdaBound{un}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{client}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -922,18 +926,18 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{client}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{weaken}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -947,17 +951,17 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{weaken}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{contract}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#one+}\AgdaSpace{}%
+\AgdaFunction{↭solo}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -971,20 +975,20 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{contract}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π′}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{\#process}\AgdaSpace{}%
+\>[0]\AgdaFunction{↭process}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{cut}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
-\AgdaFunction{\#split}\AgdaSpace{}%
+\AgdaFunction{↭split}\AgdaSpace{}%
 \AgdaBound{π}\AgdaSpace{}%
 \AgdaBound{p}\<%
 \\
@@ -1002,12 +1006,12 @@ as the fact that we can rename channels at will.
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{cut}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π₁}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{\#process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{\#next}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
 \AgdaBound{π₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSymbol{)}\<%
 \end{code}

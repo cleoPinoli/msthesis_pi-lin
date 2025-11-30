@@ -15,28 +15,42 @@ open import Permutations
 
 CO-DE BRUIJN INDICES
 
-We adopt an \emph{intrinsically typed} representation of processes, so that a
-process is also a proof derivation showing that the process is well typed. This
-choice increases the effort in the definition of the datatypes for processes and
-their operational semantics, but pays off in the rest of the formalization for a
-number of reasons:
-
+We adopt a \emph{nameless, intrinsically typed} representation of processes,
+that is: a channel is identified simply by the presence of its type in the
+typing context; a process is also a proof derivation showing that the process is
+well typed. This choice increases the effort in the definition of the datatypes
+for processes and their operational semantics, but pays off in the rest of the
+formalization for a number of reasons:
 \begin{itemize}
-\item channel names are encoded in the context splitting proofs occurring within
-  processes, hence they do not need to be represented explicitly.
-\item processes and typing rules are conflated in the same datatype, thus
-  reducing the overall number of datatypes in the formalization;
-\item the typing preservation results are embedded in the definition of the
-  operational semantics of processes and do not need to be proved separately.
+\item we use context splitting not only to separate resources used by parallel
+  processes (\cf \ForkRule and \CutRule), but also to witness that a channel is
+  present in the typing context;
+\item we conflate processes and typing rules in the same datatype, thus reducing
+  the overall number of datatypes defined in the formalization;
+\item we embed the typing preservation results within the very definition of the
+  operational semantics of processes instead of proving them separately
+  (\Cref{sec:agda-semantics}).
 \end{itemize}
 
+Our nameless modeling of channels is known in the literature as the \emph{co-de
+Bruijn} representation~\cite{McBride18}. The proof that the type of a channel is
+found within a typing context essentially encodes the de Bruijn index of the
+channel in the typing context of a given process. However, the typing context
+only contains types for those channels that actually occur in the process.
+Context splitting makes sure that channels are appropriately (and above all
+linearly) distributed among sub-processes, so that each channel occurs (and is
+used) exactly once.\footnote{Strictly speaking, the typing context of a
+\AgdaInductiveConstructor{fail} process may contain channels that do not occur
+(and therefore are not used) by the process, but we consider this case as an
+exception that does not alter in a substantial way the provided intuition
+underlying the use of co-de Bruijn representation.}
+
 We now illustrate the definition of the \AgdaDatatype{Process} datatype and
-describe each constructor in detail. The datatype is indexed by a typing
-context:
+describe its key aspects in detail. The datatype is indexed by a typing context:
 
 \begin{code}
 data Process : Context → Set where
-  link      : ∀{A Γ} → Γ ≃ [ A ] + [ dual A ] → Process Γ
+  link      : ∀{A Γ} → Γ ≃ A , [ dual A ] → Process Γ
   fail      : ∀{Γ Δ} → Γ ≃ ⊤ , Δ → Process Γ
   wait      : ∀{Γ Δ} → Γ ≃ ⊥ , Δ → Process Δ → Process Γ
   close     : Process [ 𝟙 ]
@@ -183,39 +197,37 @@ Permutations preserve process typeability. In a sense we can read this property
 as the fact that we can rename channels at will.
 
 \begin{code}
-#process : ∀{Γ Δ} → Γ # Δ → Process Γ → Process Δ
+↭process : ∀{Γ Δ} → Γ ↭ Δ → Process Γ → Process Δ
 \end{code}
 \begin{code}[hide]
-#process π (link p) with #one+ π p
-... | Δ′ , q , π′ with #singleton-inv π′
-... | refl = link q
-#process π (fail p) with #one+ π p
+↭process π (link p) with ↭solo π p
+... | Δ′ , q , π′ rewrite ↭solo-inv π′ = link q
+↭process π (fail p) with ↭solo π p
 ... | Δ′ , q , π′ = fail q
-#process π (wait p P) with #one+ π p
-... | Δ′ , q , π′ = wait q (#process π′ P)
-#process π close with #singleton-inv π
-... | refl = close
-#process π (case p P Q) with #one+ π p
-... | Δ′ , q , π′ = case q (#process (#next π′) P) (#process (#next π′) Q)
-#process π (select x p P) with #one+ π p
-... | Δ′ , q , π′ = select x q (#process (#next π′) P)
-#process π (join p P) with #one+ π p
-... | Δ′ , q , π′ = join q (#process (#next (#next π′)) P)
-#process π (fork p q P Q) with #one+ π p
-... | Δ′ , p′ , π′ with #split π′ q
-... | Δ₁ , Δ₂ , q′ , π₁ , π₂ = fork p′ q′ (#process (#next π₁) P) (#process (#next π₂) Q)
-#process π (all p P) with #one+ π p
-... | Δ' , q , π' = all q λ B → #process (#next π') (P B)
-#process π (ex p P) with #one+ π p
-... | Δ' , q , π' = ex q (#process (#next π') P)
-#process π (server p un P) with #one+ π p
-... | Δ′ , q , π′ = server q (#un π′ un) (#process (#next π′) P)
-#process π (client p P) with #one+ π p
-... | Δ′ , q , π′ = client q (#process (#next π′) P)
-#process π (weaken p P) with #one+ π p
-... | Δ′ , q , π′ = weaken q (#process π′ P)
-#process π (contract p P) with #one+ π p
-... | Δ′ , q , π′ = contract q (#process (#next (#next π′)) P)
-#process π (cut p P Q) with #split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut q (#process (#next π₁) P) (#process (#next π₂) Q)
+↭process π (wait p P) with ↭solo π p
+... | Δ′ , q , π′ = wait q (↭process π′ P)
+↭process π close rewrite ↭solo-inv π = close
+↭process π (case p P Q) with ↭solo π p
+... | Δ′ , q , π′ = case q (↭process (prep π′) P) (↭process (prep π′) Q)
+↭process π (select x p P) with ↭solo π p
+... | Δ′ , q , π′ = select x q (↭process (prep π′) P)
+↭process π (join p P) with ↭solo π p
+... | Δ′ , q , π′ = join q (↭process (prep (prep π′)) P)
+↭process π (fork p q P Q) with ↭solo π p
+... | Δ′ , p′ , π′ with ↭split π′ q
+... | Δ₁ , Δ₂ , q′ , π₁ , π₂ = fork p′ q′ (↭process (prep π₁) P) (↭process (prep π₂) Q)
+↭process π (all p P) with ↭solo π p
+... | Δ' , q , π' = all q λ B → ↭process (prep π') (P B)
+↭process π (ex p P) with ↭solo π p
+... | Δ' , q , π' = ex q (↭process (prep π') P)
+↭process π (server p un P) with ↭solo π p
+... | Δ′ , q , π′ = server q (↭un π′ un) (↭process (prep π′) P)
+↭process π (client p P) with ↭solo π p
+... | Δ′ , q , π′ = client q (↭process (prep π′) P)
+↭process π (weaken p P) with ↭solo π p
+... | Δ′ , q , π′ = weaken q (↭process π′ P)
+↭process π (contract p P) with ↭solo π p
+... | Δ′ , q , π′ = contract q (↭process (prep (prep π′)) P)
+↭process π (cut p P Q) with ↭split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut q (↭process (prep π₁) P) (↭process (prep π₂) Q)
 \end{code}
