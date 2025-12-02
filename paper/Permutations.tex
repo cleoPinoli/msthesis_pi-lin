@@ -135,22 +135,24 @@ We define typing context permutations inductively, as a binary relation
 \AgdaBound{Θ}\<%
 \end{code}
 
-This definition is essentially the same as the notion of list permutation in
-Agda's standard library. Each constructor represents a particular kind of
+Each constructor of \AgdaDatatype{\_↭\_} represents a particular kind of
 permutation: \AgdaInductiveConstructor{refl} for the trivial permutation that
 does not change anything; \AgdaInductiveConstructor{swap} for the permutation
 that swaps the first two elements of a typing context;
-\AgdaInductiveConstructor{prep} for the permutation that applies a permutation
-to the tail of a typing context; \AgdaInductiveConstructor{trans} for the
-sequential composition of permutations.
-%
-We have preferred defining our own notion of permutation for simplicity: the
+\AgdaInductiveConstructor{prep} for the permutation applied to the tail of a
+typing context; \AgdaInductiveConstructor{trans} for the sequential composition
+of permutations.
+
+The definition of \AgdaDatatype{\_↭\_} data type is nearly the same found in
+Agda's standard library. We have preferred defining our own notion of
+permutation for improved simplicity and convenience: the
 \AgdaInductiveConstructor{swap} constructor does not need a sub-permutation for
 the tail of the typing context, which can always be performed, if needed, using
 \AgdaInductiveConstructor{prep} and \AgdaInductiveConstructor{trans}. Also, and
-more importantly, this definition is \emph{monomorphic} (it does not need to
-operate on lists of arbitrary type), resulting in a more streamlined usage in
-the rest of the code.
+more importantly, the data type is \emph{monomorphic} (it does not need to
+relate lists of arbitrary type) and the quantified arguments $A$ and $B$ of
+\AgdaInductiveConstructor{swap} and \AgdaInductiveConstructor{prep} are
+implicit, which streamlines their usage in the rest of the code.
 
 \begin{code}[hide]%
 \>[0]\AgdaFunction{↭sym}\AgdaSpace{}%
@@ -307,12 +309,11 @@ the rest of the code.
 \end{code}
 
 Just like permutations from Agda's standard library, also \AgdaDatatype{\_↭\_}
-enjoys a number of expected (and useful) properties, such as symmetry. Among all
-properties, in the following we will make use of a specific one that connects
-context splitting and permutations: if $\Splitting\ContextC\ContextD\ContextE$,
-then $\ContextC$ is a permutation of the concatenation of $\ContextD$ and
-$\ContextE$.\Luca{Ci sono molte altre proprietà non descritte, controllare
-quelle che servono davvero.}
+enjoys a number of expected properties, such as symmetry. Among them, in the
+following we will make use of a specific one that connects context splitting and
+permutations: if $\Splitting\ContextC\ContextD\ContextE$, then $\ContextC$ is a
+permutation of the concatenation of $\ContextD$ and $\ContextE$.\Luca{Ci sono
+molte altre proprietà non descritte, controllare quelle che servono davvero.}
 
 \begin{code}[hide]%
 \>[0]\AgdaFunction{↭split}\AgdaSpace{}%
