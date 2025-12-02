@@ -34,7 +34,7 @@ $\Splitting\ContextC\ContextD\ContextE$ shows how the types in $\ContextC$ are
 distributed in $\ContextD$ and $\ContextE$ from left to right.
 
 \begin{code}[hide]
-infix 4 _≃_+_ _≃_,_
+infix 4 _≃_+_ _∋_⊳_
 \end{code}
 \begin{code}
 data _≃_+_ : Context → Context → Context → Set where
@@ -106,34 +106,35 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \end{code}
 
 It is often the case that the context $\ContextD$ in a splitting
-$\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. For this
-particular case, we introduce a dedicated notation that allows us to represent
-this case in a more compact and readable way, as
+$\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. We use this
+particular splitting to describe the presence of a channel of type $A$ in
+$\ContextC$ and giving a name $\ContextE$ to the residual context. For this
+particular case, we introduce a dedicated notation that allows us to write this
+case in a more compact and meaningful way, as
 $\SimpleSplitting\ContextC{A}\ContextE$.
 
 \begin{code}
-_≃_,_ : Context → Type → Context → Set
-Γ ≃ A , Δ = Γ ≃ [ A ] + Δ
+_∋_⊳_ : Context → Type → Context → Set
+Γ ∋ A ⊳ Δ = Γ ≃ [ A ] + Δ
 \end{code}
 \begin{code}[hide]
 +-empty-l : ∀{Γ Δ} → Γ ≃ [] + Δ → Γ ≡ Δ
 +-empty-l • = refl
 +-empty-l (> p) = cong (_ ∷_) (+-empty-l p)
-
-+-sing-l : ∀{A B Γ} → [ A ] ≃ B , Γ → A ≡ B × Γ ≡ []
-+-sing-l (< •) = refl , refl
 \end{code}
 
-Note that, when specifying a splitting $\SimpleSplitting\ContextC{A}\ContextE$, it may be convenient
-to use \AgdaFunction{≫} as a shortcut for a sequence of applications of \AgdaInductiveConstructor{>\_}
-after the $A$ type has been reached. For instance, the same sample splitting shown earlier can be
-written equivalently and in a more compact way as shown below. More examples will be given in \Cref{sec:examples}.
+Note that, when specifying a splitting $\SimpleSplitting\ContextC{A}\ContextE$,
+it may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
+applications of \AgdaInductiveConstructor{>\_} after the $A$ type has been
+reached. For instance, the same sample splitting shown earlier can be written
+equivalently and in a more compact way as shown below. More examples will be
+given in \Cref{sec:examples}.
 
 \begin{code}[hide]
 module _ where
 \end{code}
 \begin{code}
-  splitting-example₂ : (A ∷ B ∷ C ∷ D ∷ []) ≃ (B ∷ []) + (A ∷ C ∷ D ∷ [])
+  splitting-example₂ : (A ∷ B ∷ C ∷ D ∷ []) ∋ B ⊳ (A ∷ C ∷ D ∷ [])
   splitting-example₂ = > < ≫
 \end{code}
 

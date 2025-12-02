@@ -13,14 +13,12 @@ open import Permutations
 \subsection{Process Representation}
 \label{sec:process-agda}
 
-CO-DE BRUIJN INDICES
-
-We adopt a \emph{nameless, intrinsically typed} representation of processes,
-that is: a channel is identified simply by the presence of its type in the
-typing context; a process is also a proof derivation showing that the process is
+We adopt a \emph{nameless, intrinsically-typed} representation of processes,
+whereby a channel is identified by the position of its type in the typing
+context and a process is also a proof derivation showing that the process is
 well typed. This choice increases the effort in the definition of the datatypes
-for processes and their operational semantics, but pays off in the rest of the
-formalization for a number of reasons:
+for defining processes and their operational semantics, but pays off in the rest
+of the formalization for a number of reasons:
 \begin{itemize}
 \item we use context splitting not only to separate resources used by parallel
   processes (\cf \ForkRule and \CutRule), but also to witness that a channel is
@@ -32,166 +30,101 @@ formalization for a number of reasons:
   (\Cref{sec:agda-semantics}).
 \end{itemize}
 
-Our nameless modeling of channels is known in the literature as the \emph{co-de
-Bruijn} representation~\cite{McBride18}. The proof that the type of a channel is
-found within a typing context essentially encodes the de Bruijn index of the
-channel in the typing context of a given process. However, the typing context
-only contains types for those channels that actually occur in the process.
-Context splitting makes sure that channels are appropriately (and above all
-linearly) distributed among sub-processes, so that each channel occurs (and is
-used) exactly once.\footnote{Strictly speaking, the typing context of a
-\AgdaInductiveConstructor{fail} process may contain channels that do not occur
-(and therefore are not used) by the process, but we consider this case as an
-exception that does not alter in a substantial way the provided intuition
-underlying the use of co-de Bruijn representation.}
+Our nameless representation of channels is known in the literature as the
+\emph{co-de Bruijn} representation of identifiers~\cite{McBride18}. The proof
+that the type of a channel is found within a typing context essentially encodes
+the de Bruijn index of the channel in the typing context of a given process.
+However, the typing context only contains types for those channels that actually
+occur in the process. Context splitting makes sure that channels are
+appropriately (and above all linearly) distributed among sub-processes, so that
+each channel occurs (and is used) exactly once.\footnote{Strictly speaking, the
+typing context of a \AgdaInductiveConstructor{fail} process may contain channels
+that do not occur (and therefore are not used) by the process, but we consider
+this case as an exception that does not alter in a substantial way the provided
+intuition underlying the use of co-de Bruijn representation.}
 
-We now illustrate the definition of the \AgdaDatatype{Process} datatype and
-describe its key aspects in detail. The datatype is indexed by a typing context:
+We now illustrate the definition of the \AgdaDatatype{Process} datatype and then
+describe its key aspects in detail. The datatype is indexed by a typing context
+$\Context$ according to which the process is well typed:
 
 \begin{code}
 data Process : Context → Set where
-  link      : ∀{A Γ} → Γ ≃ A , [ dual A ] → Process Γ
-  fail      : ∀{Γ Δ} → Γ ≃ ⊤ , Δ → Process Γ
-  wait      : ∀{Γ Δ} → Γ ≃ ⊥ , Δ → Process Δ → Process Γ
+  link      : ∀{A Γ} → Γ ≃ [ A ] + [ dual A ] → Process Γ
+  fail      : ∀{Γ Δ} → Γ ∋ ⊤ ⊳ Δ → Process Γ
+  wait      : ∀{Γ Δ} → Γ ∋ ⊥ ⊳ Δ → Process Δ → Process Γ
   close     : Process [ 𝟙 ]
-  case      : ∀{A B Γ Δ} → Γ ≃ A & B , Δ →
+  case      : ∀{A B Γ Δ} → Γ ∋ A & B ⊳ Δ →
               Process (A ∷ Δ) → Process (B ∷ Δ) → Process Γ
-  select    : ∀{A B Γ Δ} (x : Bool) → Γ ≃ A ⊕ B , Δ →
-              Process ((if x then A else B) ∷ Δ) → Process Γ
-  join      : ∀{A B Γ Δ} → Γ ≃ A ⅋ B , Δ → Process (B ∷ A ∷ Δ) → Process Γ
-  fork      : ∀{A B Γ Δ Γ₁ Γ₂} → Γ ≃ A ⊗ B , Δ → Δ ≃ Γ₁ + Γ₂ →
+  left      : ∀{A B Γ Δ} → Γ ∋ A ⊕ B ⊳ Δ → Process (A ∷ Δ) → Process Γ
+  right     : ∀{A B Γ Δ} → Γ ∋ A ⊕ B ⊳ Δ → Process (B ∷ Δ) → Process Γ
+  join      : ∀{A B Γ Δ} → Γ ∋ A ⅋ B ⊳ Δ → Process (B ∷ A ∷ Δ) → Process Γ
+  fork      : ∀{A B Γ Δ Γ₁ Γ₂} → Γ ∋ A ⊗ B ⊳ Δ → Δ ≃ Γ₁ + Γ₂ →
               Process (A ∷ Γ₁) → Process (B ∷ Γ₂) → Process Γ
-  all       : ∀{A Γ Δ} → Γ ≃ `∀ A , Δ →
-              ((B : Type) → Process (subst [ B /_] A ∷ Δ)) → Process Γ
-  ex        : ∀{A B Γ Δ} → Γ ≃ `∃ A , Δ → Process (subst [ B /_] A ∷ Δ) → Process Γ
-  server    : ∀{A Γ Δ} → Γ ≃ `! A , Δ → Un Δ → Process (A ∷ Δ) → Process Γ
-  client    : ∀{A Γ Δ} → Γ ≃ `? A , Δ → Process (A ∷ Δ) → Process Γ
-  weaken    : ∀{A Γ Δ} → Γ ≃ `? A , Δ → Process Δ → Process Γ
-  contract  : ∀{A Γ Δ} → Γ ≃ `? A , Δ → Process (`? A ∷ `? A ∷ Δ) → Process Γ
+  all       : ∀{A Γ Δ} → Γ ∋ `∀ A ⊳ Δ →
+              ((X : Type) → Process (subst [ X /_] A ∷ Δ)) → Process Γ
+  ex        : ∀{A B Γ Δ} → Γ ∋ `∃ A ⊳ Δ → Process (subst [ B /_] A ∷ Δ) → Process Γ
+  server    : ∀{A Γ Δ} → Γ ∋ `! A ⊳ Δ → Un Δ → Process (A ∷ Δ) → Process Γ
+  client    : ∀{A Γ Δ} → Γ ∋ `? A ⊳ Δ → Process (A ∷ Δ) → Process Γ
+  weaken    : ∀{A Γ Δ} → Γ ∋ `? A ⊳ Δ → Process Δ → Process Γ
+  contract  : ∀{A Γ Δ} → Γ ∋ `? A ⊳ Δ → Process (`? A ∷ `? A ∷ Δ) → Process Γ
   cut       : ∀{A Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ →
               Process (A ∷ Γ₁) → Process (dual A ∷ Γ₂) → Process Γ
 \end{code}
 
-A \AgdaInductiveConstructor{link} process is well typed in a typing context with
-exactly two types $A$ and $B$ which must be related by duality. We use a proof
-$p$ that $\Context \simeq [A] + [B]$ instead of requiring $\Context$ to be
-simply $[A,B]$ so that it becomes straightforward to define \SLink using
-\AgdaFunction{dual-symm} and \AgdaFunction{+-comm}.
+Let us start from the constructors representing input/output actions, namely
+those from \AgdaInductiveConstructor{fail} through
+\AgdaInductiveConstructor{contract}. They all basically follow the same pattern:
+their first (explicit) argument is a splitting of the form
+$\SimpleSplitting\ContextC{C}\ContextD$ that identifies the channel on which the
+process is acting within the typing context $\ContextC$ and where the shape of
+$C$ is determined by the typing rule; the subsequent arguments are terms
+corresponding to the continuations of the process being represented, each
+indexed by its own context. Crucially, the type of the continuation channels are
+\emph{prepended} to the context that indexes the continuation processes using
+the \AgdaInductiveConstructor{\_∷\_} list constructor. This is consistent with
+the fact that the continuation channels have been freshly introduced, and the
+channel on which the process operates has been consumed.
+%
+There are just a few deviations from this pattern, which we discuss next.
 
-% \begin{code}
-%    fail      : ∀{Γ Δ} (p : Γ ≃ ⊤ , Δ) → Process Γ
-% \end{code}
+The constructor \AgdaInductiveConstructor{close} lacks a splitting argument:
+since a process $\Close\x$ is well typed in a singleton context $x : \One$, it
+is easier to specify such context directly as the index of
+\AgdaDatatype{Process} rather than through a splitting.
 
-A \AgdaInductiveConstructor{fail} process simply requires the presence of $\Top$
-in the typing context.
+The constructor \AgdaInductiveConstructor{fork}, which represents a process
+$\Fork\x\y\z{P}{Q}$, has an additional splitting argument
+$\Splitting\ContextD{\Context_1}{\Context_2}$ which distributes the resources in
+$\ContextD$ among the two continuation processes $P$ and $Q$.
 
-% \begin{code}
-%    close     : Process  [ 𝟙 ]
-% \end{code}
+The constructor \AgdaInductiveConstructor{all}, which represents a process
+$\Forall\x\X\y.P$, models the continuation $P$ using higher-order abstract
+syntax (HOAS~\cite{}): the continuation $P$ is produced by a function applied to
+a \AgdaInductiveConstructor{Type} $X$. Notice how the constructor enforces the
+side condition of \ForallRule \emph{by definition}:
+%
+$A$ has type
+$\AgdaDatatype{PreType}~(\AgdaInductiveConstructor{suc}~\AgdaInductiveConstructor{zero})$,
+that is a pre-type with \emph{at most one} free type variable (that is $X$),
+whereas $\ContextD$ is a list of $\AgdaDatatype{Type} =
+\AgdaDatatype{PreType}~\AgdaInductiveConstructor{zero}$, that is a list of
+pre-types without free type variables. Therefore, $X$ cannot occur in
+$\ContextD$ as required by \ForallRule.
 
-A \AgdaInductiveConstructor{close} process is well typed in the singleton
-context $[\One]$.
+Finally, the constructor \AgdaInductiveConstructor{server}, which represents a
+process $\Server\x\y.P$, has an additional argument of type
+$\AgdaDatatype{Un}~\ContextD$ enforcing the property that $\ContextD$ is
+unrestricted.
 
-% \begin{code}
-%    wait      : ∀{Γ Δ} (p : Γ ≃ ⊥ , Δ) → Process Δ → Process Γ
-% \end{code}
-
-A \AgdaInductiveConstructor{wait} process is well typed in any context
-$\ContextC$ that contains $\Bot$ and whose residual $\ContextD$ allows the
-continuation to be well typed.
-
-% \begin{code}
-%    select    : ∀{A B Γ Δ} (x : Bool) (p : Γ ≃ A ⊕ B , Δ) →
-%                Process ((if x then A else B) ∷ Δ) → Process Γ
-% \end{code}
-
-We represent the tags $\InTag_1$ and $\InTag_2$ with Agda's boolean values
-\AgdaInductiveConstructor{true} and \AgdaInductiveConstructor{false}. In this
-way we can use a single constructor \AgdaInductiveConstructor{select} for the
-selections $\Select\x{\InTag_i}.P$. According to the semantics of \Calculus, the
-channel on which the selection is performed is consumed and the continuation
-process uses a fresh continuation channel. As a consequence, the type of the
-continuation channel, which is either $A$ or $B$ depending on the value of the
-tag $x$, is \emph{prepended} in front of the typing context used to type the
-continuation process.
-
-% \begin{code}
-%    case      : ∀{A B Γ Δ} (p : Γ ≃ A & B , Δ) →
-%                Process (A ∷ Δ) → Process (B ∷ Δ) → Process Γ
-% \end{code}
-
-A \AgdaInductiveConstructor{case} process has two possible continuations. Note
-again that the continuation channel, which is received along with the tag, has
-either type $A$ or type $B$ depending on the tag and its type is prepended to
-the typing context of the continuation process since it is the newest channel.
-
-% \begin{code}
-%    fork      : ∀{A B Γ Δ Γ₁ Γ₂} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Γ₁ + Γ₂) →
-%                Process (A ∷ Γ₁) → Process (B ∷ Γ₂) → Process Γ
-% \end{code}
-
-A \AgdaInductiveConstructor{fork} process creates two fresh continuation
-channels and spaws two continuation processes. Since context splitting is a
-ternary relation, we need two splitting proofs $p$ and $q$ to isolate the type
-$A \Ten B$ of channel on which the pair of continuation channels is sent and to
-distribute the remaining channel across the two continuation processes.
-
-% \begin{code}
-%    join      : ∀{A B Γ Δ} (p : Γ ≃ A ⅋ B , Δ) → Process (B ∷ A ∷ Δ) →
-%                Process Γ
-% \end{code}
-
-The \AgdaInductiveConstructor{join} process has a single continuation which uses
-the pair of continuation channels received from a channel of type $A \Par B$.
-Note that $B$ is prepended in front of $A$, somewhat implying that the second
-continuation is bound \emph{after} the first even though, from a technical
-standpoint, both continuations are bound simultaneously. We could have prepended
-the types $A$ and $B$ also in the opposite order, provided that the reduction
-rule \RFork (formalized in \Cref{sec:reduction-agda}) is suitably adjusted.
-
-% \begin{code}
-%    server    : ∀{A Γ Δ} (p : Γ ≃ `! A , Δ) (un : Un Δ) →
-%                Process (A ∷ Δ) → Process Γ
-% \end{code}
-
-A \AgdaInductiveConstructor{server} constructor introduces a channel of type
-$\OfCourse A$ given a continuation process that consumes a channel of type $A$
-and a proof $\mathit{un}$ that every other channel in $\ContextD$ is
-unrestricted.\Luca{Introdurre terminologia e dire che unrestricted vuol dire che
-il canale può essere ``duplicato'' e scartato.}
-
-% \begin{code}
-%    client    : ∀{A Γ Δ} (p : Γ ≃ `? A , Δ) → Process (A ∷ Δ) → Process Γ
-%    weaken    : ∀{A Γ Δ} (p : Γ ≃ `? A , Δ) → Process Δ → Process Γ
-%    contract  : ∀{A Γ Δ} (p : Γ ≃ `? A , Δ) → Process (`? A ∷ `? A ∷ Δ) →
-%                Process Γ
-% \end{code}
-
-The constructors \AgdaInductiveConstructor{client},
-\AgdaInductiveConstructor{weaken} and \AgdaInductiveConstructor{contract}
-introduce a channel of type $\WhyNot A$ and follow the same pattern of the
-previous process forms. Note that, in the case of
-\AgdaInductiveConstructor{contract}, the contraction of $\WhyNot A$ applies to
-the first two channels in the typing context of the continuation. This is
-consistent with the fact that \Calculus uses an explicit prefix
-$\Contract\x\y\z$ that models contraction and binds $y$ and $z$ in the
-continuation process. In a pen-and-paper presentation, like the one by
-Wadler~\citep{Wadler14}, it is arguably more convenient to have weaking and
-contraction typing rules without the corresponding process forms.
-
-% \begin{code}
-%    cut       : ∀{A Γ Γ₁ Γ₂} (p : Γ ≃ Γ₁ + Γ₂) →
-%                Process (A ∷ Γ₁) → Process (dual A ∷ Γ₂) → Process Γ
-
-%    all       : ∀{A Γ Δ} (p : Γ ≃ `∀ A , Δ) →
-%                ((B : Type) → Process (subst [ B /_] A ∷ Δ)) → Process Γ
-%    ex        : ∀{A B Γ Δ} (p : Γ ≃ `∃ A , Δ) →
-%                Process (subst [ B /_] A ∷ Δ) → Process Γ
-% \end{code}
-
-A \AgdaInductiveConstructor{cut} process incorporates a duality proof for the
-peer endpoints of the channel being restricted and a splitting proof that
-distributes the free channels among the two parallel processes.
+The two remaining constructors, \AgdaInductiveConstructor{link} and
+\AgdaInductiveConstructor{cut}, deal with links and cuts in the expected way. A
+link is well typed in a context
+$\Splitting\Context{[A]}{[\AgdaFunction{dual}~A]}$. We use a splitting instead
+of requiring $\Context$ to be $[A,\AgdaFunction{dual}~A]$ so that it becomes
+straightforward to define \SLink using \AgdaFunction{+-comm}.
+%
+The constructor \AgdaInductiveConstructor{cut} models a process $\Cut\x{P}{Q}$
+and uses splitting to distribute the resources in $\Context$ among $P$ and $Q$.
 
 Permutations preserve process typeability. In a sense we can read this property
 as the fact that we can rename channels at will.
@@ -209,8 +142,10 @@ as the fact that we can rename channels at will.
 ↭process π close rewrite ↭solo-inv π = close
 ↭process π (case p P Q) with ↭solo π p
 ... | Δ′ , q , π′ = case q (↭process (prep π′) P) (↭process (prep π′) Q)
-↭process π (select x p P) with ↭solo π p
-... | Δ′ , q , π′ = select x q (↭process (prep π′) P)
+↭process π (left p P) with ↭solo π p
+... | Δ′ , q , π′ = left q (↭process (prep π′) P)
+↭process π (right p P) with ↭solo π p
+... | Δ′ , q , π′ = right q (↭process (prep π′) P)
 ↭process π (join p P) with ↭solo π p
 ... | Δ′ , q , π′ = join q (↭process (prep (prep π′)) P)
 ↭process π (fork p q P Q) with ↭solo π p

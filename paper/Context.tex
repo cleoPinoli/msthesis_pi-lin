@@ -76,7 +76,7 @@ distributed in $\ContextD$ and $\ContextE$ from left to right.
 \>[0]\AgdaKeyword{infix}\AgdaSpace{}%
 \AgdaNumber{4}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}≃\AgdaUnderscore{}+\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≃\AgdaUnderscore{},\AgdaUnderscore{}}}\<%
+\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}∋\AgdaUnderscore{}⊳\AgdaUnderscore{}}}\<%
 \end{code}
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -520,13 +520,15 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \end{code}
 
 It is often the case that the context $\ContextD$ in a splitting
-$\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. For this
-particular case, we introduce a dedicated notation that allows us to represent
-this case in a more compact and readable way, as
+$\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. We use this
+particular splitting to describe the presence of a channel of type $A$ in
+$\ContextC$ and giving a name $\ContextE$ to the residual context. For this
+particular case, we introduce a dedicated notation that allows us to write this
+case in a more compact and meaningful way, as
 $\SimpleSplitting\ContextC{A}\ContextE$.
 
 \begin{code}%
-\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≃\AgdaUnderscore{},\AgdaUnderscore{}}}\AgdaSpace{}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}∋\AgdaUnderscore{}⊳\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Context}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -537,9 +539,9 @@ $\SimpleSplitting\ContextC{A}\ContextE$.
 \AgdaPrimitive{Set}\<%
 \\
 \>[0]\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{∋}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⊳}}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
@@ -580,44 +582,14 @@ $\SimpleSplitting\ContextC{A}\ContextE$.
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{+-empty-l}\AgdaSpace{}%
 \AgdaBound{p}\AgdaSymbol{)}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{+-sing-l}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≃}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{,}}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{≡}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{×}}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{≡}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\<%
-\\
-\>[0]\AgdaFunction{+-sing-l}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaInductiveConstructor{•}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{refl}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaInductiveConstructor{refl}\<%
 \end{code}
 
-Note that, when specifying a splitting $\SimpleSplitting\ContextC{A}\ContextE$, it may be convenient
-to use \AgdaFunction{≫} as a shortcut for a sequence of applications of \AgdaInductiveConstructor{>\_}
-after the $A$ type has been reached. For instance, the same sample splitting shown earlier can be
-written equivalently and in a more compact way as shown below. More examples will be given in \Cref{sec:examples}.
+Note that, when specifying a splitting $\SimpleSplitting\ContextC{A}\ContextE$,
+it may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
+applications of \AgdaInductiveConstructor{>\_} after the $A$ type has been
+reached. For instance, the same sample splitting shown earlier can be written
+equivalently and in a more compact way as shown below. More examples will be
+given in \Cref{sec:examples}.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -637,11 +609,9 @@ written equivalently and in a more compact way as shown below. More examples wil
 \AgdaPostulate{D}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaInductiveConstructor{[]}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaPostulate{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{∋}}\AgdaSpace{}%
+\AgdaPostulate{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⊳}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaPostulate{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaPostulate{C}\AgdaSpace{}%

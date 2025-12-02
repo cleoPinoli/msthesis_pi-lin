@@ -61,17 +61,17 @@ occurrences of $X$ in $A$ with $B$.
             \displaystyle
             \begin{array}[t]{rcll}
                 P, Q & ::= & \Link\x\y            & \text{link} \\
-                    & | & \Fail\x                 & \text{empty choice} \\
+                    & | & \Fail\x                 & \text{fail} \\
                     & | & \Wait\x.P               & \text{wait} \\
                     & | & \Close\x                & \text{close} \\
                     & | & \Case\x\z{P}{Q}         & \text{case} \\
-                    & | & \Select\x{\InTag_i}\z.P & \text{selection} \\
+                    & | & \Select\x{\InTag_i}\z.P & \text{left/right selection} \\
                     & | & \Join\x\y\z.P           & \text{join} \\
                     & | & \Fork\x\y\z{P}{Q}       & \text{fork} \\
-                    & | & \Forall\x\X\y.P         & \text{type input} \\
-                    & | & \Exists\x{A}\y.P        & \text{type output} \\
-                    & | & \Server\x\y.P           & \text{server accept} \\
-                    & | & \Client\x\y.P           & \text{client request} \\
+                    & | & \Forall\x\X\y.P         & \text{for all} \\
+                    & | & \Exists\x{A}\y.P        & \text{exists} \\
+                    & | & \Server\x\y.P           & \text{server} \\
+                    & | & \Client\x\y.P           & \text{client} \\
                     & | & \Weaken\x.P             & \text{weakening} \\
                     & | & \Contract\x\y\z.P       & \text{contraction} \\
                     & | & \Cut[A]\x{P}{Q}         & \text{cut} \\
