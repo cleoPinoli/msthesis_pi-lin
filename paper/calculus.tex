@@ -182,6 +182,9 @@ identify processes up to renaming of bound names.
             \SExists &
             \Cut\x{\Exists\y{A}\z.P}{Q} & \pcong & \Exists\y{A}\z.\Cut\x{P}{Q} % & x \ne y,z
             \\
+            \SServer &
+            \Cut\x{\Server\y\u.P}{\Server\x\v.Q} & \pcong & \Server\y\u.\Cut\x{P}{\Server\x\v.Q} % & x \ne y,u
+            \\
             \SClient &
             \Cut\x{\Client\y\z.P}{Q} & \pcong & \Client\y\z.\Cut\x{P}{Q} % & x \ne y,z
             \\
@@ -190,9 +193,6 @@ identify processes up to renaming of bound names.
             \\
             \SContract &
             \Cut\x{\Contract\y\u\v.P}{Q} & \pcong & \Contract\y\u\v.\Cut\x{P}{Q} % & x \ne y,u,v
-            \\
-            \SServer &
-            \Cut\x{\Server\y\u.P}{\Server\x\v.Q} & \pcong & \Server\y\u.\Cut\x{P}{\Server\x\v.Q} % & x \ne y,u
             \\
             \\
             \RLink &

@@ -1,7 +1,6 @@
 \begin{code}[hide]
-open import Data.Bool using (Bool; true; false; if_then_else_)
+{-# OPTIONS --rewriting #-}
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 open import Data.List.Base using (List; []; _∷_; [_]; _++_)
 
 open import Type
@@ -19,7 +18,7 @@ structural precongruence preserves typing by definition.
 
 \begin{AgdaAlign}
 \begin{code}
-data _⊒_ : ∀{Γ} → Process Γ → Process Γ → Set where
+data _⊒_ {Γ} : Process Γ → Process Γ → Set where
 \end{code}
 
 The datatype for $\pcong$ has one constructor for each of the structural
@@ -29,8 +28,8 @@ repeatedly, we will focus on just a few representative rules starting from
 
 \begin{code}
   s-comm :
-    ∀{Γ Γ₁ Γ₂ A B P Q} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) →
-    cut d p P Q ⊒ cut (dual-symm d) (+-comm p) Q P
+    ∀{A Γ₁ Γ₂ P Q} (p : Γ ≃ Γ₁ + Γ₂) →
+    cut {A} p P Q ⊒ cut (+-comm p) Q P
 \end{code}
 
 The constructor \AgdaInductiveConstructor{s-comm} models the commutativity
@@ -39,27 +38,24 @@ property of parallel composition. We use \AgdaFunction{dual-symm} and
 $\AgdaDatatype{Dual}~B~A$ and of the splitting $\ContextC \simeq \Context_2 +
 \Context_1$ from $d$ and $p$ respectively.
 
+implicit rewriting
+
 \begin{code}[hide]
   s-link :
-    ∀{Γ A B}
-    (d : Dual A B) (p : Γ ≃ [ A ] + [ B ]) →
-    link d p ⊒ link (dual-symm d) (+-comm p)
-
+    ∀{A} (p : Γ ≃ [ A ] + [ dual A ]) → link p ⊒ link (+-comm p)
   s-fail :
-    ∀{Γ Γ₁ Γ₂ Δ A B P} (d : Dual A B)
-    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ⊤ , Δ) →
+    ∀{A Γ₁ Γ₂ Δ P} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ ⊤ ⊳ Δ) →
     let _ , _ , q′ = +-assoc-l p q in
-    cut d p (fail (split-r q)) P ⊒ fail q′
+    cut {A} p (fail (> q)) P ⊒ fail q′
 \end{code}
 
 The constructor \AgdaInductiveConstructor{s-wait} models the \SWait rule:
 
 \begin{code}
   s-wait :
-    ∀{Γ Γ₁ Γ₂ Δ A B} {P : Process (A ∷ Δ)} {Q : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ⊥ , Δ) →
+    ∀{Γ₁ Γ₂ Δ A P Q} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ ⊥ ⊳ Δ) →
     let _ , p′ , q′ = +-assoc-l p q in
-    cut d p (wait (split-r q) P) Q ⊒ wait q′ (cut d p′ P Q)
+    cut {A} p (wait (> q) P) Q ⊒ wait q′ (cut p′ P Q)
 \end{code}
 
 There are two non-trivial aspects worth commenting. The first one concerns the
@@ -104,13 +100,24 @@ The constructors \AgdaInductiveConstructor{s-select-l} and
 respectively \AgdaInductiveConstructor{true} and
 \AgdaInductiveConstructor{false}.
 
-\begin{code}
-  s-select-l :
-    ∀{Γ Γ₁ Γ₂ Δ A B C D} {P : Process (C ∷ A ∷ Δ)} {Q : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⊕ D , Δ) →
+\begin{code}[hide]
+  s-case :
+    ∀{A B C Γ₁ Γ₂ Δ P Q R} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ B & C ⊳ Δ) →
     let _ , p′ , q′ = +-assoc-l p q in
-    cut d p (select true (split-r q) P) Q ⊒
-    select true q′ (cut d (split-l p′) (#process #here P) Q)
+    cut {A} p (case (> q) P Q) R ⊒ case q′ (cut (< p′) (↭process swap P) R)
+                                           (cut (< p′) (↭process swap Q) R)
+\end{code}
+\begin{code}
+  s-left :
+    ∀{Γ₁ Γ₂ Δ A B C P Q} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ B ⊕ C ⊳ Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut {A} p (left (> q) P) Q ⊒ left q′ (cut (< p′) (↭process swap P) Q)
+\end{code}
+\begin{code}[hide]
+  s-right :
+    ∀{Γ₁ Γ₂ Δ A B C P Q} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ B ⊕ C ⊳ Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut {A} p (right (> q) P) Q ⊒ right q′ (cut (< p′) (↭process swap P) Q)
 \end{code}
 
 Here the process
@@ -134,114 +141,75 @@ is achieved applying the function \AgdaFunction{\#process} to the
 \AgdaInductiveConstructor{\#here} permutation, which swaps the two topmost types
 in a typing context, and finally to the process $P$.
 
-\begin{code}[hide]
-  s-select-r :
-    ∀{Γ Γ₁ Γ₂ Δ A B C D}
-    {P : Process (D ∷ A ∷ Δ)}
-    {Q : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⊕ D , Δ) →
-    let _ , p′ , q′ = +-assoc-l p q in
-    cut d p (select false (split-r q) P) Q ⊒
-    select false q′ (cut d (split-l p′) (#process #here P) Q)
-
-  s-case :
-    ∀{Γ A B A₁ A₂ Γ₁ Γ₂ Δ}
-    {P : Process (A₁ ∷ A ∷ Δ)}
-    {Q : Process (A₂ ∷ A ∷ Δ)}
-    {R : Process (B ∷ Γ₂)}
-    (d : Dual A B)
-    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ A₁ & A₂ , Δ) →
-    let _ , p′ , q′ = +-assoc-l p q in
-    cut d p (case (split-r q) P Q) R ⊒
-    case q′ (cut d (split-l p′) (#process #here P) R)
-            (cut d (split-l p′) (#process #here Q) R)
-\end{code}
-
 \emph{En passant}, we also show the modeling of the \SForkL rule, which is
 interesting because of its complex side conditions:
 
+\begin{code}[hide]
+  s-join :
+    ∀{Γ₁ Γ₂ Δ A B C P Q} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ B ⅋ C ⊳ Δ) →
+    let _ , p′ , q′ = +-assoc-l p q in
+    cut {A} p (join (> q) P) Q ⊒
+    join q′ (cut (< < p′) (↭process (↭shift {A} {C ∷ B ∷ []}) P) Q)
+\end{code}
 \begin{code}
   s-fork-l :
-    ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A B C D}
-    {P : Process (C ∷ A ∷ Δ₁)} {Q : Process (D ∷ Δ₂)} {R : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⊗ D , Δ) (r : Δ ≃ Δ₁ + Δ₂) →
+    ∀{Γ₁ Γ₂ Δ Δ₁ Δ₂ A B C P Q R}
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ B ⊗ C ⊳ Δ) (r : Δ ≃ Δ₁ + Δ₂) →
     let _ , p′ , q′ = +-assoc-l p q in
     let _ , p′′ , r′ = +-assoc-l p′ r in
     let _ , q′′ , r′′ = +-assoc-r r′ (+-comm p′′) in
-    cut d p (fork (split-r q) (split-l r) P Q) R ⊒
-    fork q′ r′′ (cut d (split-l q′′) (#process #here P) R) Q
+    cut {A} p (fork (> q) (< r) P Q) R ⊒
+    fork q′ r′′ (cut (< q′′) (↭process swap P) R) Q
 \end{code}
 
 Recall from \Cref{tab:semantics} that we want to apply this rule on a process of
-the form $\Cut\x{\Fork\y\u\v{P}{Q}}{R}$ when $x \in \fn{P}$. We capture this
-condition by means of the splitting $(\AgdaInductiveConstructor{split-l}~r)$,
-meaning that the type $A$ of $x$ ends up in the typing context for $P$ and not
-in the one for $Q$.
+the form $\Cut[A]\x{\Fork\y\u\v{P}{Q}}{R}$ when $x \in \fn{P}$. We capture this
+condition by means of the splitting $(\AgdaInductiveConstructor{<}~r)$, meaning
+that the type $A$ of $x$ ends up in the typing context for $P$ and not in the
+one for $Q$.
 %
 The symmetric rule \SForkR is modeled by another constructor
-\AgdaInductiveConstructor{s-fork-r}, which is not shown here but is similar to
+\AgdaInductiveConstructor{s-fork-r}, not shown here but similar to
 \AgdaInductiveConstructor{s-fork-l} except that
-$(\AgdaInductiveConstructor{split-l}~r)$ is replaced by
-$(\AgdaInductiveConstructor{split-r}~r)$.
+$(\AgdaInductiveConstructor{<}~r)$ is replaced by
+$(\AgdaInductiveConstructor{>}~r)$.
 
 \begin{code}[hide]
   s-fork-r :
-    ∀{Γ Γ₁ Γ₂ Δ Δ₁ Δ₂ A B C D}
-    {P : Process (C ∷ Δ₁)}
-    {Q : Process (D ∷ A ∷ Δ₂)}
-    {R : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⊗ D , Δ)
-    (r : Δ ≃ Δ₁ + Δ₂) →
+    ∀{Γ₁ Γ₂ Δ Δ₁ Δ₂ A B C P Q R}
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ B ⊗ C ⊳ Δ) (r : Δ ≃ Δ₁ + Δ₂) →
     let _ , p′ , q′ = +-assoc-l p q in
     let _ , p′′ , r′ = +-assoc-l p′ r in
-    cut d p (fork (split-r q) (split-r r) P Q) R ⊒
-    fork q′ r′ P (cut d (split-l p′′) (#process #here Q) R)
-
-  s-join :
-    ∀{Γ Γ₁ Γ₂ Δ A B C D}
-    {P : Process (D ∷ C ∷ A ∷ Δ)}
-    {Q : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ C ⅋ D , Δ) →
-    let _ , p′ , q′ = +-assoc-l p q in
-    cut d p (join (split-r q) P) Q ⊒
-    join q′ (cut d (split-l (split-l p′)) (#process #rot P) Q)
-
+    cut {A} p (fork (> q) (> r) P Q) R ⊒
+    fork q′ r′ P (cut (< p′′) (↭process swap Q) R)
+  s-all :
+    ∀{A B Γ₁ Γ₂ Δ F Q} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ `∀ B ⊳ Δ) ->
+    let _ , p' , q' = +-assoc-l p q in
+    cut {A} p (all (> q) F) Q ⊒ all q' λ σ → cut (< p') (↭process swap (F σ)) Q
+  s-ex :
+    ∀{A B C Γ₁ Γ₂ Δ P Q} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ `∃ B ⊳ Δ) ->
+    let _ , p' , q' = +-assoc-l p q in
+    cut {A} p (ex {_} {C} (> q) P) Q ⊒ ex q' (cut (< p') (↭process swap P) Q)
   s-server :
-    ∀{Γ A B C Γ₁ Γ₂ Δ₁}
-    {P : Process (C ∷ ¿ A ∷ Δ₁)}
-    {Q : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¡ C , Δ₁) (r : Γ₂ ≃ [] + Γ₂)
+    ∀{A B Γ₁ Γ₂ Δ₁ P Q}
+    (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ `! B ⊳ Δ₁) (r : Γ₂ ≃ [] + Γ₂)
     (un₁ : Un Δ₁) (un₂ : Un Γ₂) →
     let _ , p′ , q′ = +-assoc-l p q in
-    cut (d-?-! d) p (server (split-r q) (un-∷ un₁) P) (server (split-l r) un₂ Q) ⊒
-    server q′ (#un+ p′ un₁ un₂) (cut (d-?-! d) (split-l p′) (#process #here P) (server (split-l r) un₂ Q))
-
+    cut {`? A} p (server (> q) (un-∷ un₁) P) (server (< r) un₂ Q) ⊒
+    server q′ (+-un p′ un₁ un₂) (cut (< p′) (↭process swap P) (server (< r) un₂ Q))
   s-client :
-    ∀{Γ A B C Γ₁ Γ₂ Δ}
-    {P : Process (C ∷ A ∷ Δ)}
-    {Q : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¿ C , Δ) →
+    ∀{A B Γ₁ Γ₂ Δ P Q} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ `? B ⊳ Δ) →
     let _ , p′ , q′ = +-assoc-l p q in
-    cut d p (client (split-r q) P) Q ⊒
-    client q′ (cut d (split-l p′) (#process #here P) Q)
-
+    cut {A} p (client (> q) P) Q ⊒ client q′ (cut (< p′) (↭process swap P) Q)
   s-weaken :
-    ∀{Γ A B C Γ₁ Γ₂ Δ}
-    {P : Process (A ∷ Δ)}
-    {Q : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¿ C , Δ) →
+    ∀{A B Γ₁ Γ₂ Δ P Q} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ `? B ⊳ Δ) →
     let _ , p′ , q′ = +-assoc-l p q in
-    cut d p (weaken (split-r q) P) Q ⊒
-    weaken q′ (cut d p′ P Q)
-
+    cut {A} p (weaken (> q) P) Q ⊒ weaken q′ (cut p′ P Q)
   s-contract :
-    ∀{Γ A B C Γ₁ Γ₂ Δ}
-    {P : Process (¿ C ∷ ¿ C ∷ A ∷ Δ)}
-    {Q : Process (B ∷ Γ₂)}
-    (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ≃ ¿ C , Δ) →
+    ∀{A B Γ₁ Γ₂ Δ P Q} (p : Γ ≃ Γ₁ + Γ₂) (q : Γ₁ ∋ `? B ⊳ Δ) →
     let _ , p′ , q′ = +-assoc-l p q in
-    cut d p (contract (split-r q) P) Q ⊒
-    contract q′ (cut d (split-l (split-l p′)) (#process #rot P) Q)
+    cut {A} p (contract (> q) P) Q ⊒
+    contract q′ (cut (< < p′) (↭process (↭shift {A} {`? B ∷ `? B ∷ []}) P) Q)
 \end{code}
 
 Finally, in \Cref{sec:semantics} we have colloquially defined $\pcong$ as a
@@ -250,11 +218,10 @@ and that it is is preserved by some forms of calculus. In the formalization we
 have to be precise and we introduce specific rules:
 
 \begin{code}
-  s-refl  : ∀{Γ} {P : Process Γ} → P ⊒ P
-  s-tran  : ∀{Γ} {P Q R : Process Γ} → P ⊒ Q → Q ⊒ R → P ⊒ R
-  s-cong  : ∀{Γ Γ₁ Γ₂ A A′} {P Q : Process (A ∷ Γ₁)} {P′ Q′ : Process (A′ ∷ Γ₂)}
-            (d : Dual A A′) (p : Γ ≃ Γ₁ + Γ₂) → P ⊒ Q → P′ ⊒ Q′ →
-            cut d p P P′ ⊒ cut d p Q Q′
+  s-refl  : ∀{P} → P ⊒ P
+  s-tran  : ∀{P Q R} → P ⊒ Q → Q ⊒ R → P ⊒ R
+  s-cong  : ∀{Γ₁ Γ₂ A P Q P′ Q′} (p : Γ ≃ Γ₁ + Γ₂) →
+            P ⊒ Q → P′ ⊒ Q′ → cut {A} p P P′ ⊒ cut p Q Q′
 \end{code}
 
 Note that we define a single congruence rule \AgdaInductiveConstructor{s-cong}
