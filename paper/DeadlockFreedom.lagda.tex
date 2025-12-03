@@ -4,11 +4,11 @@
 As we have seen in \Cref{sec:calculus}, the deadlock freedom result
 (\Cref{thm:df}) rests on some notions and predicates about processes which we
 now formalize in Agda. First of all we need to distinguish \emph{threads} from
-\emph{cuts}. As it turns out, in the formalization it is convenient to provide
-an even more fine-grained classification of threads, distinguishing between
-links, input/output actions on linear/shared channels, and sometimes also
-whether such actions operate on free or bound channels. We define predicates for
-each of these process classes:
+\emph{cuts}. As it turns out, in the formalization it is convenient to provide a
+more fine-grained classification of threads, distinguishing between links,
+input/output actions on linear/shared channels, and sometimes also whether such
+actions operate on free or bound channels. We define predicates for each of
+these process classes:
 
 \begin{code}[hide]
 {-# OPTIONS --rewriting #-}
@@ -39,7 +39,7 @@ data DelayedServer  : ∀{Γ} → Process Γ → Set
 
 These predicates are relatively uninteresting since they are essentially
 isomorphic to the relevant parts of the \AgdaDatatype{Process} datatype. The
-only remarkable aspect is that \AgdaDatatype{Input}, \AgdaDatatype{Output},
+only remarkable aspect is that in \AgdaDatatype{Input}, \AgdaDatatype{Output},
 \AgdaDatatype{Client} and \AgdaDatatype{Server} the channel being acted upon by
 the thread is the \emph{first} in $\Context$, hence it is the \emph{most
 recently introduced} channel, whereas in \AgdaDatatype{Delayed} and
@@ -64,8 +64,8 @@ data Input where
 \begin{code}
   wait : ∀{Γ Δ P} (p : Γ ≃ [] + Δ) → Input (wait (< p) P)
 \end{code}
-where the \AgdaInductiveConstructor{split-l} constructor indicates that the
-thread operates on the most recent channel. In the latter predicate we have
+where the \AgdaInductiveConstructor{<} constructor indicates that the thread
+operates on the most recent channel. In the latter predicate we have
 
 \begin{code}[hide]
   case : ∀{Γ Δ A B P Q} (p : Γ ≃ [] + Δ) → Input (case {A} {B} (< p) P Q)
@@ -86,8 +86,10 @@ data Delayed where
 \begin{code}
   wait     : ∀{C Γ Δ P} (p : Γ ∋ ⊥ ⊳ Δ) → Delayed (wait (>_ {C} p) P)
 \end{code}
-where the \AgdaInductiveConstructor{split-r} constructor indicates that the
-thread operates on a channel other than the most recent one.
+where the \AgdaInductiveConstructor{>} constructor indicates that the thread
+operates on a channel other than the most recent one. Note that here we have to
+specify the type $C$ in front of $\Context$ or else Agda is unable to resolve
+some metavariables.
 
 \begin{code}[hide]
   case     : ∀{Γ Δ C A B P Q} (p : Γ ∋ A & B ⊳ Δ) → Delayed (case {A} {B} (>_ {C} p) P Q)
@@ -202,7 +204,7 @@ all-thread (> p) = inj₂ (inj₁ (all p))
 \end{code}
 
 In order to prove that every (well-typed) process is alive, it is convenient to
-also define a ``canonical'' form for cuts, which is a form that matches at least
+also define a ``canonical'' form for cuts, that is a form that matches at least
 one of the left-hand-sides of the rules for structural pre-congruence or
 reduction (\Cref{tab:semantics}). This is the notion where the fine-grained
 classification of threads introduced earlier comes into play.
@@ -221,7 +223,7 @@ data CanonicalCut {Γ} : Process Γ → Set where
                       Server P → Client Q → CanonicalCut (cut {A} p P Q)
 \end{code}
 
-A \emph{canonical cut} $\Cut\x{P}{Q}$ has one of these forms:
+A \emph{canonical cut} $\Cut[A]\x{P}{Q}$ has one of these forms:
 \begin{itemize}
 \item $P$ is a link (\AgdaInductiveConstructor{cc-link}), or
 \item $P$ operates on a channel other than $x$ and is not a server
@@ -270,12 +272,13 @@ delayed-server-delayed-served : ∀{A Γ Δ P Q} → ¬ (DelayedServer {A ∷ Γ
 delayed-server-delayed-served (server _ _ , ())
 \end{code}
 
-Every cut $\Cut\x{P}{Q}$ where both $P$ and $Q$ are threads can be rewritten
+Every cut $\Cut[A]\x{P}{Q}$ where both $P$ and $Q$ are threads can be rewritten
 into a canonical cut using structural pre-congruence:
 
 \begin{code}
 canonical-cut : ∀{A Γ Γ₁ Γ₂ P Q} (p : Γ ≃ Γ₁ + Γ₂) →
-                Thread P → Thread Q → ∃[ R ] CanonicalCut R × cut {A} p P Q ⊒ R
+                Thread P → Thread Q →
+                ∃[ R ] CanonicalCut R × cut {A} p P Q ⊒ R
 \end{code}
 
 \begin{code}[hide]
@@ -396,11 +399,11 @@ deadlock-freedom : ∀{Γ} (P : Process Γ) → Alive P
 \end{code}
 
 When $P$ is a thread, then it is obviously observable and hence alive. When $P$
-is a cut $\Cut\x{P}{Q}$, \AgdaFunction{deadlock-freedom} is applied recursively
-on $P$ and $Q$. If either of these applications yields a reduction, then the
-whole cut is reducible and therefore alive. If both applications yield a thread,
-then we conclude that the cut is alive first rewriting it into a canonical cut
-(\AgdaFunction{canonical-cut}) and then using
+is a cut $\Cut[A]\x{P}{Q}$, \AgdaFunction{deadlock-freedom} is applied
+recursively on $P$ and $Q$. If either of these applications yields a reduction,
+then the whole cut is reducible and therefore alive. If both applications yield
+a thread, then we conclude that the cut is alive first rewriting it into a
+canonical cut (\AgdaFunction{canonical-cut}) and then using
 \AgdaFunction{canonical-cut-alive}.
 
 \begin{code}[hide]
