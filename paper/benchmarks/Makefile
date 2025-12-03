@@ -5,6 +5,7 @@ SOURCES = \
   2016Goto \
   2019Thiemann \
   2020Castro \
+  2020Ciccone \
   2020Zalakain \
   2022Jacobs \
   2023Sano \
