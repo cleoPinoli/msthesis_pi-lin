@@ -13,7 +13,6 @@ SOURCES = \
   $(NULL)
 
 TARGETS = \
-	$(SOURCES:%=%.zip) \
 	$(SOURCES:%=%.txt) \
 	$(SOURCES:%=%.squeezed.txt) \
 	$(NULL)
