@@ -11,9 +11,9 @@ whether such actions operate on free or bound channels. We define predicates for
 each of these process classes:
 
 \begin{code}[hide]
+{-# OPTIONS --rewriting #-}
 open import Data.Sum
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
-open import Data.Bool using (Bool; true; false; if_then_else_)
 open import Data.List.Base using ([]; _∷_; [_])
 open import Relation.Nullary using (¬_; contradiction)
 open import Relation.Binary.PropositionalEquality using (refl)
@@ -52,109 +52,69 @@ cut or on a free channel. As an illustration, consider the
 \begin{AgdaAlign}
 \begin{code}[hide]
 data Cut where
-  cut :
-    ∀{Γ Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)} →
-    Cut (cut d p P Q)
+  cut : ∀{Γ Γ₁ Γ₂ A P Q} (p : Γ ≃ Γ₁ + Γ₂) -> Cut (cut {A} p P Q)
 
 data Link where
-  link :
-    ∀{Γ A B} (d : Dual A B) (p : Γ ≃ [ A ] + [ B ]) → Link (link d p)
+  link : ∀{Γ A} (p : Γ ≃ [ A ] + [ dual A ]) → Link (link p)
 
 data Input where
-  fail :
-    ∀{Γ Δ}
-    (p : Γ ≃ [] + Δ) → Input (fail (split-l p))
+  fail : ∀{Γ Δ} (p : Γ ≃ [] + Δ) → Input (fail (< p))
 \end{code}
 
 \begin{code}
-  wait : ∀{Γ Δ} (p : Γ ≃ [] + Δ) {P : Process Δ} → Input (wait (split-l p) P)
+  wait : ∀{Γ Δ P} (p : Γ ≃ [] + Δ) → Input (wait (< p) P)
 \end{code}
 where the \AgdaInductiveConstructor{split-l} constructor indicates that the
 thread operates on the most recent channel. In the latter predicate we have
 
 \begin{code}[hide]
-  case :
-    ∀{Γ Δ A B} (p : Γ ≃ [] + Δ) {P : Process (A ∷ Δ)} {Q : Process (B ∷ Δ)} →
-    Input (case (split-l p) P Q)
-  join :
-    ∀{Γ Δ A B} (p : Γ ≃ [] + Δ) {P : Process (B ∷ A ∷ Δ)} →
-    Input (join (split-l p) P)
-
-data Client where
-  client :
-    ∀{Γ Δ A} (p : Γ ≃ [] + Δ)
-    {P : Process (A ∷ Δ)} →
-    Client (client (split-l p) P)
-  weaken :
-    ∀{Γ Δ A} (p : Γ ≃ [] + Δ)
-    {P : Process Δ} →
-    Client (weaken {A = A} (split-l p) P)
-  contract :
-    ∀{Γ Δ A} (p : Γ ≃ [] + Δ)
-    {P : Process (¿ A ∷ ¿ A ∷ Δ)} →
-    Client (contract (split-l p) P)
+  case : ∀{Γ Δ A B P Q} (p : Γ ≃ [] + Δ) → Input (case {A} {B} (< p) P Q)
+  join : ∀{Γ Δ A B P} (p : Γ ≃ [] + Δ) → Input (join {A} {B} (< p) P)
+  all  : ∀{A Γ Δ F} (p : Γ ≃ [] + Δ) -> Input (all {A} (< p) F)
 
 data Output where
-  close : Output close
-  select :
-    ∀{Γ Δ A B} (x : Bool) (p : Γ ≃ [] + Δ) {P : Process ((if x then A else B) ∷ Δ)} →
-    Output (select x (split-l p) P)
-  fork :
-    ∀{Γ Δ Δ₁ Δ₂ A B} (p : Γ ≃ [] + Δ) (q : Δ ≃ Δ₁ + Δ₂)
-    {P : Process (A ∷ Δ₁)} {Q : Process (B ∷ Δ₂)} →
-    Output (fork (split-l p) q P Q)
+  close  : Output close
+  left   : ∀{Γ Δ A B P} (p : Γ ≃ [] + Δ) → Output (left {A} {B} (< p) P)
+  right  : ∀{Γ Δ A B P} (p : Γ ≃ [] + Δ) → Output (right {A} {B} (< p) P)
+  fork   : ∀{Γ Δ Δ₁ Δ₂ A B P Q} (p : Γ ≃ [] + Δ) (q : Δ ≃ Δ₁ + Δ₂) -> Output (fork {A} {B} (< p) q P Q)
+  ex     : ∀{A B Γ Δ P} (p : Γ ≃ [] + Δ) -> Output (ex {A} {B} (< p) P)
 
 data Delayed where
-  fail :
-    ∀{A Γ Δ}
-    (p : Γ ≃ ⊤ , Δ) → Delayed (fail (split-r {A} p))
+  fail     : ∀{C Γ Δ} (p : Γ ∋ ⊤ ⊳ Δ) → Delayed (fail (>_ {C} p))
 \end{code}
 
 \begin{code}
-  wait : ∀{C Γ Δ} (p : Γ ≃ ⊥ , Δ) {P : Process (C ∷ Δ)} →
-         Delayed (wait (split-r p) P)
+  wait     : ∀{C Γ Δ P} (p : Γ ∋ ⊥ ⊳ Δ) → Delayed (wait (>_ {C} p) P)
 \end{code}
 where the \AgdaInductiveConstructor{split-r} constructor indicates that the
 thread operates on a channel other than the most recent one.
 
 \begin{code}[hide]
-  case :
-    ∀{Γ Δ C A B} (p : Γ ≃ A & B , Δ) {P : Process (A ∷ C ∷ Δ)} {Q : Process (B ∷ C ∷ Δ)} →
-    Delayed (case (split-r p) P Q)
-  join :
-    ∀{Γ Δ C A B} (p : Γ ≃ A ⅋ B , Δ) {P : Process (B ∷ A ∷ C ∷ Δ)} →
-    Delayed (join (split-r p) P)
-  select :
-    ∀{Γ Δ C A B} (x : Bool) (p : Γ ≃ A ⊕ B , Δ) {P : Process ((if x then A else B) ∷ C ∷ Δ)} →
-    Delayed (select x (split-r p) P)
-  fork-l :
-    ∀{Γ Δ Δ₁ Δ₂ C A B} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Δ₁ + Δ₂)
-    {P : Process (A ∷ C ∷ Δ₁)} {Q : Process (B ∷ Δ₂)} →
-    Delayed (fork (split-r p) (split-l q) P Q)
-  fork-r :
-    ∀{Γ Δ Δ₁ Δ₂ C A B} (p : Γ ≃ A ⊗ B , Δ) (q : Δ ≃ Δ₁ + Δ₂)
-    {P : Process (A ∷ Δ₁)} {Q : Process (B ∷ C ∷ Δ₂)} →
-    Delayed (fork (split-r p) (split-r q) P Q)
-  client :
-    ∀{Γ Δ A C} (p : Γ ≃ ¿ A , Δ) {P : Process (A ∷ C ∷ Δ)} →
-    Delayed (client (split-r p) P)
-  weaken :
-    ∀{Γ Δ A C} (p : Γ ≃ ¿ A , Δ) {P : Process (C ∷ Δ)} →
-    Delayed (weaken (split-r p) P)
-  contract :
-    ∀{Γ Δ A C} (p : Γ ≃ ¿ A , Δ) {P : Process (¿ A ∷ ¿ A ∷ C ∷ Δ)} →
-    Delayed (contract (split-r p) P)
+  case     : ∀{Γ Δ C A B P Q} (p : Γ ∋ A & B ⊳ Δ) → Delayed (case {A} {B} (>_ {C} p) P Q)
+  join     : ∀{Γ Δ C A B P} (p : Γ ∋ A ⅋ B ⊳ Δ) → Delayed (join (>_ {C} p) P)
+  left     : ∀{Γ Δ C A B P} (p : Γ ∋ A ⊕ B ⊳ Δ) → Delayed (left (>_ {C} p) P)
+  right    : ∀{Γ Δ C A B P} (p : Γ ∋ A ⊕ B ⊳ Δ) → Delayed (right (>_ {C} p) P)
+  fork-l   : ∀{Γ Δ Δ₁ Δ₂ C A B P Q} (p : Γ ∋ A ⊗ B ⊳ Δ) (q : Δ ≃ Δ₁ + Δ₂) →
+             Delayed (fork (>_ {C} p) (< q) P Q)
+  fork-r   : ∀{Γ Δ Δ₁ Δ₂ C A B P Q} (p : Γ ∋ A ⊗ B ⊳ Δ) (q : Δ ≃ Δ₁ + Δ₂) →
+             Delayed (fork (>_ {C} p) (> q) P Q)
+  client   : ∀{Γ Δ A C P} (p : Γ ∋ `? A ⊳ Δ) → Delayed (client (>_ {C} p) P)
+  weaken   : ∀{Γ Δ A C P} (p : Γ ∋ `? A ⊳ Δ) → Delayed (weaken (>_ {C} p) P)
+  contract : ∀{Γ Δ A C P} (p : Γ ∋ `? A ⊳ Δ) → Delayed (contract (>_ {C} p) P)
+  ex       : ∀{A B C Γ Δ P} (p : Γ ∋ `∃ A ⊳ Δ) → Delayed (ex {A} {B} (>_ {C} p) P)
+  all      : ∀{A C Γ Δ F} (p : Γ ∋ `∀ A ⊳ Δ) → Delayed (all (>_ {C} p) F)
+
+data Client where
+  client   : ∀{Γ Δ A P} (p : Γ ≃ [] + Δ) → Client (client {A} (< p) P)
+  weaken   : ∀{Γ Δ A P} (p : Γ ≃ [] + Δ) → Client (weaken {A} (< p) P)
+  contract : ∀{Γ Δ A P} (p : Γ ≃ [] + Δ) → Client (contract {A} (< p) P)
 
 data Server where
-  server :
-    ∀{Γ Δ A} (p : Γ ≃ [] + Δ) (un : Un Δ) {P : Process (A ∷ Δ)} →
-    Server (server (split-l p) un P)
+  server : ∀{Γ Δ A P} (p : Γ ≃ [] + Δ) (un : Un Δ) → Server (server {A} (< p) un P)
 
 data DelayedServer where
-  server :
-    ∀{Γ Δ A C} (p : Γ ≃ ¡ A , Δ) (un : Un Δ) {P : Process (A ∷ ¿ C ∷ Δ)} →
-    DelayedServer (server (split-r p) (un-∷ un) P)
+  server : ∀{Γ Δ A C P} (p : Γ ∋ `! A ⊳ Δ) (un : Un Δ) →
+           DelayedServer (server (> p) (un-∷ {C} un) P)
 \end{code}
 \end{AgdaAlign}
 
@@ -181,72 +141,64 @@ Alive P = Observable P ⊎ Reducible P
 \end{code}
 
 \begin{code}[hide]
-link-thread : ∀{Γ A B} (d : Dual A B) (p : Γ ≃ [ A ] + [ B ]) → Thread (link d p)
-link-thread d p = inj₁ (link d p)
+link-thread : ∀{A Γ} (p : Γ ≃ [ A ] + [ dual A ]) → Thread (link p)
+link-thread p = inj₁ (link p)
 
 close-thread : Thread close
 close-thread = inj₂ (inj₂ (inj₁ close))
 
-wait-thread : ∀{Γ Δ} (p : Γ ≃ [ ⊥ ] + Δ) {P : Process Δ} → Thread (wait p P)
-wait-thread (split-l p) = inj₂ (inj₂ (inj₂ (inj₁ (wait p))))
-wait-thread (split-r p) = inj₂ (inj₁ (wait p))
+wait-thread : ∀{Γ Δ P} (p : Γ ≃ [ ⊥ ] + Δ) → Thread (wait p P)
+wait-thread (< p) = inj₂ (inj₂ (inj₂ (inj₁ (wait p))))
+wait-thread (> p) = inj₂ (inj₁ (wait p))
 
 fail-thread : ∀{Γ Δ} (p : Γ ≃ [ ⊤ ] + Δ) → Thread (fail p)
-fail-thread (split-l p) = inj₂ (inj₂ (inj₂ (inj₁ (fail p))))
-fail-thread (split-r p) = inj₂ (inj₁ (fail p))
+fail-thread (< p) = inj₂ (inj₂ (inj₂ (inj₁ (fail p))))
+fail-thread (> p) = inj₂ (inj₁ (fail p))
 
-case-thread :
-  ∀{Γ Δ A B} (p : Γ ≃ [ A & B ] + Δ) {P : Process (A ∷ Δ)} {Q : Process (B ∷ Δ)} →
-  Thread (case p P Q)
-case-thread (split-l p) = inj₂ (inj₂ (inj₂ (inj₁ (case p))))
-case-thread (split-r p) = inj₂ (inj₁ (case p))
+case-thread : ∀{A B Γ Δ P Q} (p : Γ ≃ [ A & B ] + Δ) → Thread (case p P Q)
+case-thread (< p) = inj₂ (inj₂ (inj₂ (inj₁ (case p))))
+case-thread (> p) = inj₂ (inj₁ (case p))
 
-join-thread :
-  ∀{Γ Δ A B} (p : Γ ≃ [ A ⅋ B ] + Δ) {P : Process (B ∷ A ∷ Δ)} →
-  Thread (join p P)
-join-thread (split-l p) = inj₂ (inj₂ (inj₂ (inj₁ (join p))))
-join-thread (split-r p) = inj₂ (inj₁ (join p))
+join-thread : ∀{A B Γ Δ P} (p : Γ ≃ [ A ⅋ B ] + Δ) → Thread (join p P)
+join-thread (< p) = inj₂ (inj₂ (inj₂ (inj₁ (join p))))
+join-thread (> p) = inj₂ (inj₁ (join p))
 
-select-thread :
-  ∀{Γ Δ A B} (x : Bool) (p : Γ ≃ A ⊕ B , Δ) {P : Process ((if x then A else B) ∷ Δ)} →
-  Thread (select x p P)
-select-thread x (split-l p) = inj₂ (inj₂ (inj₁ (select x p)))
-select-thread x (split-r p) = inj₂ (inj₁ (select x p))
+left-thread : ∀{A B Γ Δ P} (p : Γ ∋ A ⊕ B ⊳ Δ) → Thread (left p P)
+left-thread (< p) = inj₂ (inj₂ (inj₁ (left p)))
+left-thread (> p) = inj₂ (inj₁ (left p))
 
-fork-thread :
-  ∀{Γ Δ Δ₁ Δ₂ A B} (p : Γ ≃ [ A ⊗ B ] + Δ) (q : Δ ≃ Δ₁ + Δ₂)
-  {P : Process (A ∷ Δ₁)} {Q : Process (B ∷ Δ₂)} →
-  Thread (fork p q P Q)
-fork-thread (split-l p) q = inj₂ (inj₂ (inj₁ (fork p q)))
-fork-thread (split-r p) (split-l q) = inj₂ (inj₁ (fork-l p q))
-fork-thread (split-r p) (split-r q) = inj₂ (inj₁ (fork-r p q))
+right-thread : ∀{A B Γ Δ P} (p : Γ ∋ A ⊕ B ⊳ Δ) → Thread (right p P)
+right-thread (< p) = inj₂ (inj₂ (inj₁ (right p)))
+right-thread (> p) = inj₂ (inj₁ (right p))
 
-client-thread :
-  ∀{Γ Δ A} (p : Γ ≃ [ ¿ A ] + Δ)
-  {P : Process (A ∷ Δ)} →
-  Thread (client p P)
-client-thread (split-l p) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (client p)))))
-client-thread (split-r p) = inj₂ (inj₁ (client p))
+fork-thread : ∀{A B Γ Δ Δ₁ Δ₂ P Q} (p : Γ ≃ [ A ⊗ B ] + Δ) (q : Δ ≃ Δ₁ + Δ₂) → Thread (fork p q P Q)
+fork-thread (< p) q = inj₂ (inj₂ (inj₁ (fork p q)))
+fork-thread (> p) (< q) = inj₂ (inj₁ (fork-l p q))
+fork-thread (> p) (> q) = inj₂ (inj₁ (fork-r p q))
 
-weaken-thread :
-  ∀{Γ Δ A} (p : Γ ≃ [ ¿ A ] + Δ)
-  {P : Process Δ} →
-  Thread (weaken {A = A} p P)
-weaken-thread (split-l p) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (weaken p)))))
-weaken-thread (split-r p) = inj₂ (inj₁ (weaken p))
+client-thread : ∀{A Γ Δ P} (p : Γ ≃ [ `? A ] + Δ) → Thread (client p P)
+client-thread (< p) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (client p)))))
+client-thread (> p) = inj₂ (inj₁ (client p))
 
-contract-thread :
-  ∀{Γ Δ A} (p : Γ ≃ [ ¿ A ] + Δ)
-  {P : Process (¿ A ∷ ¿ A ∷ Δ)} →
-  Thread (contract p P)
-contract-thread (split-l p) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (contract p)))))
-contract-thread (split-r p) = inj₂ (inj₁ (contract p))
+weaken-thread : ∀{A Γ Δ P} (p : Γ ≃ [ `? A ] + Δ) → Thread (weaken {A = A} p P)
+weaken-thread (< p) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (weaken p)))))
+weaken-thread (> p) = inj₂ (inj₁ (weaken p))
 
-server-thread :
-  ∀{Γ Δ A} (p : Γ ≃ [ ¡ A ] + Δ) (un : Un Δ) {P : Process (A ∷ Δ)} →
-  Thread (server p un P)
-server-thread (split-l p) un = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (server p un))))))
-server-thread (split-r p) (un-∷ un) = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (server p un))))))
+contract-thread : ∀{A Γ Δ P} (p : Γ ≃ [ `? A ] + Δ) → Thread (contract p P)
+contract-thread (< p) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (contract p)))))
+contract-thread (> p) = inj₂ (inj₁ (contract p))
+
+server-thread : ∀{A Γ Δ P} (p : Γ ≃ [ `! A ] + Δ) (un : Un Δ) → Thread (server p un P)
+server-thread (< p) un = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (server p un))))))
+server-thread (> p) (un-∷ un) = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (server p un))))))
+
+ex-thread : ∀{A B Γ Δ P} (p : Γ ∋ `∃ A ⊳ Δ) -> Thread (ex {A} {B} p P)
+ex-thread (< p) = inj₂ (inj₂ (inj₁ (ex p)))
+ex-thread (> p) = inj₂ (inj₁ (ex p))
+
+all-thread : ∀{A Γ Δ F} (p : Γ ∋ `∀ A ⊳ Δ) -> Thread (all p F)
+all-thread (< p) = inj₂ (inj₂ (inj₂ (inj₁ (all p))))
+all-thread (> p) = inj₂ (inj₁ (all p))
 \end{code}
 
 In order to prove that every (well-typed) process is alive, it is convenient to
@@ -257,26 +209,16 @@ classification of threads introduced earlier comes into play.
 
 \begin{code}
 data CanonicalCut {Γ} : Process Γ → Set where
-  cc-link :
-    ∀{Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)} →
-    Link P → CanonicalCut (cut d p P Q)
-  cc-delayed :
-    ∀{Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)} →
-    Delayed P → CanonicalCut (cut d p P Q)
-  cc-delayed-server :
-    ∀{Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)} →
-    DelayedServer P → Server Q → CanonicalCut (cut d p P Q)
-  cc-redex :
-    ∀{Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)} →
-    Output P → Input Q → CanonicalCut (cut d p P Q)
-  cc-connect :
-    ∀{Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂)
-    {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)} →
-    Server P → Client Q → CanonicalCut (cut d p P Q)
+  cc-link           : ∀{Γ₁ Γ₂ A P Q} (p : Γ ≃ Γ₁ + Γ₂) →
+                      Link P → CanonicalCut (cut {A} p P Q)
+  cc-delayed        : ∀{Γ₁ Γ₂ A P Q} (p : Γ ≃ Γ₁ + Γ₂) →
+                      Delayed P → CanonicalCut (cut {A} p P Q)
+  cc-delayed-server : ∀{Γ₁ Γ₂ A P Q} (p : Γ ≃ Γ₁ + Γ₂) →
+                      DelayedServer P → Server Q → CanonicalCut (cut {A} p P Q)
+  cc-redex          : ∀{Γ₁ Γ₂ A P Q} (p : Γ ≃ Γ₁ + Γ₂) →
+                      Output P → Input Q → CanonicalCut (cut {A} p P Q)
+  cc-connect        : ∀{Γ₁ Γ₂ A P Q} (p : Γ ≃ Γ₁ + Γ₂) →
+                      Server P → Client Q → CanonicalCut (cut {A} p P Q)
 \end{code}
 
 A \emph{canonical cut} $\Cut\x{P}{Q}$ has one of these forms:
@@ -291,95 +233,81 @@ A \emph{canonical cut} $\Cut\x{P}{Q}$ has one of these forms:
 \end{itemize}
 
 \begin{code}[hide]
-output-output :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Output P × Output Q)
-output-output d-𝟙-⊥ (close , ())
+output-output : ∀{A Γ Δ P Q} → ¬ (Output {A ∷ Γ} P × Output {dual A ∷ Δ} Q)
+output-output (close , ())
 
-output-client :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Output P × Client Q)
-output-client () (close , client p)
+output-client : ∀{A Γ Δ P Q} → ¬ (Output {A ∷ Γ} P × Client {dual A ∷ Δ} Q)
+output-client (close , ())
 
-output-server :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Output P × Server Q)
-output-server () (close , server p un)
+output-server : ∀{A Γ Δ P Q} → ¬ (Output {A ∷ Γ} P × Server {dual A ∷ Δ} Q)
+output-server (close , ())
 
-output-delayed-server :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Output P × DelayedServer Q)
-output-delayed-server () (close , server p un)
+output-delayed-server : ∀{A Γ Δ P Q} → ¬ (Output {A ∷ Γ} P × DelayedServer {dual A ∷ Δ} Q)
+output-delayed-server (close , ())
 
-input-input :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Input P × Input Q)
-input-input d-⊤-𝟘 (fail p , ())
+input-input : ∀{A Γ Δ P Q} → ¬ (Input {A ∷ Γ} P × Input {dual A ∷ Δ} Q)
+input-input (fail _ , ())
 
-input-client :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Input P × Client Q)
-input-client () (fail p₁ , client p)
+input-client : ∀{A Γ Δ P Q} → ¬ (Input {A ∷ Γ} P × Client {dual A ∷ Δ} Q)
+input-client (fail _ , ())
 
-input-server :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Input P × Server Q)
-input-server () (fail p₁ , server p un)
+input-server : ∀{A Γ Δ P Q} → ¬ (Input {A ∷ Γ} P × Server {dual A ∷ Δ} Q)
+input-server (fail _ , ())
 
-input-delayed-server :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Input P × DelayedServer Q)
-input-delayed-server () (fail p₁ , server p un)
+input-delayed-server : ∀{A Γ Δ P Q} → ¬ (Input {A ∷ Γ} P × DelayedServer {dual A ∷ Δ} Q)
+input-delayed-server (fail _ , ())
 
-client-client :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Client P × Client Q)
-client-client () (client p , client p₁)
+client-client : ∀{A Γ Δ P Q} → ¬ (Client {A ∷ Γ} P × Client {dual A ∷ Δ} Q)
+client-client (client _ , ())
 
-client-delayed-server :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Client P × DelayedServer Q)
-client-delayed-server () (client p₁ , server p un)
+client-delayed-server : ∀{A Γ Δ P Q} → ¬ (Client {A ∷ Γ} P × DelayedServer {dual A ∷ Δ} Q)
+client-delayed-server (client _ , ())
 
-server-server :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (Server P × Server Q)
-server-server () (server p un , server p₁ un₁)
+server-server : ∀{A Γ Δ P Q} → ¬ (Server {A ∷ Γ} P × Server {dual A ∷ Δ} Q)
+server-server (server _ _ , ())
 
-delayed-server-delayed-served :
-  ∀{Γ Δ A B} {P : Process (A ∷ Γ)} {Q : Process (B ∷ Δ)} → Dual A B → ¬ (DelayedServer P × DelayedServer Q)
-delayed-server-delayed-served () (server p un , server p₁ un₁)
+delayed-server-delayed-served : ∀{A Γ Δ P Q} → ¬ (DelayedServer {A ∷ Γ} P × DelayedServer {dual A ∷ Δ} Q)
+delayed-server-delayed-served (server _ _ , ())
 \end{code}
 
 Every cut $\Cut\x{P}{Q}$ where both $P$ and $Q$ are threads can be rewritten
 into a canonical cut using structural pre-congruence:
 
 \begin{code}
-canonical-cut :
-  ∀{Γ Γ₁ Γ₂ A B} {P : Process (A ∷ Γ₁)} {Q : Process (B ∷ Γ₂)}
-  (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) →
-  Thread P → Thread Q → ∃[ R ] CanonicalCut R × cut d p P Q ⊒ R
+canonical-cut : ∀{A Γ Γ₁ Γ₂ P Q} (p : Γ ≃ Γ₁ + Γ₂) →
+                Thread P → Thread Q → ∃[ R ] CanonicalCut R × cut {A} p P Q ⊒ R
 \end{code}
 
 \begin{code}[hide]
-canonical-cut dc pc (inj₁ x) Qt = _ , cc-link dc pc x , s-refl
-canonical-cut dc pc (inj₂ x) (inj₁ y) = _ , cc-link (dual-symm dc) (+-comm pc) y , s-comm dc pc
-canonical-cut dc pc (inj₂ (inj₁ x)) (inj₂ y) = _ , cc-delayed dc pc x , s-refl
-canonical-cut dc pc (inj₂ (inj₂ x)) (inj₂ (inj₁ y)) = _ , cc-delayed (dual-symm dc) (+-comm pc) y , s-comm dc pc
-canonical-cut dc pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₁ y))) = contradiction (x , y) (output-output dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = _ , cc-redex dc pc x y , s-refl
-canonical-cut dc pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = contradiction (x , y) (output-client dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = contradiction (x , y) (output-server dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = contradiction (x , y) (output-delayed-server dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₁ y))) = _ , cc-redex (dual-symm dc) (+-comm pc) y x , s-comm dc pc
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₁ y))) = contradiction (y , x) (output-client (dual-symm dc))
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₁ y))) = contradiction (y , x) (output-server (dual-symm dc))
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₁ y))) = contradiction (y , x) (output-delayed-server (dual-symm dc))
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = contradiction (x , y) (input-input dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = contradiction (x , y) (input-client dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = contradiction (x , y) (input-server dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = contradiction (x , y) (input-delayed-server dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = contradiction (y , x) (input-client (dual-symm dc))
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = contradiction (y , x) (input-server (dual-symm dc))
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = contradiction (y , x) (input-delayed-server (dual-symm dc))
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = contradiction (x , y) (client-client dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = _ , cc-connect (dual-symm dc) (+-comm pc) y x , s-comm dc pc
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = contradiction (x , y) (client-delayed-server dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = _ , cc-connect dc pc x y , s-refl
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = contradiction (y , x) (client-delayed-server (dual-symm dc))
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = contradiction (x , y) (server-server dc)
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = _ , cc-delayed-server (dual-symm dc) (+-comm pc) y x , s-comm dc pc
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = _ , cc-delayed-server dc pc x y , s-refl
-canonical-cut dc pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = contradiction (x , y) (delayed-server-delayed-served dc)
+canonical-cut pc (inj₁ x) Qt = _ , cc-link pc x , s-refl
+canonical-cut pc (inj₂ x) (inj₁ y) = _ , cc-link (+-comm pc) y , s-comm pc
+canonical-cut pc (inj₂ (inj₁ x)) (inj₂ y) = _ , cc-delayed pc x , s-refl
+canonical-cut pc (inj₂ (inj₂ x)) (inj₂ (inj₁ y)) = _ , cc-delayed (+-comm pc) y , s-comm pc
+canonical-cut pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₁ y))) = contradiction (x , y) output-output
+canonical-cut pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = _ , cc-redex pc x y , s-refl
+canonical-cut pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = contradiction (x , y) output-client
+canonical-cut pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = contradiction (x , y) output-server
+canonical-cut pc (inj₂ (inj₂ (inj₁ x))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = contradiction (x , y) output-delayed-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₁ y))) = _ , cc-redex (+-comm pc) y x , s-comm pc
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₁ y))) = contradiction (y , x) output-client
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₁ y))) = contradiction (y , x) output-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₁ y))) = contradiction (y , x) output-delayed-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = contradiction (x , y) (input-input)
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = contradiction (x , y) input-client
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = contradiction (x , y) input-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₁ x)))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = contradiction (x , y) input-delayed-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = contradiction (y , x) input-client
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = contradiction (y , x) input-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₂ (inj₁ y)))) = contradiction (y , x) input-delayed-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = contradiction (x , y) client-client
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = _ , cc-connect (+-comm pc) y x , s-comm pc
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = contradiction (x , y) client-delayed-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = _ , cc-connect pc x y , s-refl
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y))))) = contradiction (y , x) client-delayed-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = contradiction (x , y) server-server
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = _ , cc-delayed-server (+-comm pc) y x , s-comm pc
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ y)))))) = _ , cc-delayed-server pc x y , s-refl
+canonical-cut pc (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x)))))) (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ y)))))) = contradiction (x , y) delayed-server-delayed-served
 
 ⊒Alive : ∀{Γ} {P Q : Process Γ} → P ⊒ Q → Alive Q → Alive P
 ⊒Alive pcong (inj₁ (_ , x , th)) = inj₁ (_ , s-tran pcong x , th)
@@ -394,64 +322,71 @@ canonical-cut-alive : ∀{Γ} {P : Process Γ} → CanonicalCut P → Alive P
 \end{code}
 
 \begin{code}[hide]
-canonical-cut-alive (cc-link d p (link e (split-l (split-r split-e)))) with dual-fun-r e d
-... | refl = inj₂ (_ , r-link d e p)
-canonical-cut-alive (cc-link d p (link e (split-r (split-l split-e)))) with dual-fun-l e (dual-symm d)
-... | refl = inj₂ (_ , r-cong (s-cong d p (s-link e (split-r (split-l split-e))) s-refl) (r-link d (dual-symm e) p))
-canonical-cut-alive (cc-redex d-𝟙-⊥ p close (wait q)) with +-empty-l p | +-empty-l q
+canonical-cut-alive (cc-link p (link (< > •))) = inj₂ (_ , r-link p)
+canonical-cut-alive (cc-link p (link (> < •))) =
+  inj₂ (_ , r-cong (s-cong p (s-link (> < •)) s-refl) (r-link p))
+canonical-cut-alive (cc-redex p close (wait q)) with +-empty-l p | +-empty-l q
 ... | refl | refl = inj₂ (_ , r-close p q)
-canonical-cut-alive (cc-redex (d-⊕-& d e) p (select false q) (case r)) with +-empty-l q | +-empty-l r
-... | refl | refl = inj₂ (_ , r-select-r d e p q r)
-canonical-cut-alive (cc-redex (d-⊕-& d e) p (select true q) (case r)) with +-empty-l q | +-empty-l r
-... | refl | refl = inj₂ (_ , r-select-l d e p q r)
-canonical-cut-alive (cc-redex (d-⊗-⅋ d e) p (fork q r) (join s)) with +-empty-l q | +-empty-l s
-... | refl | refl = inj₂ (_ , r-fork d e p s r q)
-canonical-cut-alive (cc-connect (d-!-? d) p (server q un) (client r)) with +-empty-l q | +-empty-l r
-... | refl | refl = inj₂ (_ , r-client d p q r un)
-canonical-cut-alive (cc-connect (d-!-? d) p (server q un) (weaken r)) with +-empty-l q | +-empty-l r
-... | refl | refl = inj₂ (_ , r-weaken d p q r un)
-canonical-cut-alive (cc-connect (d-!-? d) p (server q un) (contract r)) with +-empty-l q | +-empty-l r
-... | refl | refl = inj₂ (_ , r-contract d p q r un)
-canonical-cut-alive (cc-delayed d p (wait q)) =
+canonical-cut-alive (cc-redex p (right q) (case r)) with +-empty-l q | +-empty-l r
+... | refl | refl = inj₂ (_ , r-right p q r)
+canonical-cut-alive (cc-redex p (left q) (case r)) with +-empty-l q | +-empty-l r
+... | refl | refl = inj₂ (_ , r-left p q r)
+canonical-cut-alive (cc-redex p (fork q r) (join s)) with +-empty-l q | +-empty-l s
+... | refl | refl = inj₂ (_ , r-fork p s r q)
+canonical-cut-alive (cc-redex p (ex q) (all r)) with +-empty-l q | +-empty-l r
+... | refl | refl = inj₂ (_ , r-poly p q r)
+canonical-cut-alive (cc-connect p (server q un) (client r)) with +-empty-l q | +-empty-l r
+... | refl | refl = inj₂ (_ , r-client p q r un)
+canonical-cut-alive (cc-connect p (server q un) (weaken r)) with +-empty-l q | +-empty-l r
+... | refl | refl = inj₂ (_ , r-weaken p q r un)
+canonical-cut-alive (cc-connect p (server q un) (contract r)) with +-empty-l q | +-empty-l r
+... | refl | refl = inj₂ (_ , r-contract p q r un)
+canonical-cut-alive (cc-delayed p (wait q)) =
   let _ , _ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-wait d p q , wait-thread q′)
-canonical-cut-alive (cc-delayed d p (case q)) =
+  inj₁ (_ , s-wait p q , wait-thread q′)
+canonical-cut-alive (cc-delayed p (case q)) =
   let _ , _ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-case d p q , case-thread q′)
-canonical-cut-alive (cc-delayed d p (join q)) =
+  inj₁ (_ , s-case p q , case-thread q′)
+canonical-cut-alive (cc-delayed p (join q)) =
   let _ , _ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-join d p q , join-thread q′)
-canonical-cut-alive (cc-delayed d p (select false q)) =
+  inj₁ (_ , s-join p q , join-thread q′)
+canonical-cut-alive (cc-delayed p (right q)) =
   let _ , _ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-select-r d p q , select-thread false q′)
-canonical-cut-alive (cc-delayed d p (select true q)) =
+  inj₁ (_ , s-right p q , right-thread q′)
+canonical-cut-alive (cc-delayed p (left q)) =
   let _ , _ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-select-l d p q , select-thread true q′)
-canonical-cut-alive (cc-delayed d p (fork-l q r)) =
+  inj₁ (_ , s-left p q , left-thread q′)
+canonical-cut-alive (cc-delayed p (fork-l q r)) =
   let _ , p′ , q′ = +-assoc-l p q in
   let _ , p′′ , r′ = +-assoc-l p′ r in
   let _ , q′′ , r′′ = +-assoc-r r′ (+-comm p′′) in
-  inj₁ (_ , s-fork-l d p q r , fork-thread q′ r′′)
-canonical-cut-alive (cc-delayed d p (fork-r q r)) =
+  inj₁ (_ , s-fork-l p q r , fork-thread q′ r′′)
+canonical-cut-alive (cc-delayed p (fork-r q r)) =
   let _ , p′ , q′ = +-assoc-l p q in
   let _ , p′′ , r′ = +-assoc-l p′ r in
-  inj₁ (_ , s-fork-r d p q r , fork-thread q′ r′)
-canonical-cut-alive (cc-delayed d p (fail q)) =
+  inj₁ (_ , s-fork-r p q r , fork-thread q′ r′)
+canonical-cut-alive (cc-delayed p (fail q)) =
   let _ , p′ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-fail d p q , fail-thread q′)
-canonical-cut-alive (cc-delayed d p (client q)) =
+  inj₁ (_ , s-fail p q , fail-thread q′)
+canonical-cut-alive (cc-delayed p (client q)) =
   let _ , _ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-client d p q , client-thread q′)
-canonical-cut-alive (cc-delayed d p (weaken q)) =
+  inj₁ (_ , s-client p q , client-thread q′)
+canonical-cut-alive (cc-delayed p (weaken q)) =
   let _ , _ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-weaken d p q , weaken-thread q′)
-canonical-cut-alive (cc-delayed d p (contract q)) =
+  inj₁ (_ , s-weaken p q , weaken-thread q′)
+canonical-cut-alive (cc-delayed p (contract q)) =
   let _ , _ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-contract d p q , contract-thread q′)
-canonical-cut-alive (cc-delayed-server (d-?-! d) p (server q un) (server r un′)) with +-empty-l r
+  inj₁ (_ , s-contract p q , contract-thread q′)
+canonical-cut-alive (cc-delayed p (ex q)) =
+  let _ , _ , q' = +-assoc-l p q in
+  inj₁ (_ , s-ex p q , ex-thread q')
+canonical-cut-alive (cc-delayed p (all q)) =
+  let _ , _ , q' = +-assoc-l p q in
+  inj₁ (_ , s-all p q , all-thread q')
+canonical-cut-alive (cc-delayed-server p (server q un) (server r un′)) with +-empty-l r
 ... | refl =
   let _ , p′ , q′ = +-assoc-l p q in
-  inj₁ (_ , s-server d p q r un un′ , server-thread q′ (#un+ p′ un un′))
+  inj₁ (_ , s-server p q r un un′ , server-thread q′ (+-un p′ un un′))
 \end{code}
 
 Now deadlock freedom for $P$ can be proved by induction on $P$.
@@ -469,11 +404,12 @@ then we conclude that the cut is alive first rewriting it into a canonical cut
 \AgdaFunction{canonical-cut-alive}.
 
 \begin{code}[hide]
-deadlock-freedom (link d p) = inj₁ (_ , s-refl , link-thread d p)
+deadlock-freedom (link p) = inj₁ (_ , s-refl , link-thread p)
 deadlock-freedom (fail p) = inj₁ (_ , s-refl , fail-thread p)
 deadlock-freedom close = inj₁ (_ , s-refl , close-thread)
 deadlock-freedom (wait p P) = inj₁ (_ , s-refl , wait-thread p)
-deadlock-freedom (select x p P) = inj₁ (_ , s-refl , select-thread x p)
+deadlock-freedom (left p P) = inj₁ (_ , s-refl , left-thread p)
+deadlock-freedom (right p P) = inj₁ (_ , s-refl , right-thread p)
 deadlock-freedom (case p P Q) = inj₁ (_ , s-refl , case-thread p)
 deadlock-freedom (fork p q P Q) = inj₁ (_ , s-refl , fork-thread p q)
 deadlock-freedom (join p P) = inj₁ (_ , s-refl , join-thread p)
@@ -481,10 +417,12 @@ deadlock-freedom (server p un P) = inj₁ (_ , s-refl , server-thread p un)
 deadlock-freedom (client p P) = inj₁ (_ , s-refl , client-thread p)
 deadlock-freedom (weaken p P) = inj₁ (_ , s-refl , weaken-thread p)
 deadlock-freedom (contract p P) = inj₁ (_ , s-refl , contract-thread p)
-deadlock-freedom (cut d p P Q) with deadlock-freedom P
-... | inj₂ (_ , red) = inj₂ (_ , r-cut d p red)
+deadlock-freedom (ex p P) = inj₁ (_ , s-refl , ex-thread p)
+deadlock-freedom (all p F) = inj₁ (_ , s-refl , all-thread p)
+deadlock-freedom (cut p P Q) with deadlock-freedom P
+... | inj₂ (_ , red) = inj₂ (_ , r-cut p red)
 ... | inj₁ (_ , Pc , Pt) with deadlock-freedom Q
-... | inj₂ (_ , red) = inj₂ (_ , r-cong (s-comm d p) (r-cut (dual-symm d) (+-comm p) red))
-... | inj₁ (_ , Qc , Qt) with canonical-cut d p Pt Qt
-... | _ , cc , pcong = ⊒Alive (s-tran (s-cong d p Pc Qc) pcong) (canonical-cut-alive cc)
+... | inj₂ (_ , red) = inj₂ (_ , r-cong (s-comm p) (r-cut (+-comm p) red))
+... | inj₁ (_ , Qc , Qt) with canonical-cut p Pt Qt
+... | _ , cc , pcong = ⊒Alive (s-tran (s-cong p Pc Qc) pcong) (canonical-cut-alive cc)
 \end{code}
