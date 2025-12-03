@@ -1,0 +1,22 @@
+
+LF mult : type =
+| 𝟘 : mult  % used
+| 𝟙 : mult; % available once
+
+
+LF • : mult → mult → mult → type =
+| •/00 : • 𝟘 𝟘 𝟘
+| •/10 : • 𝟙 𝟘 𝟙
+| •/01 : • 𝟘 𝟙 𝟙;
+
+
+LF hal : mult → type =
+| hal/0 : hal 𝟘;
+
+
+LF ident : mult → type =
+| ident/0 : ident 𝟘;
+
+
+LF mult_eq : mult → mult → type =
+| mult/refl : mult_eq α α;

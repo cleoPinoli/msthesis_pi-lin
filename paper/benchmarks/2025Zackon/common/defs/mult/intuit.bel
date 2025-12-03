@@ -1,0 +1,19 @@
+
+LF mult : type =
+| ω : mult; % unrestricted
+
+
+LF • : mult → mult → mult → type =
+| •/ωω : • ω ω ω;
+
+
+LF hal : mult → type =
+| hal/ω : hal ω;
+
+
+LF ident : mult → type =
+| ident/ω : ident ω;
+
+
+LF mult_eq : mult → mult → type =
+| mult/refl : mult_eq α α;

@@ -1,0 +1,104 @@
+
+
+
+rec mult_func : [ ⊢ • α₁ α₂ α] → [ ⊢ • α₁ α₂ α'] → [ ⊢ mult_eq α α'] =
+  / total /
+  fn m1, m2 ⇒ case m1 of
+  | [ ⊢ •/00] ⇒ let [ ⊢ •/00] = m2 in [ ⊢ mult/refl]
+  | [ ⊢ •/10] ⇒ let [ ⊢ •/10] = m2 in [ ⊢ mult/refl]
+  | [ ⊢ •/01] ⇒ let [ ⊢ •/01] = m2 in [ ⊢ mult/refl]
+  ;
+
+
+rec mult_id : [ ⊢ • α₁ α₂ α] → [ ⊢ ident α₁] → [ ⊢ mult_eq α₂ α] =
+  / total /
+  fn m, u ⇒
+  let [ ⊢ ident/0] = u in
+  case m of
+  | [ ⊢ •/00] ⇒ [ ⊢ mult/refl]
+  | [ ⊢ •/01] ⇒ [ ⊢ mult/refl]
+  ;
+
+LF get_u∙ : mult → type =
+| get-u∙ : ident β → • β α α → get_u∙ α;
+
+rec mult_get_id : {α:[ ⊢ mult]} [ ⊢ get_u∙ α] =
+  / total /
+  mlam α ⇒ case [ ⊢ α] of
+  | [ ⊢ 𝟘] ⇒ [ ⊢ get-u∙ ident/0 •/00]
+  | [ ⊢ 𝟙] ⇒ [ ⊢ get-u∙ ident/0 •/01]
+  ;
+
+
+rec mult_zsfree : [ ⊢ • α₁ α₂ α] → [ ⊢ ident α] → [ ⊢ mult_eq α₁ α] =
+  / total /
+  fn m, u ⇒
+  let [ ⊢ ident/0] = u in
+  let [ ⊢ •/00] = m in
+  [ ⊢ mult/refl]
+  ;
+
+
+rec mult_comm : [ ⊢ • α₁ α₂ α] → [ ⊢ • α₂ α₁ α] =
+  / total /
+  fn m ⇒ case m of
+  | [ ⊢ •/00] ⇒ [ ⊢ •/00]
+  | [ ⊢ •/10] ⇒ [ ⊢ •/01]
+  | [ ⊢ •/01] ⇒ [ ⊢ •/10]
+  ;
+
+
+LF •assoc : • _ _ _ → • _ _ _ → type =
+  •/assoc : • α₂ α₃ α₂₃ → • α₁ α₂₃ α → {M1:• α₁ α₂ α₁₂} {M2:• α₁₂ α₃ α} •assoc M1 M2;
+
+rec mult_assoc : {M1:[ ⊢ • α₁ α₂ α₁₂]} {M2:[ ⊢ • α₁₂ α₃ α]} [ ⊢ •assoc M1 M2] =
+  / total 2 /
+  mlam M1, M2 ⇒ case [ ⊢ M2] of
+  | [ ⊢ •/00] ⇒ let [ ⊢ •/00] = [ ⊢ M1] in [ ⊢ •/assoc •/00 •/00 M1 M2]
+  | [ ⊢ •/01] ⇒ let [ ⊢ •/00] = [ ⊢ M1] in [ ⊢ •/assoc •/01 •/01 M1 M2]
+  | [ ⊢ •/10] ⇒ case [ ⊢ M1] of
+    | [ ⊢ •/10] ⇒ [ ⊢ •/assoc •/00 •/10 M1 M2]
+    | [ ⊢ •/01] ⇒ [ ⊢ •/assoc •/10 •/01 M1 M2]
+  ;
+
+
+rec mult_canc : [ ⊢ • α₁ α₂ α] → [ ⊢ • α₁ α₂' α] → [ ⊢ mult_eq α₂ α₂'] =
+  / total /
+  fn m1, m2 ⇒ case m1 of
+  | [ ⊢ •/00] ⇒ let [ ⊢ •/00] = m2 in [ ⊢ mult/refl]
+  | [ ⊢ •/10] ⇒ let [ ⊢ •/10] = m2 in [ ⊢ mult/refl]
+  | [ ⊢ •/01] ⇒ let [ ⊢ •/01] = m2 in [ ⊢ mult/refl]
+  ;
+
+
+rec mult_id_cor : [ ⊢ • 𝟘 α₂ α] → [ ⊢ mult_eq α₂ α] =
+  / total /
+  fn m ⇒ mult_id m [ ⊢ ident/0]
+  ;
+
+rec mult_zsfree_cor : [ ⊢ • α₁ α₂ 𝟘] → [ ⊢ mult_eq α₁ 𝟘] =
+  / total /
+  fn m ⇒ mult_zsfree m [ ⊢ ident/0]
+  ;
+
+rec mult_get_id_cor : {α:[ ⊢ mult]} [ ⊢ • 𝟘 α α] =
+  / total /
+  mlam α ⇒ let [ ⊢ get-u∙ ident/0 M] = mult_get_id [ ⊢ α] in [ ⊢ M]
+  ;
+
+
+
+rec mult_hal_id : [ ⊢ hal α] → [ ⊢ • α α α] =
+  / total /
+  fn u ⇒ let [ ⊢ hal/0] = u in [ ⊢ •/00]
+  ;
+
+rec mult_ident_hal : [ ⊢ ident α] → [ ⊢ hal α] =
+  / total /
+  fn u ⇒ let [ ⊢ ident/0] = u in [ ⊢ hal/0]
+  ;
+
+rec mult_hal_ident : [ ⊢ hal α] → [ ⊢ ident α] =
+  / total /
+  fn u ⇒ let [ ⊢ hal/0] = u in [ ⊢ ident/0]
+  ;

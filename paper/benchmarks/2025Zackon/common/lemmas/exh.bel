@@ -1,0 +1,35 @@
+
+
+
+rec prune_exh : (Ψ:ctx) (Δ:[Ψ ⊢ lctx N[]]) [Ψ,x:obj ⊢ exh Δ[..]] → [Ψ ⊢ exh Δ] =
+  / total 1 /
+  fn e ⇒ case e of
+  | [_,x:obj ⊢ exh/n] ⇒ [_ ⊢ exh/n]
+  | [_,x:obj ⊢ exh/c E1 M[]] ⇒ let [_ ⊢ E2] = prune_exh [_,x:obj ⊢ E1] in [_ ⊢ exh/c E2 M[]]
+  ;
+
+
+
+rec exh_lookup : (Ψ:ctx) (Δ:[Ψ ⊢ lctx N[]]) [Ψ ⊢ exh Δ] → [Ψ ⊢ upd Δ n X Y A B α[] β Δ'] → [ ⊢ hal α] =
+  / total 1 /
+  fn e, u ⇒ case u of
+  | [_ ⊢ upd/t _] ⇒ let [_ ⊢ exh/c E M[]] = e in [ ⊢ M]
+  | [_ ⊢ upd/n U] ⇒ let [_ ⊢ exh/c E M] = e in exh_lookup [_ ⊢ E] [_ ⊢ U]
+  ;
+
+
+rec exh_changetp : (Ψ:ctx) (Δ:[Ψ ⊢ lctx N[]]) [Ψ ⊢ exh Δ] → [ ⊢ hal β] → [Ψ ⊢ upd Δ n X Y A B α β[] Δ'] → [Ψ ⊢ exh Δ'] =
+  / total 1 /
+  fn e, b, u ⇒
+  case e of
+  | [_ ⊢ exh/n] ⇒ impossible u
+  | [_ ⊢ exh/c E1 M2] ⇒
+    case u of
+    | [_ ⊢ upd/t _] ⇒ let [ ⊢ M1] = b in [_ ⊢ exh/c E1 M1[]]
+    | [_ ⊢ upd/n U] ⇒ let [_ ⊢ E2] = exh_changetp [_ ⊢ E1] b [_ ⊢ U] in [_ ⊢ exh/c E2 M2]
+  ;
+
+rec exh_changetp_cor : (Ψ:ctx) (Δ:[Ψ ⊢ lctx N[]]) [Ψ ⊢ exh Δ] → [Ψ ⊢ upd Δ n X Y A B α[] α[] Δ'] → [Ψ ⊢ exh Δ'] =
+  / total /
+  fn e, u ⇒ exh_changetp e (exh_lookup e u) u
+  ;

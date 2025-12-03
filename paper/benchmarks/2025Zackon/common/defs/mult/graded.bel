@@ -1,0 +1,19 @@
+
+LF mult : type =
+| num : nat → mult; % available to be used exactly n times
+
+
+LF • : mult → mult → mult → type =
+| •/plus : plus n m k → • (num n) (num m) (num k);
+
+
+LF hal : mult → type =
+| hal/z : hal (num zero);
+
+
+LF ident : mult → type =
+| ident/z : ident (num zero);
+
+
+LF mult_eq : mult → mult → type =
+|  mult/refl : mult_eq α α;

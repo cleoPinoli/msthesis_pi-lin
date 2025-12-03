@@ -1,0 +1,26 @@
+
+LF mult : type =
+| 𝟘 : mult  % used
+| 𝟙 : mult  % available linearly
+| ω : mult; % available unrestrictedly
+
+
+LF • : mult → mult → mult → type =
+| •/00 : • 𝟘 𝟘 𝟘
+| •/01 : • 𝟘 𝟙 𝟙
+| •/10 : • 𝟙 𝟘 𝟙
+| •/ωω : • ω ω ω;
+
+
+LF hal : mult → type =
+| hal/0 : hal 𝟘
+| hal/ω : hal ω;
+
+
+LF ident : mult → type =
+| ident/0 : ident 𝟘
+| ident/ω : ident ω;
+
+
+LF mult_eq : mult → mult → type =
+| mult/refl : mult_eq α α;

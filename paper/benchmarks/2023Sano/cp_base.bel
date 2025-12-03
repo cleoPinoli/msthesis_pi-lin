@@ -1,0 +1,45 @@
+
+name : type.      
+
+tp : type.        
+① : tp.           
+⊥ : tp.           
+⊗ : tp → tp → tp. 
+⅋ : tp → tp → tp. 
+& : tp → tp → tp. 
+⊕ : tp → tp → tp. 
+
+--infix ⊗ 5 left.
+--infix ⅋ 5 left.
+--infix ⊕ 4 left.
+--infix & 4 left.
+
+eq : tp → tp → type.
+refl : eq A A.
+
+dual : tp → tp → type.
+D1 : dual ① ⊥.
+D⊥ : dual ⊥ ①.
+D⊗ : dual A A' → dual B B' → dual (A ⊗ B) (A' ⅋ B').
+D⅋ : dual A A' → dual B B' → dual (A ⅋ B) (A' ⊗ B').
+D& : dual A A' → dual B B' → dual (A & B) (A' ⊕ B').
+D⊕ : dual A A' → dual B B' → dual (A ⊕ B) (A' & B').
+
+proc : type.
+
+eq_proc : proc → proc → type.
+refl_proc : eq_proc P P.
+
+fwd : name → name → proc.                             
+pcomp : tp → (name → proc) → (name → proc) → proc.    
+
+close : name → proc.                                  
+wait : name → proc → proc.                            
+
+out : name → (name → proc) → (name → proc) → proc.    
+inp : name → (name → name → proc) → proc.             
+
+inl : name → (name → proc) → proc.                    
+inr : name → (name → proc) → proc.                    
+choice : name → (name → proc) → (name → proc) → proc. 
+

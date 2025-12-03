@@ -1,0 +1,19 @@
+
+
+schema ctx = obj;
+
+
+LF obj_eq : obj → obj → type = obj/refl : obj_eq X X;
+
+
+inductive IsVar : (Ψ:ctx) [Ψ ⊢ obj] → ctype =
+| Is-Var : IsVar [Ψ ⊢ #p];
+
+
+inductive PruneObj : (Ψ:ctx) {M:[Ψ,x:obj ⊢ obj]} ctype =
+| Prune-Obj : PruneObj [Ψ,x:obj ⊢ M[..]];
+
+
+inductive CompareObjs : (Ψ:ctx) {M:[Ψ ⊢ obj]} {N:[Ψ ⊢ obj]} ctype =
+| Ct-Eq : CompareObjs [Ψ ⊢ M] [Ψ ⊢ M]
+| Ct-Neq : ([Ψ ⊢ obj_eq M N] → [ ⊢ false]) → CompareObjs [Ψ ⊢ M] [Ψ ⊢ N];
