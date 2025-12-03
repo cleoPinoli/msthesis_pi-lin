@@ -10,6 +10,7 @@ MODULES = \
   Reduction \
   DeadlockFreedom \
   Safety \
+  Examples \
   $(NULL)
 
 TARGETS = $(MODULES:%=%.tex)
