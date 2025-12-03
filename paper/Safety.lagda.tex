@@ -1,17 +1,14 @@
-\section{Type Safety}
+\subsection{Type Safety}
 \label{sec:safety-agda}
 
 \begin{code}[hide]
-open import Data.Sum
-open import Data.Product using (_,_)
-open import Relation.Nullary using (¬_; contradiction)
+{-# OPTIONS --rewriting #-}
 open import Data.List.Base using ([]; _∷_; [_])
 
 open import Type
 open import Context
 open import Process
 open import Congruence
-open import Reduction
 open import DeadlockFreedom
 \end{code}
 
@@ -27,11 +24,11 @@ given reduction context and therefore specified as a parameter of the data type:
 \begin{code}
 data ReductionContext (Δ : Context) : Context → Set where
   hole   : ReductionContext Δ Δ
-  cut-l  : ∀{Γ Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) →
-           ReductionContext Δ (A ∷ Γ₁) → Process (B ∷ Γ₂) →
+  cut-l  : ∀{Γ Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂) →
+           ReductionContext Δ (A ∷ Γ₁) → Process (dual A ∷ Γ₂) →
            ReductionContext Δ Γ
-  cut-r  : ∀{Γ Γ₁ Γ₂ A B} (d : Dual A B) (p : Γ ≃ Γ₁ + Γ₂) →
-           Process (A ∷ Γ₁) → ReductionContext Δ (B ∷ Γ₂) →
+  cut-r  : ∀{Γ Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂) →
+           Process (A ∷ Γ₁) → ReductionContext Δ (dual A ∷ Γ₂) →
            ReductionContext Δ Γ
 \end{code}
 
@@ -41,9 +38,9 @@ $\ReductionContext$:
 
 \begin{code}
 _⟦_⟧ : ∀{Γ Δ} → ReductionContext Δ Γ → Process Δ → Process Γ
-hole ⟦ P ⟧           = P
-cut-l d p 𝒞 Q ⟦ P ⟧  = cut d p (𝒞 ⟦ P ⟧) Q
-cut-r d p Q 𝒞 ⟦ P ⟧  = cut d p Q (𝒞 ⟦ P ⟧)
+hole ⟦ P ⟧         = P
+cut-l p 𝒞 Q ⟦ P ⟧  = cut p (𝒞 ⟦ P ⟧) Q
+cut-r p Q 𝒞 ⟦ P ⟧  = cut p Q (𝒞 ⟦ P ⟧)
 \end{code}
 
 A process $P$ is well formed if every unguarded sub-process $Q$ in it is alive.
@@ -51,7 +48,7 @@ A process $P$ is well formed if every unguarded sub-process $Q$ in it is alive.
 \begin{code}
 WellFormed        : ∀{Γ} → Process Γ → Set
 WellFormed {Γ} P  = ∀{Δ} {𝒞 : ReductionContext Δ Γ} {Q : Process Δ} →
-                    P ⊒ (𝒞 ⟦ Q ⟧) → Alive Q
+                   P ⊒ (𝒞 ⟦ Q ⟧) → Alive Q
 \end{code}
 
 The proof of type safety ends up being a trivial application of
