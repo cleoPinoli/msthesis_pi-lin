@@ -31,11 +31,9 @@ Section ofe.
 End ofe.
 Arguments uPredO : clear implicits.
 
-(** logical entailement *)
 Inductive uPred_entails {M} (P Q : uPred M) : Prop :=
   { uPred_in_entails : ∀ x, ✓ x → P x → Q x }.
 
-(** logical connectives *)
 Program Definition uPred_emp_def {M} : uPred M :=
   {| uPred_holds x := x ≡ ε |}.
 Solve Obligations with solve_proper.
@@ -122,9 +120,7 @@ Arguments uPred_wand {M}.
 Definition uPred_wand_eq :
   @uPred_wand = @uPred_wand_def := uPred_wand_aux.(seal_eq).
 
-(* Core is strange in a linear setting,
-    so we have substituted core x ↦ ε in the following definition.
-    This is essentially plainly. *)
+
 Definition uPred_persistently_def {M} (P : uPred M) : uPred M :=
   {| uPred_holds x := P ε |}.
 Definition uPred_persistently_aux : seal (@uPred_persistently_def). Proof. by eexists. Qed.
@@ -142,9 +138,6 @@ Arguments uPred_ownM {M}.
 Definition uPred_ownM_eq :
   @uPred_ownM = @uPred_ownM_def := uPred_ownM_aux.(seal_eq).
 
-(** Primitive logical rules.
-    These are not directly usable later because they do not refer to the BI
-    connectives. *)
 Module uPred_primitive.
 Definition unseal_eqs :=
   (uPred_emp_eq, uPred_pure_eq, uPred_and_eq, uPred_or_eq, uPred_impl_eq, uPred_forall_eq,
@@ -181,7 +174,6 @@ Infix "∗" := uPred_sep : bi_scope.
 Infix "-∗" := uPred_wand : bi_scope.
 Notation "<pers> P" := (uPred_persistently P) : bi_scope.
 
-(** Entailment *)
 Lemma entails_po : PreOrder (⊢).
 Proof.
   split.
@@ -203,7 +195,6 @@ Proof.
   - intros [??]. exact: entails_anti_sym.
 Qed.
 
-(** Non-expansiveness and setoid morphisms *)
 Lemma pure_ne n : Proper (iff ==> dist n) (@uPred_pure M).
 Proof. intros φ1 φ2 Hφ. unseal. split. intros ??. simpl. done. Qed.
 
@@ -316,7 +307,6 @@ Proof.
 Qed.
 
 
-(** Introduction and elimination rules *)
 Lemma pure_intro φ P : φ → P ⊢ ⌜φ⌝.
 Proof. by intros ?; unseal; split. Qed.
 Lemma pure_elim' φ P : (φ → True ⊢ P) → ⌜φ⌝ ⊢ P.
@@ -363,7 +353,6 @@ Proof. unseal; split=> x ??; by exists a. Qed.
 Lemma exist_elim {A} (Φ : A → uPred M) Q : (∀ a, Φ a ⊢ Q) → (∃ a, Φ a) ⊢ Q.
 Proof. unseal; intros HΦΨ; split=> x ? [a ?]; by apply HΦΨ with a. Qed.
 
-(** BI connectives *)
 Lemma sep_mono P P' Q Q' : (P ⊢ Q) → (P' ⊢ Q') → P ∗ P' ⊢ Q ∗ Q'.
 Proof.
   intros HQ HQ'; unseal.
@@ -401,7 +390,6 @@ Proof.
   eapply HPQR; eauto using cmra_valid_op_l.
 Qed.
 
-(** Persistently *)
 Lemma persistently_mono P Q : (P ⊢ Q) → <pers> P ⊢ <pers> Q.
 Proof. intros HP; unseal; split=> x ? /=. apply HP, ucmra_unit_valid. Qed.
 
@@ -434,7 +422,6 @@ Proof.
   unseal; split=> /= x ? HPQ x'. naive_solver.
 Qed.
 
-(** Own *)
 Lemma ownM_op (a1 a2 : M) :
   uPred_ownM (a1 ⋅ a2) ⊣⊢ uPred_ownM a1 ∗ uPred_ownM a2.
 Proof.
@@ -453,9 +440,6 @@ Proof.
   unseal. split. simpl. intros. setoid_subst. done.
 Qed.
 
-(** Consistency/soundness statement *)
-(** The lemmas [pure_soundness] and [internal_eq_soundness] should become an
-instance of [siProp] soundness in the future. *)
 Lemma pure_soundness φ : (emp ⊢ ⌜ φ ⌝) → φ.
 Proof. unseal=> -[H]. by apply (H ε); simpl; eauto using ucmra_unit_valid. Qed.
 

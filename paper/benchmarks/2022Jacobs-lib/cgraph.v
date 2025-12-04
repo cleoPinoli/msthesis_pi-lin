@@ -9,7 +9,6 @@ Require Import cgraphs.cgraphs.mapexcl.
 
 Ltac sdec := repeat case_decide; simplify_eq.
 
-(* Definition uforest V := gset (V * V). *)
 Notation cgraph V L := (gmap V (gmap V L)).
 
 Section cgraph.
@@ -403,9 +402,6 @@ Section cgraph.
   End empty_cgraph.
 
   Section insert_edge.
-    (* This function is only supposed to be called if there is not already an edge
-       between v1 and v2. In fact, it's only supposed to be called if v1 and v2
-       are complete disconnected. *)
     Definition insert_edge (g : cgraph V L) (v1 v2 : V) (l : L) :=
       <[ v1 := <[ v2 := l ]> $ out_edges g v1 ]> g.
 
@@ -892,8 +888,6 @@ Section cgraph.
   End update_edge.
 
   Section move_edge.
-    (* Move an edge v1 --[l]--> v3 to be v2 --[l]--> v *)
-    (* This is only allowed if there is also an edge between v1 and v2. *)
     Definition move_edge g v1 v2 v3 :=
       match out_edges g v1 !! v3 with
       | Some l => insert_edge (delete_edge g v1 v3) v2 v3 l
@@ -1416,13 +1410,6 @@ Section cgraph.
     done.
   Qed.
 
-  (*
-     The relation R x y l tells us for each pair of objects (x,y), what
-     the waiting direction is for an edge x--[l]-->y labeled with l.
-     If R x y l, then the waiting direction is in the same direction as the edge.
-     If ¬R x y l, then waiting direction is in the opposite direction as the edge.
-     So R tells us the waiting direction *relative to* the edge direction.
-  *)
   Lemma cgraph_ind' (R : V -> V -> L -> Prop) (g : cgraph V L) (P : V -> Prop) :
     (∀ x y, Proper ((≡) ==> iff) (R x y)) ->
     cgraph_wf g ->
@@ -1451,7 +1438,6 @@ Section cgraph.
         right. eauto using some_edge.
   Qed.
 
-  (* A version of the lemma where the R doesn't depend on the label. *)
   Lemma cgraph_ind'' (R : V -> V -> Prop) (g : cgraph V L) (P : V -> Prop) :
     cgraph_wf g ->
     (∀ x,

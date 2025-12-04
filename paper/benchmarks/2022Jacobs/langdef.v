@@ -331,7 +331,7 @@ Inductive typed : envT -> expr -> type -> Prop :=
         typed Γ e (ChanT EndT) ->
         typed Γ (Close e) UnitT
     | Iso_typed : ∀ Γ t t' e,
-        t ≡ t' -> (* The ≡-relation is unfolding of recursive types *)
+        t ≡ t' -> 
         typed Γ e t ->
         typed Γ e t'.
 
@@ -447,7 +447,6 @@ Definition step es h es' h' := ∃ i, stepi i es h es' h'.
 
 Definition can_stepi i es h := ∃ es' h', stepi i es h es' h'.
 
-(* Closure of the step relation; this is used in the theorem statement. *)
 Inductive steps : list expr -> heap -> list expr -> heap -> Prop :=
   | Trans_step : ∀ e1 e2 e3 s1 s2 s3,
       step e1 s1 e2 s2 ->

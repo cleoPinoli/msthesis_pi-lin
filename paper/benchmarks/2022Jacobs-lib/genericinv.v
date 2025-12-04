@@ -357,14 +357,10 @@ Section genericinv.
       eapply holds_entails; eauto.
   Qed.
 
-  (* Situation [v1 -[l1]-> v2, v3] to
-     situation [v1 -[l2]-> v2, v3 -[l']-> v2] *)
-  (* Need to transfer resources from v1 to v3,
-     for lexical scoping of fork. *)
   Lemma inv_exchange_alloc (v1 v2 v3 : V) (f f' : V -> multiset L -> hProp V L) :
     (∀ v, Proper ((≡) ==> (⊣⊢)) (f v)) ->
     (∀ v, Proper ((≡) ==> (⊣⊢)) (f' v)) ->
-    v1 ≠ v2 ∧ v1 ≠ v3 ∧ v2 ≠ v3 -> (* Some of these are unnecessary, implied by existence of edges *)
+    v1 ≠ v2 ∧ v1 ≠ v3 ∧ v2 ≠ v3 -> 
     (∀ v x, v ≠ v1 ∧ v ≠ v2 ∧ v ≠ v3 -> f v x ⊢ f' v x) ->
     (∀ x, f v3 x ⊢ ⌜⌜ x ≡ ε ⌝⌝) ->
     (∀ y, f v1 y ⊢ ∃ l,
@@ -377,15 +373,6 @@ Section genericinv.
     inv f -> inv f'.
   Proof.
     intros Hproper Hproper' [Hneq1 [Hneq2 Hneq3]] Hrest Hnew HH Hinv.
-    (*
-       We first transfer resources from v1 to v2 using the exchange rule.
-       Then v2 will transfer them to v3.
-       Because v3 is fresh there are no resources to be transfered
-       from v3 to v1 or v2 (unlike in the barriers case).
-       We also update the edge from v1 to v2 to its final state.
-       After this, the remaining work should be done by the alloc rule.
-       So after the first step, we should already have the final state at v1.
-    *)
     set q := (λ v x,
       if decide (v = v1) then f' v1 x
       else if decide (v = v2) then
@@ -520,7 +507,6 @@ Section genericinv.
       + iApply H4; last done.
         split; eauto. intros. inversion i.
     }
-    (* Now we have the induction hypothesis *)
     set q := (λ v x,
       if decide (v = v1) then
         ∃ l : L, P' v (x ⋅ {[ l ]}) ∗ (own_out v1 l -∗ P' (fv 0%fin) ε)

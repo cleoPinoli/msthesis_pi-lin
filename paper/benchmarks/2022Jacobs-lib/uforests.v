@@ -64,7 +64,6 @@ Section uforest.
     by apply has_u_turn_reverse.
   Qed.
 
-  (* NB. connected g a a <-> False *)
   Definition connected (g : G) (a b : A) := ∃ xs, path g ([a] ++ xs ++ [b]).
 
   Lemma path_reverse (g : G) (xs : P) :
@@ -418,10 +417,6 @@ Section uforest.
       destruct xs; simpl in *; try lia.
   Qed.
 
-  (* Hiding this in a definition is necessary because otherwise the wlog tactic
-     will generalize over the Lookup instance.
-     This way the wlog tactic can not peek inside the proposition and won't find any
-     Lookup instance as a subterm. *)
   Definition bar (xs : P) x i1 a b :=
     ([x] ++ xs ++ [x]) !! i1 = Some a ∧ ([x] ++ xs ++ [x]) !! (i1 + 1) = Some b.
 
@@ -537,7 +532,6 @@ Section uforest.
     intros x xs Hpath.
     destruct (find_first_has_edge ([x] ++ xs ++ [x]) a b) as [(i1 & Hi1v & Hi1r)|H1].
     {
-      (* Use wlog (a,b) here *)
       unfold has_edge in Hi1v.
       wlog: a b Hpath Hi1v Hi1r Hnconn / bar xs x i1 a b; unfold bar.
       {
@@ -550,7 +544,6 @@ Section uforest.
         - contradict Hnconn. apply connected0_sym; eauto.
       }
       clear Hi1v. intros [Hi1vA Hi1vB].
-      (* Now we are in the situation x .. a b ... x *)
       assert (path g (take (i1+1) ([x] ++ xs ++ [x]))) as Hpath1.
       {
         apply (path_has_edge g a b).
@@ -562,7 +555,6 @@ Section uforest.
       }
       destruct (find_first_has_edge (drop (i1 + 1) ([x] ++ xs ++ [x])) a b).
       {
-        (* Now we are in the situation x ... a b ... (ab|ba) ... x *)
         destruct H1 as (i2 & He & Hne).
         assert (path g (take (i2+1) $ drop (i1+1) ([x] ++ xs ++ [x]))) as Hpath2.
         {
@@ -581,7 +573,6 @@ Section uforest.
         }
         destruct He as [He|He].
         {
-          (* Now we are in the situation x ... a b ... a b ... x *)
           exfalso. apply Hnconn. apply connected0_sym; first done.
           apply connected0_alt.
           eexists.
@@ -590,7 +581,6 @@ Section uforest.
           apply last_take_Some. destruct He. done.
         }
         {
-          (* Now we are in the situation x ... a b ... b a ... x *)
           assert (last (take (i2 + 1) (drop (i1 + 1) ([x] ++ xs ++ [x]))) = Some b) as Hsb'.
           {
             replace (i2 + 1) with (S i2) by lia.
@@ -621,7 +611,6 @@ Section uforest.
         }
       }
       {
-        (* Now we are in the situation x ... a b ... x *)
         assert (path g (drop (i1+1) ([x] ++ xs ++ [x]))) as Hpath2.
         {
           apply (path_has_edge g a b).
@@ -645,7 +634,6 @@ Section uforest.
           apply lookup_lt_Some in Hi1vA. done.
       }
     }
-    (* No (a,b)|(b,a) *)
     apply forest_u_turns0. revert H1 Hpath.
     generalize ([x] ++ xs ++ [x]). intros.
     intros i q r Hq Hr.
@@ -947,10 +935,8 @@ Section uforest.
     x ∈ uvertices g -> f (search g x f) = None.
   Proof.
     intros Hforest Huturn Hvalid Hx.
-    (* Suppose f (search g x f) = Some y *)
     destruct (f (search g x f)) eqn:Hss;[|done].
     exfalso.
-    (* Have a long f-path in g *)
     assert (∃ xs, fpath g f (x::xs) ∧ size (uvertices g) < length (x::xs)).
     {
       unfold search in Hss.
@@ -966,7 +952,6 @@ Section uforest.
         intros. destruct i; simpl in *; simplify_eq; eauto.
     }
     destruct H1 as (xs & Hpath & Hsize).
-    (* Since the path is longer than the number of uvertices, there must be a duplicate vertex in the path *)
     edestruct (pigeon (uvertices g) (x::xs)) as (i & j & y & Hi & Hj & Hneq); eauto.
     {
       intros. apply elem_of_list_lookup_2 in H1. eapply fpath_uvertices; eauto.
@@ -978,7 +963,6 @@ Section uforest.
       eauto.
     }
     intros Hlt. clear Hneq.
-    (* Duplicate vertex gives a u-turn -> contradiction *)
     eapply forest_no_floops; eauto; done.
   Qed.
 

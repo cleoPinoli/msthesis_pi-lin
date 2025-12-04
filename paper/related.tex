@@ -6,3 +6,44 @@ come sono stati misurati
 eliminati commenti
 eliminati esempi
 squeezed spazi (in generale sono significativi)
+
+\begin{table}
+    \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
+    \newcommand{\CHECK}{\checkmark}
+    \begin{tabular}{@{}rccccccccc@{}}
+        \textbf{Formalization} &
+        \textlabel{Proof assistant} &
+        \textlabel{Calculus} &
+        \textlabel{Shared channels} &
+        \textlabel{Polymorphic channels} &
+        \textlabel{Deadlock freedom} &
+        \textlabel{Size (kb)} &
+        \textlabel{Library size (kb)} &
+        \textlabel{Total size (kb)}
+        \\
+        \hline
+        \fullcite{GotoEtAl16} \\
+        \fullcite{Thiemann19} &
+        Agda &
+        $\lambda$ + sessions \\
+        \fullcite{CastroFerreiraYoshida20} \\
+        \fullcite{CicconePadovani20} &
+        Agda & \\
+        \fullcite{RouvoetPoulsenKrebbersVisser20} &
+        Agda & \\
+        \fullcite{ZalakainDardha21} \\
+        \fullcite{JacobsBalzerKrebbers22} \\
+        \fullcite{SanoKavanaghPientka23} \\
+        \fullcite{ZackonEtAl25} &
+        Beluga &
+        \CP &
+        & \\
+        \hline
+        this work &
+        Agda &
+        linear \CP &
+        \CHECK &
+        \CHECK &
+        \CHECK & \\
+    \end{tabular}
+\end{table}

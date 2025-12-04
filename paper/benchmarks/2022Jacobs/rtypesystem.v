@@ -960,8 +960,6 @@ Proof.
     iApply ("IH" with "[%] Hv He"). done.
 Qed.
 
-(* rtyped with empty environment *)
-
 Fixpoint rtyped0 (e : expr) (t : type) : rProp :=
  match e with
   | Val v => val_typed v t

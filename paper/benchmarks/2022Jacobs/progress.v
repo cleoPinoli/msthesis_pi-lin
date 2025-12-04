@@ -355,37 +355,32 @@ Proof.
     active x es h → reachable es h x));
     [solve_proper|eauto|].
   intros x Hind_out Hind_in Hactive.
-  (* Get the invariant for x *)
   pose proof (Hvs x) as Hx.
-  (* Case analyze whether x is a channel or a thread *)
   destruct x as [i|i]; simpl in *.
-  - (* Thread *)
-    destruct Hactive as (e & He & Heneq). (* Thread is active, so must have expression in thread pool *)
-    rewrite He in Hx. (* We can conclude that this expression is well-typed wrt out edges *)
+  - 
+    destruct Hactive as (e & He & Heneq). 
+    rewrite He in Hx. 
     apply pure_sep_holds in Hx as [Hinl Hx].
     eapply prim_simple_adequacy in Hx as Hx'; last eapply rtyped_inner.
-    (* Case analyze whether it's a value or pure step or channel op  *)
     destruct Hx' as [(v & ->)|Hx'].
     {
-      (* Value *)
       eapply prim_simple_adequacy; first done.
       simpl. rewrite val_typed_val_typed'. simpl.
       iIntros (->). simplify_eq.
     }
-    (* Expr in context *)
     destruct Hx' as (k' & e0 & Hctx & -> & Hcases).
     rewrite ->rtyped0_ctx in Hx; eauto.
     apply exists_holds in Hx as [t Hx].
     apply sep_holds in Hx as (Σ1&Σ2&Hout&Hdisj&Het&Hctxt).
     destruct Hcases as [H|[H|[H|[H|H]]]].
-    * (* Pure step *)
+    * 
       destruct H as [e' H].
       eapply Thread_step_reachable.
       eexists _,_.
       econstructor; last done.
       econstructor; eauto.
       econstructor. done.
-    * (* Recv *)
+    * 
       destruct H as [v ->].
       revert Het.
       model.
@@ -421,7 +416,7 @@ Proof.
       }
       eapply Thread_step_reachable. eexists _,_. econstructor; last done; econstructor; first done.
       eapply Recv_step. done.
-    * (* Send *)
+    * 
       destruct H as (v1 & v2 & ->).
       revert Het. model.
       intros (r & t' & -> & Σ3 & Σ4 & Σeq & Hdisj' & ([c b] & -> & Het1) & Het2).
@@ -456,12 +451,12 @@ Proof.
       }
       eapply Thread_step_reachable. eexists _,_. econstructor; last done; econstructor; first done.
       eapply Send_step. done.
-    * (* Fork *)
+    * 
       destruct H as (v & ->).
       destruct (heap_fresh h) as [ii HH].
       eapply Thread_step_reachable. eexists _,_. econstructor; last done; econstructor; first done.
       eapply Fork_step; eauto.
-    * (* Close *)
+    * 
       destruct H as (v & ->).
       revert Het. model.
       intros (-> & ([c b] & -> & Het)).
@@ -488,7 +483,7 @@ Proof.
       }
       eapply Thread_step_reachable. eexists _,_. econstructor; last done; econstructor; first done.
       eapply Close_step. done.
-  - (* Channel *)
+  - 
     destruct Hactive as (b & Hib).
     apply exists_holds in Hx as [σs Hx].
     apply pure_sep_holds in Hx as [Hinl Hx].
@@ -502,7 +497,7 @@ Proof.
     erewrite map_to_multiset_Some in Hinl; eauto.
 
     destruct (classic (∃ c q, out_edges g (Chan c) !! Chan i ≡ Some q)) as [(c & q & Hc)|Hnc].
-    { (* This thing will handle the case of a chan-chan reference for us *)
+    { 
       eapply (Chan_ref_reachable _ _ _ (Chan c)).
       { erewrite obj_refs_state_inv; eauto.
         eapply dom_lookup_Some_equiv; eauto. }
@@ -518,11 +513,11 @@ Proof.
       }
       rewrite H lookup_empty in Hc. inversion Hc.
     }
-    (* Since the chan has a buffer, there exists somebody holding a ref to this chan *)
-    (* If the other one is a chan, we're done *)
+    
+    
     assert (∃ y, out_edges g y !! (Chan i) ≡ Some (b,σ1)) as [[] Hy];
       first (eapply in_labels_out_edges; eauto); last (exfalso; eauto).
-    (* The one holding the ref to the chan is a thread *)
+    
     pose proof (Hvs (Thread n)) as Hn. simpl in Hn.
     eapply pure_sep_holds in Hn as [? Hn].
     destruct (es !! n) eqn:En; last first.
@@ -532,18 +527,18 @@ Proof.
       rewrite Hn in Hy. rewrite lookup_empty in Hy. inversion Hy.
     }
     destruct (classic (waiting es h (Thread n) (Chan i) (b, σ1))) as [w|n0]; last first.
-    { (* The thread is not blocked on the chan (but could be blocked on another chan) *)
+    { 
       eapply (Chan_ref_reachable _ _ _ (Thread n)).
       { erewrite obj_refs_state_inv; eauto.
         eapply dom_lookup_Some_equiv; eauto. }
-      eapply Hind_in; eauto. (* We need to show that the thread hasn't terminated with a unit value *)
+      eapply Hind_in; eauto. 
       simpl. exists e. split; eauto. intros ->.
       simpl in Hn.
       eapply affinely_pure_holds in Hn as [].
       eapply map_empty_equiv_eq in H0.
       rewrite H0 lookup_empty in Hy. inversion Hy.
     }
-    (* The thread is blocked on the chan *)
+    
     unfold waiting in w.
     destruct w as (i0 & j & ? & ? & Htw). simplify_eq.
     unfold thread_waiting in Htw.
@@ -683,11 +678,6 @@ Proof.
   eapply active_progress; eauto.
 Qed.
 
-(*
-  A subset of the threads & channels is in a partial deadlock (/ memory leak) if:
-  - All of the threads in the subset are blocked on one of the channels in the subset.
-  - All of the endpoints of the channels in the subset are held by one of the threads or channels in the subset.
-*)
 Record deadlock (es : list expr) (h : heap) (s : gset object) := {
   dl_nonempty : s ≠ ∅;
   dl_active x : x ∈ s -> active x es h;

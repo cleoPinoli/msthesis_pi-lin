@@ -2,7 +2,6 @@ From iris.proofmode Require Import base tactics classes.
 From cgraphs.sessiontypes Require Import langdef.
 
 Section ycombinator.
-  (* We define the y-combinator for creating recursive functions t1 -> t2. *)
   Variable t1 t2 : type.
 
   Definition gT := UFunT t1 t2.

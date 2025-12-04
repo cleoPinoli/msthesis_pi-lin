@@ -149,7 +149,7 @@ Proof.
   destruct H as [????????HH].
   intros Hinv.
   destruct HH; rewrite ?right_id.
-  - (* Pure step *)
+  - 
     eapply inv_impl; last done.
     iIntros ([] x) "H"; simpl; eauto.
     iDestruct "H" as "[H1 H2]". iFrame.
@@ -157,7 +157,7 @@ Proof.
     destruct H2. subst. rewrite H0.
     iDestruct (rtyped0_ctx with "H2") as (t) "[H1 H2]"; eauto.
     iApply "H2". iApply pure_step_rtyped0; eauto.
-  - (* Send *)
+  - 
     eapply (inv_exchange (Thread i) (Chan c.1)); last done; first apply _; first apply _.
     + intros v x []. iIntros "H".
       destruct v; simpl.
@@ -191,7 +191,7 @@ Proof.
            rewrite H1.
            iApply bufs_typed_push. iFrame.
            rewrite Hrew. done.
-  - (* Receive *)
+  - 
     eapply (inv_exchange (Thread i) (Chan c.1)); last done; first apply _; first apply _.
     + intros v x []. iIntros "H".
       destruct v; simpl.
@@ -226,7 +226,7 @@ Proof.
         -- iApply (bufs_typed_wlog b true).
            rewrite !lookup_insert_spec.
            repeat case_decide; simplify_eq; try solve [by destruct b].
-  - (* Close *)
+  - 
     eapply (inv_dealloc (Thread i) (Chan c.1)); last done; first apply _; first apply _.
     + intros v x []. iIntros "H".
       destruct v; simpl.
@@ -247,7 +247,7 @@ Proof.
              by by eapply map_to_multiset_lookup.
       simplify_eq. rewrite Hrew.
       rewrite list_lookup_insert; last by eapply lookup_lt_Some.
-      (* iDestruct (bufs_typed_pop with "H") as "[Hv H]". *)
+      
       iSplitL "H2".
       * iSplit; eauto. by iApply "H2".
       * iExists (delete b σs).
@@ -256,7 +256,7 @@ Proof.
         -- iApply (bufs_typed_wlog b true).
            rewrite !lookup_delete_spec.
            repeat case_decide; simplify_eq; try solve [by destruct b].
-  - (* Fork *)
+  - 
     eapply (inv_alloc_lr (Thread i) (Chan i0) (Thread (length es))); last done;
       first apply _; first apply _.
     + split_and!; eauto. intro. simplify_eq.

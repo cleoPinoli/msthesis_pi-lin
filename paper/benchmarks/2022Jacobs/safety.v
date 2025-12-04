@@ -9,12 +9,3 @@ Proof.
   intros Htyped Hsteps.
   by eapply global_progress, invariant_holds.
 Qed.
-
-
-(*
-  The following command can be used to verify that everything has been formally
-  proved. It should print "classic : ∀ P : Prop, P ∨ ¬ P" as the only axiom.
-  This indicates that our proof relies on classical logic.
-  (we use classical logic for convenience.)
-*)
-(* Print Assumptions safety. *)

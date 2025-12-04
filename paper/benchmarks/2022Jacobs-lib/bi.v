@@ -4,9 +4,6 @@ From iris.prelude Require Import options.
 From iris Require Import bi.extensions.
 Import uPred_primitive.
 
-(** BI instances for [uPred], and re-stating the remaining primitive laws in
-terms of the BI interface. This file does *not* unseal. *)
-
 Notation "⌜⌜ p ⌝⌝" := (<affine> ⌜ p ⌝)%I : bi_scope.
 
 Local Existing Instance entails_po.
@@ -78,8 +75,6 @@ Canonical Structure uPredI (M : ucmra) : bi :=
 Global Instance uPred_pure_forall M : BiPureForall (uPredI M).
 Proof. exact: @pure_forall_2. Qed.
 
-(** Re-state/export lemmas about Iris-specific primitive connectives (own, valid) *)
-
 Module uPred.
 
 Section restate.
@@ -88,12 +83,10 @@ Implicit Types φ : Prop.
 Implicit Types P Q : uPred M.
 Implicit Types A : Type.
 
-(* Force implicit argument M *)
 Notation "P ⊢ Q" := (bi_entails (PROP:=uPredI M) P%I Q%I).
 Notation "P ⊣⊢ Q" := (equiv (A:=uPredI M) P%I Q%I).
 
 
-(** Consistency/soundness statement *)
 Lemma pure_soundness φ : (⊢@{uPredI M} ⌜ φ ⌝) → φ.
 Proof. apply pure_soundness. Qed.
 
@@ -113,10 +106,7 @@ Proof. apply ownM_valid. Qed.
 
 End restate.
 
-(** New unseal tactic that also unfolds the BI layer.
-    This is used by [base_logic.bupd_alt].
-    TODO: Can we get rid of this? *)
-Ltac unseal := (* Coq unfold is used to circumvent bug #5699 in rewrite /foo *)
+Ltac unseal := 
   unfold bi_emp, bi_pure,
     bi_and, bi_or, bi_impl, bi_forall, bi_exist,
     bi_sep, bi_wand, bi_persistently, bi_later; simpl;
@@ -125,7 +115,6 @@ Ltac unseal := (* Coq unfold is used to circumvent bug #5699 in rewrite /foo *)
 
 End uPred.
 
-(* Should go to upred primitive *)
 Section upred_lemmas.
 Context {A : ucmra}.
 Implicit Types P Q : uPred A.
