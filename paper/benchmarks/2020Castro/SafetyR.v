@@ -592,7 +592,6 @@ Proof.
     rewrite [D]union_nil.
     
     auto.
-    (***)
     apply: t_par.
     move:HHH.
     move/Weakening=>H.
@@ -600,7 +599,6 @@ Proof.
     apply: H=>//.
     by move:HH=>/oft_def; rewrite -union_nil.
     by rewrite -union_nil.
-    (***)
     apply: t_bang=>/=.
     easy.
     easy.

@@ -152,10 +152,6 @@ Canonical Structure polarity_ordType := OrdType _ polarity_ordMixin.
 Definition dual_pol' (p p' : polarity) := p != p.
 Definition dual_pol p := if p is Pos then Neg else Pos.
 
-(******************************************************************************)
-(**  NAMESPACES  **************************************************************)
-(******************************************************************************)
-
 Module EV := AtomScope Atom.Atom. 
 Canonical EV_atom_eqType := EqType EV.atom EV.atom_eqMixin.
 Canonical EV_atom_ordType := OrdType EV.atom EV.atom_ordMixin.
@@ -188,10 +184,6 @@ Notation evar := (EV.var).
 Notation scvar := (SC.var).
 Notation lcvar := (LC.var).
 Notation cnvar := (CN.var).
-
-(******************************************************************************)
-(**  CHANNELS    **************************************************************)
-(******************************************************************************)
 
 Inductive channel :=
 | Ch of (cnvar * polarity) %type 

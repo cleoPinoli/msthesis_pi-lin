@@ -106,9 +106,6 @@ Module Atom : ATOM.
   
 End Atom.
 
-(** We make [atom], [fresh], [fresh_not_in] and [atom_fresh_for_list] available
-    without qualification. *)
-
 Notation atom := Atom.atom.
 Notation fresh := Atom.fresh.
 Notation fresh_not_in := Atom.fresh_not_in.
