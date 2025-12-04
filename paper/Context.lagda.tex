@@ -43,11 +43,13 @@ data _≃_+_ : Context → Context → Context → Set where
   >_  : ∀{A Γ Δ Θ} → Γ ≃ Δ + Θ → A ∷ Γ ≃ Δ + A ∷ Θ
 \end{code}
 
-When splitting a context $\Context$ into $\ContextD + \ContextE$,
-for each type in $\Context$ we use one of the prefix operators \AgdaInductiveConstructor{<\_} and \AgdaInductiveConstructor{>\_} to indicate whether it is meant to be placed in $\ContextD$ or $\ContextE$,
-respectively.
+When splitting a context $\Context$ into $\ContextD + \ContextE$, for each type
+in $\Context$ we use one of the prefix operators \AgdaInductiveConstructor{<}
+and \AgdaInductiveConstructor{>} to indicate whether the type is meant to be
+placed in $\ContextD$ or $\ContextE$, respectively.
 %
-As an example, below is the splitting of the context $[A, B, C, D]$ into $[B] + [A, C, D]$.
+As an example, below is the splitting of the context $[A, B, C, D]$ into $[B] +
+[A, C, D]$.
 
 \begin{code}[hide]
 module _ where
@@ -109,9 +111,8 @@ It is often the case that the context $\ContextD$ in a splitting
 $\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. We use this
 particular splitting to describe the presence of a channel of type $A$ in
 $\ContextC$ and giving a name $\ContextE$ to the residual context. For this
-particular case, we introduce a dedicated notation that allows us to write this
-case in a more compact and meaningful way, as
-$\SimpleSplitting\ContextC{A}\ContextE$.
+particular case, we introduce the dedicated notation
+$\SimpleSplitting\ContextC{A}\ContextE$ which we find clearer.
 
 \begin{code}
 _∋_⊳_ : Context → Type → Context → Set
@@ -125,10 +126,10 @@ _∋_⊳_ : Context → Type → Context → Set
 
 Note that, when specifying a splitting $\SimpleSplitting\ContextC{A}\ContextE$,
 it may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
-applications of \AgdaInductiveConstructor{>\_} after the $A$ type has been
-reached. For instance, the same sample splitting shown earlier can be written
-equivalently and in a more compact way as shown below. More examples will be
-given in \Cref{sec:examples}.
+applications of \AgdaInductiveConstructor{>} after the $A$ type has been
+reached. For instance, \AgdaFunction{splitting-example₁} can be written
+equivalently and in a more compact way as shown below. More usages of
+\AgdaFunction{≫} will be given in \Cref{sec:examples}.
 
 \begin{code}[hide]
 module _ where
@@ -149,13 +150,11 @@ data Un : Context → Set where
   un-∷   : ∀{A Γ} → Un Γ → Un (`? A ∷ Γ)
 \end{code}
 
-It is a simple fact that the merging of two unrestricted contexts
-$\Context_1$ and $\Context_2$ results in an unrestricted context.\Luca{Serve?}
+% It is a simple fact that the merging of two unrestricted contexts
+% $\Context_1$ and $\Context_2$ results in an unrestricted context.\Luca{Serve?}
 
-\begin{code}
-+-un : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → Un Γ₁ → Un Γ₂ → Un Γ
-\end{code}
 \begin{code}[hide]
++-un : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → Un Γ₁ → Un Γ₂ → Un Γ
 +-un • un-[] un-[] = un-[]
 +-un (< p) (un-∷ un₁) un₂ = un-∷ (+-un p un₁ un₂)
 +-un (> p) un₁ (un-∷ un₂) = un-∷ (+-un p un₁ un₂)

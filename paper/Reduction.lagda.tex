@@ -140,11 +140,13 @@ the one restricted by the cut.
 \end{code}
 
 The remaining constructors that describe the base reductions follow a similar
-pattern. We only glance at \RExists since it involves a non-trivial rewriting of
-types:
+pattern, noting that the implementation of \RWeaken and \RContract makes use of
+auxiliary functions that respectively weaken and contract the typing context of
+the resulting process as shown in \Cref{tab:semantics}. It is worth glancing at
+\RExists since it involves a non-trivial rewriting of types:
 
 \begin{code}
-  r-ex         : ∀{A B Γ₁ Γ₂ P F}
+  r-exists     : ∀{A B Γ₁ Γ₂ P F}
                  (p : Γ ≃ Γ₁ + Γ₂) (p₀ : Γ₁ ≃ [] + Γ₁) (q₀ : Γ₂ ≃ [] + Γ₂) →
                  cut {`∃ A} p (ex {_} {B} (< p₀) P) (all (< q₀) F) ↝ cut p P (F B)
 \end{code}

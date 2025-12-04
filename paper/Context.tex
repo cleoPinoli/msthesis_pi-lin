@@ -149,9 +149,10 @@ distributed in $\ContextD$ and $\ContextE$ from left to right.
 \AgdaBound{Θ}\<%
 \end{code}
 
-When splitting a context $\Context$ into $\ContextD + \ContextE$,
-for each type in $\Context$ we use one of the prefix operators \AgdaInductiveConstructor{<\_} and \AgdaInductiveConstructor{>\_} to indicate whether it is meant to be placed in $\ContextD$ or $\ContextE$,
-respectively.
+When splitting a context $\Context$ into $\ContextD + \ContextE$, for each type
+in $\Context$ we use one of the prefix operators \AgdaInductiveConstructor{<}
+and \AgdaInductiveConstructor{>} to indicate whether the type is meant to be
+placed in $\ContextD$ or $\ContextE$, respectively.
 %
 As an example, below is the splitting of the context $[A, B, C, D]$ into $[B] + [A, C, D]$.
 
@@ -523,9 +524,8 @@ It is often the case that the context $\ContextD$ in a splitting
 $\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. We use this
 particular splitting to describe the presence of a channel of type $A$ in
 $\ContextC$ and giving a name $\ContextE$ to the residual context. For this
-particular case, we introduce a dedicated notation that allows us to write this
-case in a more compact and meaningful way, as
-$\SimpleSplitting\ContextC{A}\ContextE$.
+particular case, we introduce the dedicated notation
+$\SimpleSplitting\ContextC{A}\ContextE$ which we find clearer.
 
 \begin{code}%
 \>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}∋\AgdaUnderscore{}⊳\AgdaUnderscore{}}}\AgdaSpace{}%
@@ -586,10 +586,10 @@ $\SimpleSplitting\ContextC{A}\ContextE$.
 
 Note that, when specifying a splitting $\SimpleSplitting\ContextC{A}\ContextE$,
 it may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
-applications of \AgdaInductiveConstructor{>\_} after the $A$ type has been
-reached. For instance, the same sample splitting shown earlier can be written
-equivalently and in a more compact way as shown below. More examples will be
-given in \Cref{sec:examples}.
+applications of \AgdaInductiveConstructor{>} after the $A$ type has been
+reached. For instance, \AgdaFunction{splitting-example₁} can be written
+equivalently and in a more compact way as shown below. More usages of
+\AgdaFunction{≫} will be given in \Cref{sec:examples}.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -664,10 +664,10 @@ must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
 \AgdaBound{Γ}\AgdaSymbol{)}\<%
 \end{code}
 
-It is a simple fact that the merging of two unrestricted contexts
-$\Context_1$ and $\Context_2$ results in an unrestricted context.\Luca{Serve?}
+% It is a simple fact that the merging of two unrestricted contexts
+% $\Context_1$ and $\Context_2$ results in an unrestricted context.\Luca{Serve?}
 
-\begin{code}%
+\begin{code}[hide]%
 \>[0]\AgdaFunction{+-un}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
@@ -688,8 +688,7 @@ $\Context_1$ and $\Context_2$ results in an unrestricted context.\Luca{Serve?}
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Un}\AgdaSpace{}%
 \AgdaBound{Γ}\<%
-\end{code}
-\begin{code}[hide]%
+\\
 \>[0]\AgdaFunction{+-un}\AgdaSpace{}%
 \AgdaInductiveConstructor{•}\AgdaSpace{}%
 \AgdaInductiveConstructor{un-[]}\AgdaSpace{}%

@@ -71,10 +71,10 @@ implicit, which streamlines their usage in the rest of the code.
 
 Just like permutations from Agda's standard library, also \AgdaDatatype{\_↭\_}
 enjoys a number of expected properties, such as symmetry. Among them, in the
-following we will make use of a specific one that connects context splitting and
-permutations: if $\Splitting\ContextC\ContextD\ContextE$, then $\ContextC$ is a
-permutation of the concatenation of $\ContextD$ and $\ContextE$.\Luca{Ci sono
-molte altre proprietà non descritte, controllare quelle che servono davvero.}
+following we will make use of a specific property that relates context
+splitting, list concatenation and permutations: if
+$\Splitting\ContextC\ContextD\ContextE$, then $\ContextC$ is a permutation of
+the concatenation of $\ContextD$ and $\ContextE$.
 
 \begin{code}[hide]
 ↭split : ∀{Γ Γ₁ Γ₂ Δ} → Γ ↭ Δ → Γ ≃ Γ₁ + Γ₂ → ∃[ Δ₁ ] ∃[ Δ₂ ] (Δ ≃ Δ₁ + Δ₂ × Γ₁ ↭ Δ₁ × Γ₂ ↭ Δ₂)
