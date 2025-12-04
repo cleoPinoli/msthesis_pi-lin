@@ -18,69 +18,147 @@ open import Process
 open import DeadlockFreedom using (deadlock-freedom)
 \end{code}
 
+In this section we illustrate a few simple examples of processes. We start by
+encoding the type of a boolean value being produced as a choice between ``going
+left'' (which we interpret as true) and ``going right'' (which we interpret as
+false).
+
 \begin{code}
 𝔹 : Type
 𝔹 = 𝟙 ⊕ 𝟙
+\end{code}
 
-True : Process [ 𝔹 ]
-True = left (< ≫) close
+The boolean constants are processes that perform one of these choices.
 
-False : Process [ 𝔹 ]
-False = right (< ≫) close
+\begin{code}
+true : Process [ 𝔹 ]
+true = left (< ≫) close
 
-Not : Process (dual 𝔹 ∷ 𝔹 ∷ [])
-Not = case (< ≫) (wait (< ≫) False) (wait (< ≫) True)
+false : Process [ 𝔹 ]
+false = right (< ≫) close
+\end{code}
 
-Copy : Process (dual 𝔹 ∷ 𝔹 ∷ [])
-Copy = cut (< ≫) (↭process swap Not) Not
+We can use the host language for programming higher-order processes. For
+example, we can define a conditional process thus:
 
-Drop : Process (dual 𝔹 ∷ 𝟙 ∷ [])
-Drop = case (< ≫) (wait (< ≫) close) (wait (< ≫) close)
+\begin{code}
+if_else : ∀{Γ} → Process Γ → Process Γ → Process (dual 𝔹 ∷ Γ)
+if P else Q = case (< ≫) (wait (< ≫) P) (wait (< ≫) Q)
+\end{code}
 
-And : Process (dual 𝔹 ∷ dual 𝔹 ∷ 𝔹 ∷ [])
-And = case (< ≫)
-           (wait (< ≫) Copy)
-           (wait (< ≫)
-                 (cut (< ≫)
-                      (↭process swap Drop)
-                      (wait (< ≫) False)))
+A term $\AgdaFunction{if}~P~\AgdaFunction{else}~Q$ is a process that waits for a
+boolean value (\cf the $\AgdaFunction{dual}~\mathbb{B}$ type at the front of its
+typing context) and continues as either $P$ or $Q$ depending on whether it
+receives true or false.
+%
+We can then define a process $\AgdaFunction{drop}~P$ that waits for consumes a
+boolean and continues as $P$ regardless of its value.
 
-Or : Process (dual 𝔹 ∷ dual 𝔹 ∷ 𝔹 ∷ [])
-Or = cut (< < ≫)
-         (cut (> < ≫)
-              (↭process swap Not)
-              (cut (> > < ≫)
-                   (↭process swap Not)
-                   And))
-         Not
+\begin{code}
+drop : ∀{Γ} → Process Γ → Process (dual 𝔹 ∷ Γ)
+drop P = if P else P
+\end{code}
 
-ex1 : Process [ 𝔹 ]
-ex1 = cut ≫ False (cut ≫ False Or)
+Using these higher-order forms, it is easy to define the usual boolean
+connectives.
 
-reduce : ∀{Γ} → ℕ → Process Γ → Process Γ
-reduce zero P = P
-reduce (suc n) P with deadlock-freedom P
+\begin{code}
+!!_ : Process [ 𝔹 ] → Process [ 𝔹 ]
+!!_ B = cut ≫ B (if false else true)
+
+_&&_ _||_  : Process [ 𝔹 ] → Process [ 𝔹 ] → Process [ 𝔹 ]
+A && B   = cut ≫ A (cut ≫ B (if (link (< ≫)) else (drop false)))
+A || B   = !! ((!! A) && (!! B))
+\end{code}
+
+Note the use of \AgdaInductiveConstructor{cut}s for combining a process that
+produces a boolean value with a process that consumes a boolean value and the
+use of \AgdaInductiveConstructor{link} for copying a boolean value from one
+channel to another. 
+%
+Here we have chosen to define the disjunction \AgdaFunction{||} from the
+conjunction \AgdaFunction{\&\&} and negation \AgdaFunction{!!} using De Morgan's
+laws.
+
+If we wish to test our definitions, we can implement a simple (lazy) evaluator
+using the deadlock freedom property. We have not proved a termination result,
+but since linear logic enjoys cut elimination we can safely annotate the
+evaluator as terminating.
+
+\begin{code}
+{-# TERMINATING #-}
+eval : ∀{Γ} → Process Γ → Process Γ
+eval P with deadlock-freedom P
 ... | inj₁ (Q , _ , _)  = Q
-... | inj₂ (Q , _)      = reduce n Q
+... | inj₂ (Q , _)      = eval Q
+\end{code}
 
+Now if we ask Agda to normalize the goal
+$\AgdaFunction{eval}~(\AgdaFunction{false}~\AgdaFunction{||}~\AgdaFunction{false})$
+we obtain
+$\AgdaInductiveConstructor{right}~(\AgdaInductiveConstructor{<}~\AgdaInductiveConstructor{•})~\AgdaInductiveConstructor{close}$,
+that is the definition of \AgdaFunction{false}, as expected.
+
+For the example that follows, it is convenient to introduce the linear
+implication connective according to the standard definition $A \multimap B
+\eqdef \dual{A} \Par B$.
+
+\begin{code}
 _⊸_ : ∀{n} → PreType n → PreType n → PreType n
 A ⊸ B = dual A ⅋ B
+\end{code}
 
+Below we define a persistent, polymorphic echo \AgdaInductiveConstructor{server}
+that waits for a value and sends it back unchanged. The server is polymorphic in
+the sense that the type of the value is arbitrary and denoted by the type
+variable $X$. The notation $\AgdaFunction{\#}~n$ is defined in Agda's standard
+library and creates an element of \AgdaDatatype{Fin} from the natural number
+$n$. The function \AgdaFunction{\$} is also defined in the standard library and
+denotes function application. We use it here as ``command separator'' to save a
+few parentheses.
+
+\begin{code}
 echo :  let X = var (# 0) in
         Process [ `! (`∀ (X ⊸ X)) ]
 echo =  server (< ≫) un-[] $
         all (< ≫) λ X →
         join (< ≫) $
-        link (> < ≫)
-
-⊗-comm :  let X = var (# 1) in
-          let Y = var (# 0) in
-          Process [ `∀ (`∀ ((X ⊗ Y) ⊸ (Y ⊗ X))) ]
-⊗-comm =  all (< ≫) λ X →
-          all (< ≫) λ Y →
-          join (< ≫) $
-          join (> < ≫) $
-          fork (> > < ≫) (< ≫)
-               (link (< ≫))
-               (link (< ≫))
+        link (< ≫)
 \end{code}
+
+We can test the server by connecting it with a \AgdaInductiveConstructor{client}
+that sends true to it.
+
+\begin{code}
+echo-true : Process [ 𝔹 ]
+echo-true = cut ≫ echo (client (< ≫) $
+                       ex (< ≫) $
+                       fork (< ≫) ≫ true (link (< ≫)))
+\end{code}
+
+If we ask Agda to evaluate this process we obtain
+$\AgdaInductiveConstructor{left}~(\AgdaInductiveConstructor{<}~\AgdaInductiveConstructor{•})~\AgdaInductiveConstructor{close}$,
+that is the definition of \AgdaFunction{true} as expected.
+
+From these examples it should be clear that writing \Calculus processes in Agda
+is not entirely straightforward, but it is still doable with a little effort.
+The lack of names (for channels) clearly obfuscates the code, but the context
+splittings that must be provided are usually small and fairly easy to
+understand. Most importantly, the use of \AgdaFunction{≫} helps truncating
+context splittings as soon as the seeked channel has been reached.
+%
+Either way, the formalization is meant to study the meta-theory of \Calculus
+rather than implementing a user-friendly DSL for it.
+
+% \begin{code}
+% ⊗-comm : let X = var (# 1) in
+%          let Y = var (# 0) in
+%          Process [ `∀ (`∀ ((X ⊗ Y) ⊸ (Y ⊗ X))) ]
+% ⊗-comm = all (< ≫) λ X →
+%          all (< ≫) λ Y →
+%          join (< ≫) $
+%          join (> < ≫) $
+%          fork (> > < ≫) (< ≫)
+%               (link (< ≫))
+%               (link (< ≫))
+% \end{code}

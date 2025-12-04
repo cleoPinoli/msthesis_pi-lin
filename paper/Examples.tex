@@ -84,6 +84,11 @@
 \AgdaSymbol{(}\AgdaFunction{deadlock-freedom}\AgdaSymbol{)}\<%
 \end{code}
 
+In this section we illustrate a few simple examples of processes. We start by
+encoding the type of a boolean value being produced as a choice between ``going
+left'' (which we interpret as true) and ``going right'' (which we interpret as
+false).
+
 \begin{code}%
 \>[0]\AgdaFunction{𝔹}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -94,17 +99,19 @@
 \AgdaInductiveConstructor{𝟙}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⊕}}\AgdaSpace{}%
 \AgdaInductiveConstructor{𝟙}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{True}\AgdaSpace{}%
+\end{code}
+
+The boolean constants are processes that perform one of these choices.
+
+\begin{code}%
+\>[0]\AgdaFunction{true}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaFunction{𝔹}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{]}}\<%
 \\
-\>[0]\AgdaFunction{True}\AgdaSpace{}%
+\>[0]\AgdaFunction{true}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{left}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
@@ -113,33 +120,45 @@
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{False}\AgdaSpace{}%
+\>[0]\AgdaFunction{false}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaFunction{𝔹}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{]}}\<%
 \\
-\>[0]\AgdaFunction{False}\AgdaSpace{}%
+\>[0]\AgdaFunction{false}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{right}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaInductiveConstructor{close}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{Not}\AgdaSpace{}%
+\end{code}
+
+We can use the host language for programming higher-order processes. For
+example, we can define a conditional process thus:
+
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{if\AgdaUnderscore{}else}}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaFunction{𝔹}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaFunction{𝔹}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\<%
+\AgdaBound{Γ}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{Not}\AgdaSpace{}%
+\>[0]\AgdaOperator{\AgdaFunction{if}}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{else}}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{case}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
@@ -147,185 +166,143 @@
 \AgdaSymbol{(}\AgdaInductiveConstructor{wait}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaFunction{False}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{wait}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaFunction{True}\AgdaSymbol{)}\<%
-\\
+\AgdaBound{Q}\AgdaSymbol{)}\<%
+\end{code}
+
+A term $\AgdaFunction{if}~P~\AgdaFunction{else}~Q$ is a process that waits for a
+boolean value (\cf the $\AgdaFunction{dual}~\mathbb{B}$ type at the front of its
+typing context) and continues as either $P$ or $Q$ depending on whether it
+receives true or false.
 %
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{Copy}\AgdaSpace{}%
+We can then define a process $\AgdaFunction{drop}~P$ that waits for consumes a
+boolean and continues as $P$ regardless of its value.
+
+\begin{code}%
+\>[0]\AgdaFunction{drop}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaFunction{𝔹}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaFunction{𝔹}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\<%
+\AgdaBound{Γ}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{Copy}\AgdaSpace{}%
+\>[0]\AgdaFunction{drop}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{cut}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
-\AgdaInductiveConstructor{swap}\AgdaSpace{}%
-\AgdaFunction{Not}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaFunction{Not}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{Drop}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{if}}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{else}}\AgdaSpace{}%
+\AgdaBound{P}\<%
+\end{code}
+
+Using these higher-order forms, it is easy to define the usual boolean
+connectives.
+
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{!!\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaFunction{𝔹}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{𝟙}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{Drop}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{case}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{wait}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaInductiveConstructor{close}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{wait}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaInductiveConstructor{close}\AgdaSymbol{)}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{And}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaFunction{𝔹}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaFunction{𝔹}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaFunction{𝔹}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{And}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{case}%
-\>[148I]\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\<%
-\\
-\>[.][@{}l@{}]\<[148I]%
-\>[11]\AgdaSymbol{(}\AgdaInductiveConstructor{wait}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaFunction{Copy}\AgdaSymbol{)}\<%
-\\
-%
-\>[11]\AgdaSymbol{(}\AgdaInductiveConstructor{wait}%
-\>[153I]\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\<%
-\\
-\>[.][@{}l@{}]\<[153I]%
-\>[17]\AgdaSymbol{(}\AgdaInductiveConstructor{cut}%
-\>[155I]\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\<%
-\\
-\>[.][@{}l@{}]\<[155I]%
-\>[22]\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
-\AgdaInductiveConstructor{swap}\AgdaSpace{}%
-\AgdaFunction{Drop}\AgdaSymbol{)}\<%
-\\
-%
-\>[22]\AgdaSymbol{(}\AgdaInductiveConstructor{wait}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaFunction{False}\AgdaSymbol{)))}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{Or}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Process}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaFunction{𝔹}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaFunction{𝔹}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaFunction{𝔹}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{Or}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{cut}%
-\>[175I]\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\<%
-\\
-\>[.][@{}l@{}]\<[175I]%
-\>[9]\AgdaSymbol{(}\AgdaInductiveConstructor{cut}%
-\>[178I]\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\<%
-\\
-\>[.][@{}l@{}]\<[178I]%
-\>[14]\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
-\AgdaInductiveConstructor{swap}\AgdaSpace{}%
-\AgdaFunction{Not}\AgdaSymbol{)}\<%
-\\
-%
-\>[14]\AgdaSymbol{(}\AgdaInductiveConstructor{cut}%
-\>[183I]\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\<%
-\\
-\>[.][@{}l@{}]\<[183I]%
-\>[19]\AgdaSymbol{(}\AgdaFunction{↭process}\AgdaSpace{}%
-\AgdaInductiveConstructor{swap}\AgdaSpace{}%
-\AgdaFunction{Not}\AgdaSymbol{)}\<%
-\\
-%
-\>[19]\AgdaFunction{And}\AgdaSymbol{))}\<%
-\\
-%
-\>[9]\AgdaFunction{Not}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{ex1}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaFunction{𝔹}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{]}}\<%
 \\
-\>[0]\AgdaFunction{ex1}\AgdaSpace{}%
+\>[0]\AgdaOperator{\AgdaFunction{!!\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{cut}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSpace{}%
-\AgdaFunction{False}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{cut}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSpace{}%
-\AgdaFunction{False}\AgdaSpace{}%
-\AgdaFunction{Or}\AgdaSymbol{)}\<%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaFunction{if}}\AgdaSpace{}%
+\AgdaFunction{false}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{else}}\AgdaSpace{}%
+\AgdaFunction{true}\AgdaSymbol{)}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{reduce}\AgdaSpace{}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}\&\&\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}||\AgdaUnderscore{}}}%
+\>[11]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
+\AgdaFunction{𝔹}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
+\AgdaFunction{𝔹}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
+\AgdaFunction{𝔹}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}\<%
+\\
+\>[0]\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\&\&}}\AgdaSpace{}%
+\AgdaBound{B}%
+\>[9]\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{cut}\AgdaSpace{}%
+\AgdaFunction{≫}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{cut}\AgdaSpace{}%
+\AgdaFunction{≫}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaFunction{if}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{link}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
+\AgdaFunction{≫}\AgdaSymbol{))}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{else}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{drop}\AgdaSpace{}%
+\AgdaFunction{false}\AgdaSymbol{)))}\<%
+\\
+\>[0]\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{||}}\AgdaSpace{}%
+\AgdaBound{B}%
+\>[9]\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{!!}}\AgdaSpace{}%
+\AgdaSymbol{((}\AgdaOperator{\AgdaFunction{!!}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\&\&}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaFunction{!!}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{))}\<%
+\end{code}
+
+Note the use of \AgdaInductiveConstructor{cut}s for combining a process that
+produces a boolean value with a process that consumes a boolean value and the
+use of \AgdaInductiveConstructor{link} for copying a boolean value from one
+channel to another. 
+%
+Here we have chosen to define the disjunction \AgdaFunction{||} from the
+conjunction \AgdaFunction{\&\&} and negation \AgdaFunction{!!} using De Morgan's
+laws.
+
+If we wish to test our definitions, we can implement a simple (lazy) evaluator
+using the deadlock freedom property. We have not proved a termination result,
+but since linear logic enjoys cut elimination we can safely annotate the
+evaluator as terminating.
+
+\begin{code}%
+\>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
+\AgdaKeyword{TERMINATING}\AgdaSpace{}%
+\AgdaSymbol{\#-\}}\<%
+\\
+\>[0]\AgdaFunction{eval}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{ℕ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
@@ -333,15 +310,7 @@
 \AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaBound{Γ}\<%
 \\
-\>[0]\AgdaFunction{reduce}\AgdaSpace{}%
-\AgdaInductiveConstructor{zero}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaBound{P}\<%
-\\
-\>[0]\AgdaFunction{reduce}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
-\AgdaBound{n}\AgdaSymbol{)}\AgdaSpace{}%
+\>[0]\AgdaFunction{eval}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
 \AgdaKeyword{with}\AgdaSpace{}%
 \AgdaFunction{deadlock-freedom}\AgdaSpace{}%
@@ -365,12 +334,21 @@
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaSymbol{\AgdaUnderscore{})}%
 \>[24]\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{reduce}\AgdaSpace{}%
-\AgdaBound{n}\AgdaSpace{}%
+\AgdaFunction{eval}\AgdaSpace{}%
 \AgdaBound{Q}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+Now if we ask Agda to normalize the goal
+$\AgdaFunction{eval}~(\AgdaFunction{false}~\AgdaFunction{||}~\AgdaFunction{false})$
+we obtain
+$\AgdaInductiveConstructor{right}~(\AgdaInductiveConstructor{<}~\AgdaInductiveConstructor{•})~\AgdaInductiveConstructor{close}$,
+that is the definition of \AgdaFunction{false}, as expected.
+
+For the example that follows, it is convenient to introduce the linear
+implication connective according to the standard definition $A \multimap B
+\eqdef \dual{A} \Par B$.
+
+\begin{code}%
 \>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⊸\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -392,9 +370,18 @@
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaBound{B}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+Below we define a persistent, polymorphic echo \AgdaInductiveConstructor{server}
+that waits for a value and sends it back unchanged. The server is polymorphic in
+the sense that the type of the value is arbitrary and denoted by the type
+variable $X$. The notation $\AgdaFunction{\#}~n$ is defined in Agda's standard
+library and creates an element of \AgdaDatatype{Fin} from the natural number
+$n$. The function \AgdaFunction{\$} is also defined in the standard library and
+denotes function application. We use it here as ``command separator'' to save a
+few parentheses.
+
+\begin{code}%
 \>[0]\AgdaFunction{echo}\AgdaSpace{}%
 \AgdaSymbol{:}%
 \>[8]\AgdaKeyword{let}\AgdaSpace{}%
@@ -439,91 +426,71 @@
 \\
 %
 \>[8]\AgdaInductiveConstructor{link}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{⊗-comm}\AgdaSpace{}%
-\AgdaSymbol{:}%
-\>[10]\AgdaKeyword{let}\AgdaSpace{}%
-\AgdaBound{X}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{var}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaFunction{\#}}\AgdaSpace{}%
-\AgdaNumber{1}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaKeyword{in}\<%
-\\
-%
-\>[10]\AgdaKeyword{let}\AgdaSpace{}%
-\AgdaBound{Y}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{var}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaFunction{\#}}\AgdaSpace{}%
-\AgdaNumber{0}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaKeyword{in}\<%
-\\
-%
-\>[10]\AgdaDatatype{Process}\AgdaSpace{}%
+\end{code}
+
+We can test the server by connecting it with a \AgdaInductiveConstructor{client}
+that sends true to it.
+
+\begin{code}%
+\>[0]\AgdaFunction{echo-true}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Process}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
-\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
-\AgdaSymbol{((}\AgdaBound{X}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
-\AgdaBound{Y}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⊸}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{Y}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
-\AgdaBound{X}\AgdaSymbol{)))}\AgdaSpace{}%
+\AgdaFunction{𝔹}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{]}}\<%
 \\
-\>[0]\AgdaFunction{⊗-comm}\AgdaSpace{}%
-\AgdaSymbol{=}%
-\>[10]\AgdaInductiveConstructor{all}\AgdaSpace{}%
+\>[0]\AgdaFunction{echo-true}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaInductiveConstructor{cut}\AgdaSpace{}%
+\AgdaFunction{≫}\AgdaSpace{}%
+\AgdaFunction{echo}%
+\>[267I]\AgdaSymbol{(}\AgdaInductiveConstructor{client}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{λ}\AgdaSpace{}%
-\AgdaBound{X}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
+\AgdaOperator{\AgdaFunction{\$}}\<%
 \\
-%
-\>[10]\AgdaInductiveConstructor{all}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{λ}\AgdaSpace{}%
-\AgdaBound{Y}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
-\\
-%
-\>[10]\AgdaInductiveConstructor{join}\AgdaSpace{}%
+\>[.][@{}l@{}]\<[267I]%
+\>[23]\AgdaInductiveConstructor{ex}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{\$}}\<%
 \\
 %
-\>[10]\AgdaInductiveConstructor{join}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
+\>[23]\AgdaInductiveConstructor{fork}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\$}}\<%
-\\
-%
-\>[10]\AgdaInductiveConstructor{fork}%
-\>[328I]\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaFunction{≫}\AgdaSpace{}%
+\AgdaFunction{true}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{link}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\<%
-\\
-\>[.][@{}l@{}]\<[328I]%
-\>[15]\AgdaSymbol{(}\AgdaInductiveConstructor{link}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{))}\<%
-\\
-%
-\>[15]\AgdaSymbol{(}\AgdaInductiveConstructor{link}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{))}\<%
+\AgdaFunction{≫}\AgdaSymbol{)))}\<%
 \end{code}
+
+If we ask Agda to evaluate this process we obtain
+$\AgdaInductiveConstructor{left}~(\AgdaInductiveConstructor{<}~\AgdaInductiveConstructor{•})~\AgdaInductiveConstructor{close}$,
+that is the definition of \AgdaFunction{true} as expected.
+
+From these examples it should be clear that writing \Calculus processes in Agda
+is not entirely straightforward, but it is still doable with a little effort.
+The lack of names (for channels) clearly obfuscates the code, but the context
+splittings that must be provided are usually small and fairly easy to
+understand. Most importantly, the use of \AgdaFunction{≫} helps truncating
+context splittings as soon as the seeked channel has been reached.
+%
+Either way, the formalization is meant to study the meta-theory of \Calculus
+rather than implementing a user-friendly DSL for it.
+
+% \begin{code}
+% ⊗-comm : let X = var (# 1) in
+%          let Y = var (# 0) in
+%          Process [ `∀ (`∀ ((X ⊗ Y) ⊸ (Y ⊗ X))) ]
+% ⊗-comm = all (< ≫) λ X →
+%          all (< ≫) λ Y →
+%          join (< ≫) $
+%          join (> < ≫) $
+%          fork (> > < ≫) (< ≫)
+%               (link (< ≫))
+%               (link (< ≫))
+% \end{code}
