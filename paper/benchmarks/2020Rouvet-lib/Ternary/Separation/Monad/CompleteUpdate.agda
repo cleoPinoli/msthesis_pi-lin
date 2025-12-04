@@ -33,7 +33,6 @@ module Update where
   updater (Monad.return ⟰-monad px) fr = -, -, fr , px
   Monad.bind ⟰-monad = bind'
 
-{- updates with failure -}
 module UpdateWithFailure where
 
   open import Relation.Ternary.Separation.Monad.Error

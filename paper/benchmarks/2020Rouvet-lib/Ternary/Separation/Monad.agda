@@ -22,7 +22,6 @@ module Monads
   RawMonad : ∀ {i} (I : Set i) → (ℓ : Level) → Set _
   RawMonad I ℓ = (i j : I) → PT A B ℓ ℓ
 
-  {- strong indexed monads on predicates over PRSAs, relative to the functor induced by the PRSA morphism j -}
   record Monad {i} (I : Set i) ℓ (M : RawMonad I ℓ) : Set (a ⊔ b ⊔ suc ℓ ⊔ i) where
     field
       return : ∀ {P i₁}         → ∀[ P ⇒ⱼ M i₁ i₁ P ]
@@ -45,7 +44,6 @@ module Monads
 
   open Monad ⦃...⦄ public
 
-  -- having the internal bind is enough to get strength
   module _ {i} {I : Set i} {i₁ i₂} {P} {M} {{ _ : Monad I a M }} where
     str  : ∀ {Q : Pred A a} → M i₁ i₂ P Φ₁ → Φ₁ ⊎ j Φ₂ ≣ Φ → Q Φ₂ → M i₁ i₂ (P ✴ Q) Φ
     str mp σ qx = app (bind (wand λ where

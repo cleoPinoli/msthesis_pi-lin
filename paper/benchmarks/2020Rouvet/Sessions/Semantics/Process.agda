@@ -86,7 +86,6 @@ reschedule (main (partial (pure (inj₁ _))))     = raise outOfFuel
 reschedule thr@(main (partial (pure (inj₂ _)))) = enqueue thr
 reschedule thr@(main (partial (impure _)))      = enqueue thr
 
-{- Select the next thread that is not done -}
 dequeue : ε[ State? St (Emp ∪ Thread) ]
 dequeue = 
   onPool (wandit (λ pool →

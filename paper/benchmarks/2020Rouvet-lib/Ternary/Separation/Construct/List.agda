@@ -19,7 +19,6 @@ private C = List A
 instance separation : RawSep C
 separation = record { _⊎_≣_ = Interleaving }
 
--- TODO add to stdlib
 interleaving-assoc : ∀ {a b ab c abc : List A} →
           Interleaving a b ab → Interleaving ab c abc →
           ∃ λ bc → Interleaving a bc abc × Interleaving b c bc

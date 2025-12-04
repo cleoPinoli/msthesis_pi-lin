@@ -11,13 +11,11 @@ open import Data.Product
 open import Data.List hiding (concat)
 open import Relation.Unary
 
-{- Inductive separating forall over a list -}
 module _ {ℓ} where
   data Allstar (P : I → Pred C ℓ) : List I → SPred (ℓ ⊔ c ⊔ i) where
     nil  :            ε[ Allstar P [] ]
     cons : ∀ {x xs} → ∀[ P x ✴ Allstar P xs ⇒ Allstar P (x ∷ xs) ]
 
-  -- not typed well in non-pattern positions
   infixr 5 _:⟨_⟩:_
   pattern _:⟨_⟩:_ x p xs = cons (x ×⟨ p ⟩ xs)
 

@@ -56,12 +56,10 @@ module StateTransformer {ℓ}
         app bound (inj px ×⟨ offerᵣ σ₅ ⟩ st') (offerᵣ σ₆) with ⊎-unassoc σ₅ σ₆
         ... | _ , τ₁ , τ₂ = let mq = app f px (⊎-comm τ₁) in app mq st' (offerᵣ τ₂)
 
-  {- Lift an M computation into a transformed state operation -}
   liftM : ∀ {Φ P} → M P (demand Φ) → StateT M St (P ∘ demand) Φ
   app (liftM mp) (lift μ k) σ@(offerᵣ _) =
     app (mapM′ (wand λ where px σ@(offerₗ _) → inj px ×⟨ ⊎-comm σ ⟩ (lift μ k))) mp (⊎-comm σ)
 
-  {- Lift a state computation into a transformed state operation -}
   liftState : ∀ {P} → ∀[ State St P ⇒ StateT M St P ]
   app (liftState mp) st σ = Monad.return monad (app mp st σ)
  

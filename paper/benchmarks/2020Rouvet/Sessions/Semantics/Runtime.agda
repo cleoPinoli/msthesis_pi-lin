@@ -94,7 +94,6 @@ module _ where
   flipChan (twosided x) = twosided (revLink x)
   flipChan (onesided x) = onesided x
 
-  {- Updating a known endpoint of a channel type -}
   _≔ₑ_ : ∀ {τ} → End α τ → SType → Runtype
   (endp β ∷ [] , divide lr []) ≔ₑ α = chan α β
   (endp β ∷ [] , divide rl []) ≔ₑ α = chan β α
@@ -104,7 +103,6 @@ module _ where
   onesided-recipient emp      = end
   onesided-recipient (cons x) = rec
 
-  {- Receiving on any receiving end of a channel -}
   chan-receive : ∀ {τ} → (e : End (a ¿ α) τ) →
                  ∀[ Channel τ ⇒ Except E (Val a ✴ Channel (e ≔ₑ α)) ]
 
@@ -120,7 +118,6 @@ module _ where
     v ×⟨ σ ⟩ b' ← pull b
     return (v ×⟨ σ ⟩ onesided b')
 
-  {- Sending on any sending end of a channel -}
   chan-send : ∀ {τ} → (e : End (a ! α) τ) →
               ∀[ Channel τ ⇒ Val a ─✴ Channel (e ≔ₑ α) ]
 

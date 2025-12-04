@@ -24,14 +24,12 @@ open import Sessions.Syntax.Expr
 open import Sessions.Semantics.Commands
 open import Sessions.Semantics.Runtime delay
 
-{- A specification of the update we are performing -}
 _≔_ : ∀ {x} {ys} {zs} → [ endp x ] ⊎ ys ≣ zs → SType → RCtx
 _≔_ {zs = x ∷ zs}         (to-right s) α  = x ∷ s ≔ α
 _≔_ {zs = chan l r ∷ zs}  (divide lr s) α = chan α r ∷ zs
 _≔_ {zs = chan l r ∷ zs}  (divide rl s) α = chan l α ∷ zs
 _≔_ {zs = .(endp _) ∷ zs} (to-left s) α   = endp α ∷ zs
 
-{- Type of actions on a link -}
 private
   Action : ∀ (from to : SType) → Pt RCtx 0ℓ
   Action from to P Φ = ∀ {τ} → (end : End from τ) → (Channel τ ─✴ Except E (P ✴ Channel (end ≔ₑ to))) Φ
@@ -41,7 +39,6 @@ module _ where
   open Monads.Monad except-monad
   open Monads using (str)
 
-  {- Takes an endpointer and the channel list and updates it using a link action -}
   act : ∀ {P α xs ds} →
         (ptr : [ endp α ] ⊎ ds ≣ xs) →
         ∀[ Action α β P
@@ -77,7 +74,6 @@ module _ where
   open StateWithErr {C = RCtx} E
   open Monads.Monad {{...}}
 
-  {- Updating a single link based on a pointer to one of its endpoints -}
   operate : ∀ {P} → ∀[ Action α β P ⇒ Endptr α ─✴ State? Channels (P ✴ Endptr β) ]
   app (app (operate f) refl σ₁) (lift chs k) (offerᵣ σ₂) with ⊎-assoc σ₂ k
   ... | _ , σ₃ , σ₄ with ⊎-assoc (⊎-comm σ₁) σ₃
@@ -91,11 +87,9 @@ module _ where
   ... | _ , τ₅ , eureka =
     partial (inj₂ (inj (px ×⟨ ⊎-comm τ₃ ⟩ refl) ×⟨ offerᵣ eureka ⟩ lift chs' (⊎-comm τ₅)))
 
-  {- Getting a value from a ready-to-receive endpoint -}
   receive? : ∀[ Endptr (a ¿ β) ⇒ State? Channels (Val a ✴ Endptr β) ]
   receive? ptr = app (operate (λ end → wandit (chan-receive end))) ptr ⊎-idˡ
 
-  {- Putting a value in a ready-to-send endpoint -}
   send! : ∀[ Endptr (a ! β) ⇒ Val a ─✴ State? Channels (Endptr β) ]
   app (send! {a = a} ptr) v σ = do
     empty ×⟨ σ ⟩ ptr ← app (operate sender) ptr (⊎-comm σ)

@@ -1,6 +1,5 @@
 {-# OPTIONS --safe --without-K #-}
 
--- Proof relevant separation algebras
 module Relation.Ternary.Separation where
 
 open import Function
@@ -40,18 +39,14 @@ record RawSep {a} (Carrier : Set a) : Set (suc a) where
   field
     _⊎_≣_ : (Φ₁ Φ₂ : Carrier) → SPred a
 
-  -- we can see the three point relation as a predicate on the carrier
   _⊎_ = _⊎_≣_
 
-  -- buy one, get a preorder for free
   _≤_ : Rel Carrier _
   Φ₁ ≤ Φ = ∃ λ Φ₂ → Φ₁ ⊎ Φ₂ ≣ Φ
 
-  -- remainder
   rem : ∀ {x y} → x ≤ y → Carrier
   rem (z , _) = z
 
-  -- separating conjunction
   infixr 10 _×⟨_⟩_
   record Conj {p q} (P : SPred p) (Q : ∀ {Φ} → P Φ → SPred q) Φ : Set (p ⊔ q ⊔ a) where
     inductive
@@ -70,7 +65,6 @@ record RawSep {a} (Carrier : Set a) : Set (suc a) where
   _✴_ : ∀ {p q} → SPred p → SPred q → SPred (p ⊔ q ⊔ a)
   P ✴ Q = ∃[ P ]✴ const Q
 
-  -- | Separating implication / magic is what you wand
 
   infixr 8 _─✴[_]_
   record _─✴[_]_ {b p q} {A : Set b} (P : Pred A p) (j : A → Carrier) (Q : SPred q) (Φᵢ : Carrier) : Set (p ⊔ q ⊔ a ⊔ b) where
@@ -88,15 +82,10 @@ record RawSep {a} (Carrier : Set a) : Set (suc a) where
            (P ─✴ Q) Φ₁ → Φ₁ ⊎ Φ₂ ≣ Φ → P Φ₂ → Q Φ
   f $⟨ σ ⟩ px = app f px σ
 
-  -- | The update modality
 
-  -- the naked version, which doesn't coop well with inference:
   ⤇' : ∀ {p} (P : SPred p) → SPred (a ⊔ p)
   ⤇' P Φᵢ = ∀ {Φⱼ Φₖ} → Φᵢ ⊎ Φⱼ ≣ Φₖ → ∃₂ λ Φₗ Φ → Φₗ ⊎ Φⱼ ≣ Φ × P Φₗ
-  -- Φᵢ is what we own, Φⱼ is an arbitrary frame.
-  -- We may update Φᵢ as long as we do not disturb the framing
 
-  -- wrapped
   record ⤇ {p} (P : SPred p) Φᵢ : Set (a ⊔ p) where
     constructor local
     field
@@ -135,12 +124,10 @@ record IsSep {ℓ₁} {A} (s : RawSep {ℓ₁} A) : Set ℓ₁ where
     ... | abd , σ₇ , σ₈ with ⊎-unassoc (⊎-comm σ₈) σ₇
     ... | ac  , τ  , τ' = -, -, ⊎-comm τ , σ₅ , τ'
 
-  -- pairs commute
   module _ {p q} {P : SPred p} {Q : SPred q} where
     ✴-swap : ∀[ (P ✴ Q) ⇒ (Q ✴ P) ]
     ✴-swap (px ×⟨ σ ⟩ qx) = qx ×⟨ ⊎-comm σ ⟩ px
 
-  -- pairs rotate and reassociate
   module _ {p q r} {P : SPred p} {Q : SPred q} {R : SPred r} where
     ✴-assocₗ : ∀[ P ✴ (Q ✴ R) ⇒ (P ✴ Q) ✴ R ]
     ✴-assocₗ (p ×⟨ σ₁ ⟩ (q ×⟨ σ₂ ⟩ r)) =
@@ -166,7 +153,6 @@ record IsSep {ℓ₁} {A} (s : RawSep {ℓ₁} A) : Set ℓ₁ where
     apply : ∀[ (P ─✴ Q) ✴ P ⇒ Q ]
     apply (px ×⟨ sep ⟩ qx) =  app px qx sep
 
-  -- mapping
   module _ {p q p' q'}
     {P : SPred p} {Q : SPred q} {P' : SPred p'} {Q' : SPred q'} where
 
@@ -199,7 +185,6 @@ record IsSep {ℓ₁} {A} (s : RawSep {ℓ₁} A) : Set ℓ₁ where
       let τ₃ , p , q = ⊎-assoc Φ₁⊎τ₁=Φ₂ Φ₂⊎τ₂=Φ₃ in τ₃ , p
 
   module _ where
-    -- disjointness
     _◆_ : _ → _ → SPred _
     Φₗ ◆ Φᵣ = Exactly Φₗ ✴ Exactly Φᵣ
 
@@ -227,7 +212,6 @@ record IsUnitalSep {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
   ε[_] : ∀ {ℓ} → Pred C ℓ → Set ℓ
   ε[ P ] = P ε
 
-  {- Emptyness -}
   module _ where
   
     data Empty {p} (P : Set p) : SPred (c ⊔ p) where
@@ -246,14 +230,12 @@ record IsUnitalSep {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
     ✴-idʳ : ∀ {p} {P : SPred p} → ∀[ P ⇒ P ✴ Emp ]
     ✴-idʳ px = px ×⟨ ⊎-idʳ ⟩ empty
 
-    -- a resource-polymorphic function is a pure wand
     wandit : ∀ {p q} {P : SPred p} {Q : SPred q} → ∀[ P ⇒ Q ] → ε[ P ─✴ Q ]
     app (wandit f) p σ rewrite ⊎-id⁻ˡ σ = f p
     
     _⟨✴⟩_ : ∀ {p q} {P : SPred p} {Q : SPred q} → ε[ P ─✴ Q ] → ∀[ P ⇒ Q ]
     w ⟨✴⟩ p = app w p ⊎-idˡ
 
-  {- A free preorder -}
   module _ where
 
     ≤-reflexive : Φ₁ ≡ Φ₂ → Φ₁ ≤ Φ₂
@@ -271,7 +253,6 @@ record IsUnitalSep {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
     ε-minimal : ∀ {Φ} → ε ≤ Φ
     ε-minimal {Φ} = Φ , ⊎-idˡ
 
-  {- Framing where we forget the actual resource owned -}
   module ↑-Frames where
 
     infixl 1000 _↑
@@ -299,7 +280,6 @@ record IsUnitalSep {c} {C : Set c} (sep : RawSep C) un : Set (suc c) where
       ↑-bind : ∀[ P ⇒ Q ↑ ] → ∀[ P ↑ ⇒ Q ↑ ]
       ↑-bind f px = join (map f px)
 
-    {- Projections out of separating conjunction using framing -}
     module _ where
 
       π₁ : ∀ {p q} {P : SPred p} {Q : SPred q} → ∀[ (P ✴ Q) ⇒ P ↑ ]

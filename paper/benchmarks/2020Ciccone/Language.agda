@@ -15,7 +15,6 @@ mutual
     Chan : ∀{i} → Multiplicity → Multiplicity → Thunk PreType i → PreType i
     Pair : ∀{i} → (t : PreType i) → (f : ⟦ t ⟧ → PreType i) → PreType i
 
-  {- Interpretation : datatype → type -}
   ⟦_⟧ : ∀{i} → PreType i → Set
   ⟦ Pure A ⟧     = A
   ⟦ Chan _ _ _ ⟧ = ⊤

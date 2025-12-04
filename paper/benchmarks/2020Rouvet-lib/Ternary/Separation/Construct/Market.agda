@@ -1,4 +1,3 @@
--- | An implementation of the Marketoritative PCM
 module Relation.Ternary.Separation.Construct.Market where
 
 open import Level hiding (Lift)
@@ -113,7 +112,6 @@ module _ {a} {A : Set a} {{r : RawSep A}} {u} {{s₁ : IsUnitalSep r u}} where
     ... | refl with ⊎-unassoc σ₂ σᵣ
     ... | _ , σ₃ , σ₄ = inj px ×⟨ offerᵣ (⊎-comm σ₃) ⟩ lift qx σ₄
 
-{- Complete with respect to a certain element -}
 module _ {a} {A : Set a} {{r : RawSep A}} {u} {{ s : IsUnitalSep r u }} where
 
   open import Relation.Ternary.Separation.Construct.Product
@@ -127,9 +125,6 @@ module _ {a} {A : Set a} {{r : RawSep A}} {u} {{ s : IsUnitalSep r u }} where
       inc : proj₁ Φ ⊎ Φp ≣ Φq
       qx  : Q (Φq , proj₂ Φ)
 
-  -- the following cannot be proven unfortunately
-  -- _ : ∀[ (P ◑ Q₁) ✴ Q₂ ⇒ P ◑ (Q₁ ✴ Q₂) ]
-
   absorb : ∀ {p q} {P : Pred A p} {Q : Pred (A × A) q} →
            ∀[ P ⇒ⱼ ● Q ─✴ ● (P ◑ Q) ]
   app (absorb px) (lift qx k) (offerᵣ σ) with ⊎-assoc (⊎-comm σ) k
@@ -141,7 +136,6 @@ module _ {a} {A : Set a} {{r : RawSep A}} {u} {{ s : IsUnitalSep r u }} where
   expell (lift (px ◑⟨ τ₁ ⟩ qx) k) with ⊎-unassoc (⊎-comm τ₁) k
   ... | _ , τ₃ , τ₄ = (inj px) ×⟨ offerᵣ τ₃ ⟩ (lift qx τ₄)
 
-{- Completion preserving updates -}
 module _ {a} {A : Set a} {{r : RawSep A}} {u} {{ s : IsUnitalSep r u }} where
 
   open import Relation.Ternary.Separation.Construct.Product

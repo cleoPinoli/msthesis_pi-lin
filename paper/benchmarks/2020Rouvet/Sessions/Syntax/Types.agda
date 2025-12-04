@@ -28,7 +28,6 @@ open import Relation.Ternary.Separation
 open import Relation.Ternary.Separation.Construct.Product
 open import Relation.Ternary.Separation.Construct.List
 
-{- Unrestricted-, Session- and Expression types-}
 module _ where
   mutual
     -- crefnel types
@@ -47,12 +46,10 @@ module _ where
   variable
     Γ Γ' Γ₁ Γ₂ Γ₃ Γ₄ : LCtx
 
-{- Some conventions -}
 variable
   a b c   : Type
   α β γ   : SType
 
-{- Duality -}
 module _ where
 
   infixl 1000 _⁻¹

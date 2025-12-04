@@ -30,20 +30,17 @@ data Split : (xs ys zs : Carrier) → Set a where
   to-right : Split xs ys zs → Split xs (z ∷ ys) (z ∷ zs)
   []       : Split [] [] []
 
--- Split yields a separation algebra
 instance
   splits : RawSep Carrier
   RawSep._⊎_≣_ splits = Split
 
   split-is-sep : IsSep splits
 
-  -- commutes
   IsSep.⊎-comm split-is-sep (divide τ σ) = divide (⊎-comm τ) (⊎-comm σ)
   IsSep.⊎-comm split-is-sep (to-left σ)  = to-right (⊎-comm σ)
   IsSep.⊎-comm split-is-sep (to-right σ) = to-left (⊎-comm σ)
   IsSep.⊎-comm split-is-sep [] = []
   
-  -- reassociates
   IsSep.⊎-assoc split-is-sep σ₁ (to-right σ₂) with ⊎-assoc σ₁ σ₂
   ... | _ , σ₄ , σ₅ = -, to-right σ₄ , to-right σ₅
   IsSep.⊎-assoc split-is-sep (to-left σ₁) (divide τ σ₂) with ⊎-assoc σ₁ σ₂

@@ -1,4 +1,3 @@
-{- The trivial resource -}
 module Relation.Ternary.Separation.Construct.Unit where
 
 open import Data.Unit

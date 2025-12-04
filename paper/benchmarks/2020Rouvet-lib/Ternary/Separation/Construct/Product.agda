@@ -89,7 +89,6 @@ module _
     { _∙_ = (λ where (a , b) (c , d) → (a S₁.∙ c , b S₂.∙ d))
     ; ⊎-∙ₗ = λ where (p , q) → ⊎-∙ₗ p , ⊎-∙ₗ q }
 
-{- Some useful type-formers for this instance -}
 module _ {ℓ} {A : Set ℓ} {{ r : RawSep A }} {u} {{s : IsUnitalSep r u}} where
 
   data Π₁ {p} (P : Pred A p) : Pred (A × A) (ℓ ⊔ p) where

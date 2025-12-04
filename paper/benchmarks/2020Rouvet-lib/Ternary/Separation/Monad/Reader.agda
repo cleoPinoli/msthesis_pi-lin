@@ -20,16 +20,12 @@ private
     A  : Set ℓv
     Γ Γ₁ Γ₂ Γ₃ : List A
 
-{- Something not unlike a indexed relative monad transformer in a bicartesian closed category -}
 module ReaderTransformer {ℓ}
-  -- types
   {T : Set ℓ}
-  -- runtime resource
   {C : Set ℓ} {{rc : RawSep C}} {u} {{sc : IsUnitalSep rc u}} {{cc : IsConcattative rc}}
-  --
   {B : Set ℓ} {{rb : RawSep B}}
   (j : Morphism C B) {{sb : IsUnitalSep rb (Morphism.j j u)}}
-  (V : T → Pred C ℓ) -- values
+  (V : T → Pred C ℓ) 
   (M : PT C B ℓ ℓ)
   {{monad : Monads.Monad {{jm = j}} ⊤ ℓ (λ _ _ → M) }} 
   where
@@ -97,11 +93,8 @@ module ReaderTransformer {ℓ}
         refl → return v
 
 module ReaderMonad {ℓ}
-  -- types
   {T : Set ℓ}
-  -- runtime resource
   {C : Set ℓ} {{rc : RawSep C}} {u} {{sc : IsUnitalSep rc u}} {{cc : IsConcattative rc}}
-  -- values
   (V : T → Pred C ℓ)
   where
 

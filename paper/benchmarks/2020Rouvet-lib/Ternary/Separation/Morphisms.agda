@@ -15,7 +15,6 @@ record Morphism {a b} (A : Set a) (B : Set b)
   field
     j    : A → B
 
-    -- j "commutes" with _⊎_
     j-⊎  : ∀ {Φ₁ Φ₂ Φ} → Φ₁ ⊎ Φ₂ ≣ Φ → j Φ₁ ⊎ j Φ₂ ≣ j Φ
     j-⊎⁻ : ∀ {Φ₁ Φ₂ Φ} → j Φ₁ ⊎ j Φ₂ ≣ Φ → ∃ λ Φ' → Φ ≡ j Φ' × Φ₁ ⊎ Φ₂ ≣ Φ'
 
@@ -29,7 +28,6 @@ record Morphism {a b} (A : Set a) (B : Set b)
   _─✴ⱼ_ : ∀ {p q} → Pred A p → Pred B q → Pred B _ 
   P ─✴ⱼ Q = P ─✴[ j ] Q
 
-  {- Such a morphism on SAs induces a functor on SA-predicates -}
   module _ where
 
     data J {p} (P : Pred A p) : Pred B (a ⊔ p) where
@@ -47,7 +45,6 @@ record Morphism {a b} (A : Set a) (B : Set b)
   ... | _ , refl , σ' with ⊎-id⁻ˡ σ'
   ... | refl = f px
 
-{- identity morphism -}
 module _ {a} {A : Set a} {{r : RawSep A}} {u} {{s₁ : IsUnitalSep r u}} where
 
   instance id-morph : Morphism A A
