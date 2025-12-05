@@ -10,40 +10,108 @@ squeezed spazi (in generale sono significativi)
 \begin{table}
     \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
     \newcommand{\CHECK}{\checkmark}
-    \begin{tabular}{@{}rccccccccc@{}}
+    \newcommand{\SessionPI}{session $\pi$}
+    \newcommand{\SessionLAM}{session $\lambda$}
+    \begin{tabular}{@{}rccccrrrrr@{}}
         \textbf{Formalization} &
         \textlabel{Proof assistant} &
         \textlabel{Calculus} &
         \textlabel{Shared channels} &
-        \textlabel{Polymorphic channels} &
+        \textlabel{Polymorphism} &
+        \textlabel{Subject reduction} &
+        \textlabel{Safety} &
         \textlabel{Deadlock freedom} &
-        \textlabel{Size (kb)} &
-        \textlabel{Library size (kb)} &
-        \textlabel{Total size (kb)}
+        \textlabel{Library} &
+        \textlabel{\bf Total size}
         \\
         \hline
-        \fullcite{GotoEtAl16} \\
+        \fullcite{GotoEtAl16} &
+        Coq &
+        \SessionPI & 
+        \CHECK &
+        \CHECK &
+        559 &
+        4 &
+        -- &
+        -- &
+        \textbf{563}
+        \\
         \fullcite{Thiemann19} &
         Agda &
-        $\lambda$ + sessions \\
-        \fullcite{CastroFerreiraYoshida20} \\
+        \SessionLAM &
+        ? &
+        -- &
+        156 &
+        -- &
+        -- &
+        -- &
+        \textbf{156}
+        \\
+        \fullcite{CastroFerreiraYoshida20} &
+        Coq &
+        \SessionPI &
+        \CHECK &
+        -- &
+        209 &
+        -- &
+        -- &
+        -- &
+        \textbf{209}
+        \\
         \fullcite{CicconePadovani20} &
-        Agda & \\
+        Agda &
+        linear $\pi$ & 
+        \CHECK &
+        -- &
+        77 &
+        -- &
+        -- &
+        -- &
+        \textbf{77}
+        \\
         \fullcite{RouvoetPoulsenKrebbersVisser20} &
-        Agda & \\
-        \fullcite{ZalakainDardha21} \\
-        \fullcite{JacobsBalzerKrebbers22} \\
-        \fullcite{SanoKavanaghPientka23} \\
+        Agda &
+        \SessionLAM &
+        -- &
+        -- & \\
+        \fullcite{ZalakainDardha21} &
+        Agda &
+        graded $\pi$ &
+        \CHECK &
+        -- &
+        \\
+        \fullcite{JacobsBalzerKrebbers22} &
+        Coq &
+        \SessionLAM &
+        -- &
+        -- &
+        \\
+        \fullcite{SanoKavanaghPientka23} &
+        Beluga &
+        S\CP &
+        -- &
+        -- &
+        \\
         \fullcite{ZackonEtAl25} &
         Beluga &
         \CP &
-        & \\
-        \hline
+        -- &
+        -- &
+        47 &
+        -- &
+        -- &
+        73 &
+        \textbf{120}
+        \\
         this work &
         Agda &
         linear \CP &
         \CHECK &
         \CHECK &
-        \CHECK & \\
+        20 &
+        1 &
+        17 &
+        -- &
+        \textbf{38}
     \end{tabular}
 \end{table}
