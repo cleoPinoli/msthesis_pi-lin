@@ -9,6 +9,7 @@ SOURCES = \
   2020Ciccone \
   2020Rouvet \
   2020Rouvet-lib \
+  2020Rouvet-eval \
   2020Zalakain \
   2020Zalakain-lib \
   2022Jacobs \

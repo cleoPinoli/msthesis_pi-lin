@@ -1,9 +1,11 @@
 \begin{code}[hide]
 {-# OPTIONS --rewriting #-}
-open import Data.Bool using (Bool; true; false; if_then_else_)
+open import Data.Unit using (tt)
+open import Data.Sum
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 open import Data.List.Base using (List; []; _∷_; [_]; _++_)
+open import Relation.Unary
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 
 open import Type
 open import Context
@@ -13,84 +15,173 @@ open import Permutations
 \subsection{Process Representation}
 \label{sec:process-agda}
 
-We adopt a \emph{nameless, intrinsically-typed} representation of processes,
-whereby a channel is identified by the position of its type in the typing
-context and a process is also a proof derivation showing that the process is
-well typed. This choice increases the effort in the definition of the datatypes
-for defining processes and their operational semantics, but pays off in the rest
-of the formalization for a number of reasons:
+We adopt a representation of processes that is \emph{intrinsically typed} and
+based on \emph{co-de Bruijn indexes}. The intrinsically typed representation
+makes sure that only well-typed processes can be constructed. This choice
+increases the effort in the definition of the datatypes for representing
+processes and their operational semantics, but pays off in the rest of the
+formalization for at least three reasons:
 \begin{itemize}
-\item we use context splitting not only to separate resources used by parallel
-  processes (\cf \ForkRule and \CutRule), but also to witness that a channel is
-  present in the typing context;
+\item we can adopt a \emph{nameless} representation of channels, thus avoiding
+  all the technicalities and pitfalls that a named representation entails;
 \item we conflate processes and typing rules in the same datatype, thus reducing
   the overall number of datatypes defined in the formalization;
-\item we embed the typing preservation results within the very definition of the
-  operational semantics of processes instead of proving them separately
+\item the typing preservation results are embedded in the very definition of the
+  operational semantics of processes and need not require separate proofs
   (\Cref{sec:agda-semantics}).
 \end{itemize}
 
-Our nameless representation of channels is known in the literature as the
-\emph{co-de Bruijn} representation of identifiers~\cite{McBride18}. The proof
-that the type of a channel is found within a typing context essentially encodes
-the de Bruijn index of the channel in the typing context of a given process.
-However, the typing context only contains types for those channels that actually
-occur in the process. Context splitting makes sure that channels are
-appropriately (and above all linearly) distributed among sub-processes, so that
-each channel occurs (and is used) exactly once.\footnote{Strictly speaking, the
-typing context of a \AgdaInductiveConstructor{fail} process may contain channels
-that do not occur (and therefore are not used) by the process, but we consider
-this case as an exception that does not alter in a substantial way the provided
-intuition underlying the use of co-de Bruijn representation.}
+We use \emph{co-de Bruijn indexes}~\cite{McBride18} to represent channels. Co-de
+Bruijn indexes are akin to de Bruijn indexes, with the key difference that the
+typing context used to type a certain process $P$ is guaranteed to only contain
+the type of those channels that actually occur in $P$. For this reason, typing
+contexts are split as soon as possible, according to the structure of processes,
+to make sure that channels are appropriately (and above all linearly)
+distributed among sub-processes, so that each channel occurs (and is used)
+exactly once.\footnote{Strictly speaking, the typing context of a
+\AgdaInductiveConstructor{fail} process may contain channels that do not occur
+(and therefore are not used) by the process, but we consider this case as an
+exception that does not alter in a substantial way the provided intuition
+underlying the use of co-de Bruijn representation.}
 
-We now illustrate the definition of the \AgdaDatatype{Process} datatype and then
-describe its key aspects in detail. The datatype is indexed by a typing context
-$\Context$ according to which the process is well typed:
+From this informal introduction to the representation of processes it is clear
+that context splitting is going to be a pervasive notion in the subsequent
+development, to the point that it contributes substantially to the complexity of
+the formalization. For this reason, it is worth investing some effort in a
+defining an abstraction that allows us to express the type of processes in a
+more compact and hopefully more readable way.
+\citet{RouvoetPoulsenKrebbersVisser20} observe that both channels and processes
+can be thought of as \emph{predicates on typing contexts}:
+\begin{itemize}
+\item a channel of type $A$ is a predicate that holds for the singleton context
+  $\AgdaFunction[~A~\AgdaFunction]$;
+\item a process that is well typed in a typing context $\Context$ is a predicate
+  that holds for $\Context$.
+\end{itemize}
+
+Inspired by separation logic~\cite{Hoare},
+\citet{RouvoetPoulsenKrebbersVisser20} define the \emph{separating conjunction}
+$P \sand Q$ of two predicates $P$ and $Q$. The separating conjunction of $P$ and
+$Q$ holds for those contexts $\ContextC$ that can be split into $\ContextD$ and
+$\ContextE$ where $P$ holds for $\ContextD$ and $Q$ holds for $\ContextE$. In
+Agda, \citet{RouvoetPoulsenKrebbersVisser20} define $\sand$ as a record, thus:
+\begin{code}
+record _∗_ (P Q : Pred Context _) (Γ : Context) : Set where
+  constructor _⟨_⟩_
+  field
+    {Δ Θ} : Context
+    px    : P Δ
+    p     : Γ ≃ Δ + Θ
+    qx    : Q Θ
+\end{code}
+\begin{code}[hide]
+infixr 9 _∗_
+\end{code}
+
+The record has five fields: the (implicit) fields $\ContextD$ and $\ContextE$,
+which represent the decomposition of $\ContextC$; the fields \AgdaField{px} and
+\AgdaField{qx}, which are proofs witnessing that $P$ and $Q$ hold respectively
+for $\ContextD$ and $\ContextE$; the field \AgdaField{p}, which witnesses that
+$\ContextD$ and $\ContextE$ are indeed a splitting of $\ContextC$. The
+constructor \AgdaInductiveConstructor{$\_\langle\_\rangle\_$} provides a
+convenient syntax for specifying the (explicit) fields of the record to provide
+(and pattern match) separating conjunctions.
+
+To illustrate a typical usage pattern of separating conjunction we first
+introduce our first predicate \AgdaDatatype{Ch} on typing contexts, which we use
+to describe well-typed channels:
 
 \begin{code}
-data Process : Context → Set where
-  link      : ∀{A Γ} → Γ ≃ [ A ] + [ dual A ] → Process Γ
-  fail      : ∀{Γ Δ} → Γ ∋ ⊤ ⊳ Δ → Process Γ
-  wait      : ∀{Γ Δ} → Γ ∋ ⊥ ⊳ Δ → Process Δ → Process Γ
-  close     : Process [ 𝟙 ]
-  case      : ∀{A B Γ Δ} → Γ ∋ A & B ⊳ Δ →
-              Process (A ∷ Δ) → Process (B ∷ Δ) → Process Γ
-  left      : ∀{A B Γ Δ} → Γ ∋ A ⊕ B ⊳ Δ → Process (A ∷ Δ) → Process Γ
-  right     : ∀{A B Γ Δ} → Γ ∋ A ⊕ B ⊳ Δ → Process (B ∷ Δ) → Process Γ
-  join      : ∀{A B Γ Δ} → Γ ∋ A ⅋ B ⊳ Δ → Process (B ∷ A ∷ Δ) → Process Γ
-  fork      : ∀{A B Γ Δ Γ₁ Γ₂} → Γ ∋ A ⊗ B ⊳ Δ → Δ ≃ Γ₁ + Γ₂ →
-              Process (A ∷ Γ₁) → Process (B ∷ Γ₂) → Process Γ
-  all       : ∀{A Γ Δ} → Γ ∋ `∀ A ⊳ Δ →
-              ((X : Type) → Process (subst [ X /_] A ∷ Δ)) → Process Γ
-  ex        : ∀{A B Γ Δ} → Γ ∋ `∃ A ⊳ Δ → Process (subst [ B /_] A ∷ Δ) → Process Γ
-  server    : ∀{A Γ Δ} → Γ ∋ `! A ⊳ Δ → Un Δ → Process (A ∷ Δ) → Process Γ
-  client    : ∀{A Γ Δ} → Γ ∋ `? A ⊳ Δ → Process (A ∷ Δ) → Process Γ
-  weaken    : ∀{A Γ Δ} → Γ ∋ `? A ⊳ Δ → Process Δ → Process Γ
-  contract  : ∀{A Γ Δ} → Γ ∋ `? A ⊳ Δ → Process (`? A ∷ `? A ∷ Δ) → Process Γ
-  cut       : ∀{A Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ →
-              Process (A ∷ Γ₁) → Process (dual A ∷ Γ₂) → Process Γ
+data Ch (A : Type) : Context → Set where
+  ch : Ch A [ A ]
+\end{code}
+
+The predicate $\AgdaDatatype{Ch}~A$ holds for the singleton typing context
+$[A]$. Hence the predicate $\AgdaDatatype{Ch}~A\sand\AgdaDatatype{Ch}~B$ holds
+for those typing contexts that can be split into $[A]$ and $[B]$, as exemplified
+below:
+\begin{code}
+_ : ∀{A B} → (Ch A ∗ Ch B) (A ∷ B ∷ [])
+_ = ch ⟨ < > • ⟩ ch
+
+_ : ∀{A B} → (Ch A ∗ Ch B) (B ∷ A ∷ [])
+_ = ch ⟨ > < • ⟩ ch
+\end{code}
+
+\begin{table}
+  \begin{tabular}{|lll|}
+    \hline
+    \textbf{Notation} & \textbf{Definition} & \textbf{Meaning} \\
+    \hline
+    $\AgdaFunction{∀[}~P~\AgdaFunction]$ & $\forall\{x\} \to P~x$ & implicit universality \\
+    $P~\AgdaFunction{⇒}~Q$ & $\lambda x \to P~x \to Q~x$ & implication \\
+    $P~\AgdaFunction{∪}~Q$ & $\lambda x \to P~x~\AgdaDatatype{⊎}~Q~x$ & disjunction \\
+    $P~\AgdaFunction{∩}~Q$ & $\lambda x \to P~x~\AgdaDatatype{×}~Q~x$ & conjunction (non-separating) \\
+    $f~\AgdaFunction{⊢}~P$ & $\lambda x \to P~(f~x)$ & update \\
+    $\AgdaFunction{U}$ & $\lambda x \to \AgdaModule{Data.Unit}.\AgdaDatatype{⊤}$ & universal
+    set \\
+    $\AgdaFunction{⋂[}~X~\AgdaFunction{:}~A~\AgdaFunction]~P$ & $\lambda x \to (X : A) \to P~X~x$ & infinitary conjunction \\
+    \hline
+  \end{tabular}
+  \caption{\label{tab:predicates} Used definitions from Agda's \AgdaModule{Relation.Unary} module.}
+\end{table}
+
+We now illustrate the datatype \AgdaDatatype{Proc} for representing processes
+and then describe its key aspects in detail. This datatype uses, in addition to
+$\sand$, a number of definitions from the \AgdaModule{Relation.Unary} module in
+Agda's standard library which are worth recalling in \Cref{tab:predicates}.
+
+\begin{code}
+data Proc : Context → Set where
+  link      : ∀{A} → ∀[ Ch A ∗ Ch (dual A) ⇒ Proc ]
+  fail      : ∀[ Ch ⊤ ∗ U ⇒ Proc ]
+  wait      : ∀[ Ch ⊥ ∗ Proc ⇒ Proc ]
+  close     : ∀[ Ch 𝟙 ⇒ Proc ]
+  case      : ∀{A B} →
+              ∀[ Ch (A & B) ∗ ((A ∷_) ⊢ Proc ∩ (B ∷_) ⊢ Proc) ⇒ Proc ]
+  select    : ∀{A B} →
+              ∀[ Ch (A ⊕ B) ∗ ((A ∷_) ⊢ Proc ∪ (B ∷_) ⊢ Proc) ⇒ Proc ]
+  join      : ∀{A B} →
+              ∀[ Ch (A ⅋ B) ∗ ((A ∷_) ⊢ (B ∷_) ⊢ Proc) ⇒ Proc ]
+  fork      : ∀{A B} →
+              ∀[ Ch (A ⊗ B) ∗ ((A ∷_) ⊢ Proc) ∗ ((B ∷_) ⊢ Proc) ⇒ Proc ]
+  all       : ∀{A} →
+              ∀[ Ch (`∀ A) ∗ ⋂[ X ∶ Type ] ((subst [ X /_] A ∷_) ⊢ Proc) ⇒ Proc ]
+  ex        : ∀{A B} → ∀[ Ch (`∃ A) ∗ ((subst [ B /_] A ∷_) ⊢ Proc) ⇒ Proc ]
+  server    : ∀{A} → ∀[ Ch (`! A) ∗ (Un ∩ ((A ∷_) ⊢ Proc)) ⇒ Proc ]
+  client    : ∀{A} → ∀[ Ch (`? A) ∗ ((A ∷_) ⊢ Proc) ⇒ Proc ]
+  weaken    : ∀{A} → ∀[ Ch (`? A) ∗ Proc ⇒ Proc ]
+  contract  : ∀{A} → ∀[ Ch (`? A) ∗ ((`? A ∷_) ⊢ (`? A ∷_) ⊢ Proc) ⇒ Proc ]
+  cut       : ∀{A} → ∀[ ((A ∷_) ⊢ Proc) ∗ ((dual A ∷_) ⊢ Proc) ⇒ Proc ]
 \end{code}
 
 Let us start from the constructors representing input/output actions, namely
 those from \AgdaInductiveConstructor{fail} through
 \AgdaInductiveConstructor{contract}. They all basically follow the same pattern:
-their first (explicit) argument is a splitting of the form
-$\SimpleSplitting\ContextC{C}\ContextD$ that identifies the channel on which the
-process is acting within the typing context $\ContextC$ and where the shape of
-$C$ is determined by the typing rule; the subsequent arguments are terms
-corresponding to the continuations of the process being represented, each
-indexed by its own context. Crucially, the type of the continuation channels are
-\emph{prepended} to the context that indexes the continuation processes using
-the \AgdaInductiveConstructor{\_∷\_} list constructor. This is consistent with
-the fact that the continuation channels have been freshly introduced, and the
+they possibly quantify over some types $A$ and $B$ and then (implicitly) over a
+typing context $\Context$ through the function \AgdaFunction{∀[\_]} applied to a
+predicate of the form $\cdots~\AgdaFunction{⇒}~\AgdaDatatype{Proc}$. The
+predicate states how to build a process of a particular form, provided that the
+typing context $\Context$ satisfies the predicate on the l.h.s. of
+\AgdaFunction{⇒}.
+
+The constructor \AgdaInductiveConstructor{fail} requires the context $\Context$
+to satisfy the predicate
+$\AgdaDatatype{Ch}~\AgdaInductiveConstructor{⊤}~\AgdaDatatype{∗}~\AgdaFunction{U}$,
+meaning that $\Context$ must contain an entry \AgdaInductiveConstructor{⊤}. That
+form of $\Context$ matches the one in the conclusion of \FailRule.
+
+The constructor \AgdaInductiveConstructor{close} requires the typing context to
+be the singleton list $[\One]$.
+
+Crucially, the type of the continuation channels are \emph{prepended} to the
+context that indexes the continuation processes using the
+\AgdaInductiveConstructor{\_∷\_} list constructor. This is consistent with the
+fact that the continuation channels have been freshly introduced, and the
 channel on which the process operates has been consumed.
 %
 There are just a few deviations from this pattern, which we discuss next.
 
-The constructor \AgdaInductiveConstructor{close} lacks a splitting argument:
-since a process $\Close\x$ is well typed in a singleton context $x : \One$, it
-is easier to specify such context directly as the index of
-\AgdaDatatype{Process} rather than through a splitting.
 
 The constructor \AgdaInductiveConstructor{fork}, which represents a process
 $\Fork\x\y\z{P}{Q}$, has an additional splitting argument
@@ -130,39 +221,39 @@ Permutations preserve process typeability. In a sense we can read this property
 as the fact that we can rename channels at will.
 
 \begin{code}
-↭process : ∀{Γ Δ} → Γ ↭ Δ → Process Γ → Process Δ
+↭proc : ∀{Γ Δ} → Γ ↭ Δ → Proc Γ → Proc Δ
 \end{code}
 \begin{code}[hide]
-↭process π (link p) with ↭solo π p
-... | Δ′ , q , π′ rewrite ↭solo-inv π′ = link q
-↭process π (fail p) with ↭solo π p
-... | Δ′ , q , π′ = fail q
-↭process π (wait p P) with ↭solo π p
-... | Δ′ , q , π′ = wait q (↭process π′ P)
-↭process π close rewrite ↭solo-inv π = close
-↭process π (case p P Q) with ↭solo π p
-... | Δ′ , q , π′ = case q (↭process (prep π′) P) (↭process (prep π′) Q)
-↭process π (left p P) with ↭solo π p
-... | Δ′ , q , π′ = left q (↭process (prep π′) P)
-↭process π (right p P) with ↭solo π p
-... | Δ′ , q , π′ = right q (↭process (prep π′) P)
-↭process π (join p P) with ↭solo π p
-... | Δ′ , q , π′ = join q (↭process (prep (prep π′)) P)
-↭process π (fork p q P Q) with ↭solo π p
-... | Δ′ , p′ , π′ with ↭split π′ q
-... | Δ₁ , Δ₂ , q′ , π₁ , π₂ = fork p′ q′ (↭process (prep π₁) P) (↭process (prep π₂) Q)
-↭process π (all p P) with ↭solo π p
-... | Δ' , q , π' = all q λ B → ↭process (prep π') (P B)
-↭process π (ex p P) with ↭solo π p
-... | Δ' , q , π' = ex q (↭process (prep π') P)
-↭process π (server p un P) with ↭solo π p
-... | Δ′ , q , π′ = server q (↭un π′ un) (↭process (prep π′) P)
-↭process π (client p P) with ↭solo π p
-... | Δ′ , q , π′ = client q (↭process (prep π′) P)
-↭process π (weaken p P) with ↭solo π p
-... | Δ′ , q , π′ = weaken q (↭process π′ P)
-↭process π (contract p P) with ↭solo π p
-... | Δ′ , q , π′ = contract q (↭process (prep (prep π′)) P)
-↭process π (cut p P Q) with ↭split π p
-... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut q (↭process (prep π₁) P) (↭process (prep π₂) Q)
+↭proc π (link (ch ⟨ p ⟩ ch)) with ↭solo π p
+... | _ , q , π' rewrite ↭solo-inv π' = link (ch ⟨ q ⟩ ch)
+↭proc π (fail (ch ⟨ p ⟩ tt)) with ↭solo π p
+... | _ , q , π' = fail (ch ⟨ q ⟩ tt)
+↭proc π (wait (ch ⟨ p ⟩ P)) with ↭solo π p
+... | _ , q , π' = wait (ch ⟨ q ⟩ ↭proc π' P)
+↭proc π (close ch) rewrite ↭solo-inv π = close ch
+↭proc π (case (ch ⟨ p ⟩ (P , Q))) with ↭solo π p
+... | _ , q , π' = case (ch ⟨ q ⟩ (↭proc (prep π') P , ↭proc (prep π') Q))
+↭proc π (select (ch ⟨ p ⟩ inj₁ P)) with ↭solo π p
+... | _ , q , π' = select (ch ⟨ q ⟩ inj₁ (↭proc (prep π') P))
+↭proc π (select (ch ⟨ p ⟩ inj₂ P)) with ↭solo π p
+... | _ , q , π' = select (ch ⟨ q ⟩ inj₂ (↭proc (prep π') P))
+↭proc π (join (ch ⟨ p ⟩ P)) with ↭solo π p
+... | _ , q , π' = join (ch ⟨ q ⟩ ↭proc (prep (prep π')) P)
+↭proc π (fork (ch ⟨ p ⟩ (P ⟨ q ⟩ Q))) with ↭solo π p
+... | _ , p' , π' with ↭split π' q
+... | Δ₁ , Δ₂ , q' , π₁ , π₂ = fork (ch ⟨ p' ⟩ (↭proc (prep π₁) P ⟨ q' ⟩ ↭proc (prep π₂) Q))
+↭proc π (all (ch ⟨ p ⟩ F)) with ↭solo π p
+... | _ , q , π' = all (ch ⟨ q ⟩ λ X → ↭proc (prep π') (F X))
+↭proc π (ex (ch ⟨ p ⟩ P)) with ↭solo π p
+... | _ , q , π' = ex (ch ⟨ q ⟩ ↭proc (prep π') P)
+↭proc π (server (ch ⟨ p ⟩ (un , P))) with ↭solo π p
+... | _ , q , π' = server (ch ⟨ q ⟩ (↭un π' un , ↭proc (prep π') P))
+↭proc π (client (ch ⟨ p ⟩ P)) with ↭solo π p
+... | _ , q , π' = client (ch ⟨ q ⟩ ↭proc (prep π') P)
+↭proc π (weaken (ch ⟨ p ⟩ P)) with ↭solo π p
+... | _ , q , π' = weaken (ch ⟨ q ⟩ ↭proc π' P)
+↭proc π (contract (ch ⟨ p ⟩ P)) with ↭solo π p
+... | _ , q , π' = contract (ch ⟨ q ⟩ ↭proc (prep (prep π')) P)
+↭proc π (cut (P ⟨ p ⟩ Q)) with ↭split π p
+... | Δ₁ , Δ₂ , q , π₁ , π₂ = cut (↭proc (prep π₁) P ⟨ q ⟩ ↭proc (prep π₂) Q)
 \end{code}
