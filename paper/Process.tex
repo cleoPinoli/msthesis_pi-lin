@@ -47,7 +47,7 @@
 \AgdaModule{Permutations}\<%
 \end{code}
 
-\subsection{Process Representation}
+\subsection{Channel and Process Representation}
 \label{sec:process-agda}
 
 We adopt an \emph{intrinsically-typed} representation of processes with
@@ -432,8 +432,9 @@ $P$. In general, $P$ is a (separating) conjunction of sub-predicates
 corresponding to the channel on which the process is acting and to the premises
 of its typing rule.
 
-The constructor \AgdaInductiveConstructor{fail} requires the context $\Context$
-to satisfy the predicate
+For example, the constructor \AgdaInductiveConstructor{fail}, which corresponds
+to a process of the form $\Fail\x$, requires the context $\Context$ to satisfy
+the predicate
 $\AgdaDatatype{Ch}~\AgdaInductiveConstructor{⊤}~\AgdaDatatype{∗}~\AgdaFunction{U}$,
 meaning that $\Context$ must contain an entry \AgdaInductiveConstructor{⊤}. That
 form of $\Context$ matches the one in the conclusion of \FailRule.
@@ -449,51 +450,69 @@ The constructor \AgdaInductiveConstructor{close}, which corresponds to a process
 of the form $\Close\x$, requires the typing context to be the singleton list
 $[\One]$.
 
-Crucially, the type of the continuation channels are \emph{prepended} to the
-context that indexes the continuation processes using the
-\AgdaInductiveConstructor{\_∷\_} list constructor. This is consistent with the
-fact that the continuation channels have been freshly introduced, and the
-channel on which the process operates has been consumed.
+Let us move on to the processes that produce a continuation channel. For
+example, the constructor \AgdaInductiveConstructor{case} corresponds to a
+process of the form $\Case\x\y{P}{Q}$, where both $P$ and $Q$ may use the
+continuation channel $y$. In this case $\Context$ must satisfy the predicate
+\[
+  \AgdaDatatype{Ch}~(A~\AgdaInductiveConstructor{\&}~B)~\AgdaDatatype{∗}~((A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}~\AgdaFunction{∩}~(B~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc})
+\]
+which looks intimidating at first but makes perfect sense once we recall
+\CaseRule. Remember that we are trying to establish whether $\Case\x\y{P}{Q}$ is
+well typed in $\Context$.
 %
-There are just a few deviations from this pattern, which we discuss next.
-
-
-The constructor \AgdaInductiveConstructor{fork}, which represents a process
-$\Fork\x\y\z{P}{Q}$, has an additional splitting argument
-$\Splitting\ContextD{\Context_1}{\Context_2}$ which distributes the resources in
-$\ContextD$ among the two continuation processes $P$ and $Q$.
-
-The constructor \AgdaInductiveConstructor{all}, which represents a process
-$\Forall\x\X\y.P$, models the continuation $P$ using higher-order abstract
-syntax (HOAS~\cite{}): the continuation $P$ is produced by a function applied to
-a \AgdaInductiveConstructor{Type} $X$. Notice how the constructor enforces the
-side condition of \ForallRule \emph{by definition}:
+The predicate $\AgdaDatatype{Ch}~(A~\AgdaInductiveConstructor{\&}~B)$ expresses
+the requirement that the type of $x$ must be of the form $A \With B$ and should
+be found in $\Context$. In other words, it must be the case that
+$\Splitting\Context{[A \With B]}\ContextD$ for some $\ContextD$. Now $P$ and $Q$
+must be well typed in the context $\ContextD$ augmented with the association $y
+: A$ and $y : B$, respectively, whence the use of \AgdaFunction{∩} to verify a
+(non-separating) conjunction of the predicates
+$(A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}$ and
+$(B~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}$. The
+two new contexts are obtained by \emph{adding} either $A$ or $B$ to $\ContextD$,
+which we perform using \AgdaFunction{⊢}.
 %
-$A$ has type
-$\AgdaDatatype{PreType}~(\AgdaInductiveConstructor{suc}~\AgdaInductiveConstructor{zero})$,
-that is a pre-type with \emph{at most one} free type variable (that is $X$),
-whereas $\ContextD$ is a list of $\AgdaDatatype{Type} =
-\AgdaDatatype{PreType}~\AgdaInductiveConstructor{zero}$, that is a list of
-pre-types without free type variables. Therefore, $X$ cannot occur in
-$\ContextD$ as required by \ForallRule.
+Crucially, the types $A$ and $B$ are \emph{prepended} to $\ContextD$, which is
+consistent with the fact that $y$ has been freshly introduced and $x$ has been
+consumed. Notice how easy it is to \emph{prepend} either $A$ or $B$ to
+$\ContextD$ instead of \emph{changing} the type of $x$ in $\Context$ from $A
+\With B$ to either $A$ or $B$ while preserving the position of the type, as we
+would have to do in a ``true'' session type system without explicit continuation
+channels.
 
-Finally, the constructor \AgdaInductiveConstructor{server}, which represents a
-process $\Server\x\y.P$, has an additional argument of type
-$\AgdaDatatype{Un}~\ContextD$ enforcing the property that $\ContextD$ is
-unrestricted.
-
-The two remaining constructors, \AgdaInductiveConstructor{link} and
-\AgdaInductiveConstructor{cut}, deal with links and cuts in the expected way. A
-link is well typed in a context
-$\Splitting\Context{[A]}{[\AgdaFunction{dual}~A]}$. We use a splitting instead
-of requiring $\Context$ to be $[A,\AgdaFunction{dual}~A]$ so that it becomes
-straightforward to define \SLink using \AgdaFunction{+-comm}.
+The interpretation of the remaining constructors is analogous, so we only
+comment \AgdaInductiveConstructor{all}, which represents a process
+$\Forall\x\X\y.P$. This constructor models the continuation $P$ using
+higher-order abstract syntax (HOAS~\cite{}): witnessing that a context
+$\Context$ satisfies the predicate
+\[
+  \AgdaFunction{⋂[}~X~\AgdaFunction{∶}~\AgdaDatatype{Type}~\AgdaFunction]~((\AgdaFunction{subst~[}~X~\AgdaFunction{/\_]}~A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}
+\]
+means providing a function that, for every type $X$, produces a witness for the
+predicate
+\[
+  ((\AgdaFunction{subst~[}~X~\AgdaFunction{/\_]}~A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}
+\]
+applied to $\Context$. Note that the side condition $X \not\in \fv\Context$ of
+\ForallRule is enforced \emph{by definition}:
 %
-The constructor \AgdaInductiveConstructor{cut} models a process $\Cut\x{P}{Q}$
-and uses splitting to distribute the resources in $\Context$ among $P$ and $Q$.
+$A$ has type $\AgdaDatatype{PreType}~\AgdaInductiveConstructor{1}$, that is a
+pre-type with \emph{at most one} free type variable ($X$), whereas $\Context$ is
+a typing context, that is a list of $\AgdaDatatype{Type} =
+\AgdaDatatype{PreType}~\AgdaInductiveConstructor{0}$ without free type
+variables. Therefore, $X$ cannot occur in $\Context$.
 
-Permutations preserve process typeability. In a sense we can read this property
-as the fact that we can rename channels at will.
+We conclude this module proving that permutations preserve process typeability.
+Since list permutations basically correspond to channel renaming, we can read
+this property as the fact that typeability is preserved by (injective) name
+substitutions.\Luca{Abbiamo detto da qualche parte dove emergono gli indici di
+de Bruijn e di fare attenzione al fatto che lo splitting li altera? Serve questa
+digressione?}\Luca{Da qualche parte mettere un remark per far notare che l'uso
+della separating conjunction introduce rumore, ma avere i costruttori
+currificati ne complica un po' l'interpretazione dei tipi. Forse è meglio fare
+questo rilievo nella prossima sezione quando è evidente il pattern matching che
+serve per esprimere le regole.}
 
 \begin{code}%
 \>[0]\AgdaFunction{↭proc}\AgdaSpace{}%
