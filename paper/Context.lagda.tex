@@ -1,8 +1,9 @@
 \begin{code}[hide]
 {-# OPTIONS --rewriting #-}
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
-open import Data.List.Base using (List; []; _∷_; [_]; _++_; map)
+open import Data.List.Base using (List; []; _∷_; [_]; _++_)
+open import Relation.Unary
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 
 open import Type
 \end{code}
@@ -11,13 +12,17 @@ open import Type
 \label{sec:context-agda}
 
 We are going to adopt a nameless representation of channels whereby a channel is
-identified by its position in a typing context. This representation is akin to
-using De Bruijn indices, except that the index, instead of being represented
-explicitly by a natural number, is computable from the \emph{proof} that the
-type of the channel belong to the typing context.
+identified by the position of its type in a typing context. This representation
+is akin to using De Bruijn indices except that the index, instead of being
+represented explicitly by a natural number, is computable from the proof that
+the type of the channel belongs to the typing context.
 %
-Typing contexts are represented using \emph{lists} of types, where the
-(polymorphic) \AgdaDatatype{List} type is defined in Agda's standard library.
+Typing contexts are represented using lists of types, where the (polymorphic)
+\AgdaDatatype{List} type and its constructors \AgdaInductiveConstructor{[]} and
+\AgdaInductiveConstructor{\_∷\_} are defined in the module
+\AgdaModule{Data.List} of Agda's standard library. We will keep using
+$\ContextC$, $\ContextD$ and $\ContextE$ to range over typing contexts, even
+though in the Agda formalization they are lists instead of finite maps.
 
 \begin{code}
 Context : Set
@@ -25,7 +30,7 @@ Context = List Type
 \end{code}
 
 The most important operation concerning typing contexts is \emph{splitting}. The
-splitting of $\ContextC$ into $\ContextD$ and $\ContextE$, which is denoted by
+splitting of $\ContextC$ into $\ContextD$ and $\ContextE$, which we denote by
 $\Splitting\ContextC\ContextD\ContextE$, represents the fact that $\ContextC$
 contains all the types contained in $\ContextD$ and $\ContextE$, preserving both
 their overall \emph{multiplicity} and also their relative \emph{order} within
@@ -34,7 +39,9 @@ $\Splitting\ContextC\ContextD\ContextE$ shows how the types in $\ContextC$ are
 distributed in $\ContextD$ and $\ContextE$ from left to right.
 
 \begin{code}[hide]
-infix 4 _≃_+_ _∋_⊳_
+infix  4 _≃_+_
+infixr 8 _─∗_
+infixr 9 _∗_
 \end{code}
 \begin{code}
 data _≃_+_ : Context → Context → Context → Set where
@@ -46,10 +53,10 @@ data _≃_+_ : Context → Context → Context → Set where
 When splitting a context $\Context$ into $\ContextD + \ContextE$, for each type
 in $\Context$ we use one of the prefix operators \AgdaInductiveConstructor{<}
 and \AgdaInductiveConstructor{>} to indicate whether the type is meant to be
-placed in $\ContextD$ or $\ContextE$, respectively.
+placed in $\ContextD$ or $\ContextE$.
 %
-As an example, below is the splitting of the context $[A, B, C, D]$ into $[B] +
-[A, C, D]$.
+For example, below is a proof of the splitting $\Splitting{[A, B, C,
+D]}{[B]}{[A, C, D]}$.
 
 \begin{code}[hide]
 module _ where
@@ -61,8 +68,8 @@ module _ where
 \end{code}
 
 Context splitting enjoys a number of expected properties. In particular, it is
-easy to see that splitting is commutative and that the empty context is both a
-left and right unit of splitting.
+easy to see that splitting is commutative and that the empty context/list is
+both a left and right unit of splitting.
 
 \begin{code}
 +-comm    : ∀{Γ Δ Θ} → Γ ≃ Δ + Θ → Γ ≃ Θ + Δ
@@ -107,25 +114,25 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 ... | Δ , r , p′ = Δ , +-comm r , +-comm p′
 \end{code}
 
-It is often the case that the context $\ContextD$ in a splitting
-$\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. We use this
-particular splitting to describe the presence of a channel of type $A$ in
-$\ContextC$ and giving a name $\ContextE$ to the residual context. For this
-particular case, we introduce the dedicated notation
-$\SimpleSplitting\ContextC{A}\ContextE$ which we find clearer.
+% It is often the case that the context $\ContextD$ in a splitting
+% $\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. We use this
+% particular splitting to describe the presence of a channel of type $A$ in
+% $\ContextC$ and giving a name $\ContextE$ to the residual context. For this
+% particular case, we introduce the dedicated notation
+% $\SimpleSplitting\ContextC{A}\ContextE$ which we find clearer.
 
-\begin{code}
-_∋_⊳_ : Context → Type → Context → Set
-Γ ∋ A ⊳ Δ = Γ ≃ [ A ] + Δ
-\end{code}
+% \begin{code}
+% _∋_⊳_ : Context → Type → Context → Set
+% Γ ∋ A ⊳ Δ = Γ ≃ [ A ] + Δ
+% \end{code}
 \begin{code}[hide]
 +-empty-l : ∀{Γ Δ} → Γ ≃ [] + Δ → Γ ≡ Δ
 +-empty-l • = refl
 +-empty-l (> p) = cong (_ ∷_) (+-empty-l p)
 \end{code}
 
-Note that, when specifying a splitting $\SimpleSplitting\ContextC{A}\ContextE$,
-it may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
+Note that, when specifying a splitting $\Splitting\ContextC{[A]}\ContextE$, it
+may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
 applications of \AgdaInductiveConstructor{>} after the $A$ type has been
 reached. For instance, \AgdaFunction{splitting-example₁} can be written
 equivalently and in a more compact way as shown below. More usages of
@@ -135,27 +142,88 @@ equivalently and in a more compact way as shown below. More usages of
 module _ where
 \end{code}
 \begin{code}
-  splitting-example₂ : (A ∷ B ∷ C ∷ D ∷ []) ∋ B ⊳ (A ∷ C ∷ D ∷ [])
+  splitting-example₂ : (A ∷ B ∷ C ∷ D ∷ []) ≃ [ B ] + (A ∷ C ∷ D ∷ [])
   splitting-example₂ = > < ≫
 \end{code}
 
-To conclude the modeling of typing contexts, we define a predicate $\AgdaDatatype{Un}~\Context$ that holds
-whenever $\Context$ is \emph{unrestricted}, namely when it is made of types of
-the form $?A$. We will need this predicate in the definition of a server, which
-must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
+\begin{table}
+  \begin{tabular}{|lll|}
+    \hline
+    \textbf{Notation} & \textbf{Definition} & \textbf{Meaning} \\
+    \hline
+    $\AgdaFunction{∀[}~P~\AgdaFunction]$ & $\forall\{x\} \to P~x$ & implicit universality \\
+    $P~\AgdaFunction{⇒}~Q$ & $\lambda x \to P~x \to Q~x$ & implication \\
+    $P~\AgdaFunction{∪}~Q$ & $\lambda x \to P~x~\AgdaDatatype{⊎}~Q~x$ & disjunction \\
+    $P~\AgdaFunction{∩}~Q$ & $\lambda x \to P~x~\AgdaDatatype{×}~Q~x$ & conjunction \\
+    $f~\AgdaFunction{⊢}~P$ & $\lambda x \to P~(f~x)$ & update \\
+    $\AgdaFunction{U}$ & $\lambda x \to \AgdaModule{Data.Unit}.\AgdaDatatype{⊤}$ & universal
+    set \\
+    $\AgdaFunction{⋂[}~X~\AgdaFunction{:}~A~\AgdaFunction]~P$ & $\lambda x \to (X : A) \to P~X~x$ & infinitary conjunction \\
+    \hline
+  \end{tabular}
+  \caption{\label{tab:predicates} Useful definitions from Agda's \AgdaModule{Relation.Unary} module.}
+\end{table}
+
+In the following we will make extensive use of predicates over contexts. For
+this reason, it is worth recalling a number of definitions from the
+\AgdaModule{Relation.Unary} module in Agda's standard library in
+\Cref{tab:predicates}.
+
+Context splitting is going to be pervasive in the subsequent development, to the
+point that it contributes substantially to the complexity of the formalization.
+For this reason, we invest some effort in defining a few abstractions that allow
+us to occasionally hide context splittings and enhance code readability.
+%
+Inspired by separation logic~\cite{Hoare} and
+following~\citet{RouvoetPoulsenKrebbersVisser20}, we define the \emph{separating
+conjunction} $P \sand Q$ of two predicates $P$ and $Q$ over contexts:
+\begin{code}
+data _∗_ (P Q : Pred Context _) (Γ : Context) : Set where
+  _⟨_⟩_ : ∀{Δ Θ} → P Δ → Γ ≃ Δ + Θ → Q Θ → (P ∗ Q) Γ
+\end{code}
+
+The predicate $P \sand Q$ holds for those contexts $\ContextC$ that can be split
+into $\ContextD$ and $\ContextE$ where $P$ holds for $\ContextD$ and $Q$ holds
+for $\ContextE$.
+%
+The constructor \AgdaInductiveConstructor{\_⟨\_⟩\_} has three explicit arguments
+witnessing the splitting $\Splitting\ContextC\ContextD\ContextE$ along with
+$P~\ContextD$ and $Q~\ContextE$.\Luca{Nei related fare presente che queste
+definizioni seguono sostanzialmente \citet{RouvoetPoulsenKrebbersVisser20} ed
+evidenziare le differenze.}
+
+Along with \AgdaDatatype{∗} we define the \emph{separating implication} (also
+known as ``magic wand'')
+\begin{code}
+_─∗_ : Pred Context _ → Pred Context _ → Context → Set
+(P ─∗ Q) Δ = ∀{Θ Γ} → Γ ≃ Δ + Θ → P Θ → Q Γ
+\end{code}
+and prove that \AgdaFunction{─∗} can be used to curry \AgdaDatatype{∗}:
+\begin{code}
+curry∗ : ∀{P Q R} → ∀[ P ∗ Q ⇒ R ] → ∀[ P ⇒ Q ─∗ R ]
+curry∗ F px σ qx = F (px ⟨ σ ⟩ qx)
+\end{code}
+
+To conclude the modeling of typing contexts, we define a predicate
+\AgdaDatatype{Un} that holds for \emph{unrestricted} contexts, namely those
+contexts solely made of types of the form $?A$. We will need this predicate in
+the definition of a server, which must obey the typing rule \ServerRule of
+\Cref{tab:typing-rules}.
 
 \begin{code}
 data Un : Context → Set where
   un-[]  : Un []
-  un-∷   : ∀{A Γ} → Un Γ → Un (`? A ∷ Γ)
+  un-∷   : ∀{A} → ∀[ Un ⇒ (`? A ∷_) ⊢ Un ]
 \end{code}
 
-% It is a simple fact that the merging of two unrestricted contexts
-% $\Context_1$ and $\Context_2$ results in an unrestricted context.\Luca{Serve?}
+It is easy to prove that $\Splitting\ContextC\ContextD\ContextE$ is unrestricted
+if so are $\ContextD$ and $\ContextE$:
 
+\begin{code}
+∗-un : ∀[ Un ∗ Un ⇒ Un ]
+\end{code}
 \begin{code}[hide]
-+-un : ∀{Γ Γ₁ Γ₂} → Γ ≃ Γ₁ + Γ₂ → Un Γ₁ → Un Γ₂ → Un Γ
-+-un • un-[] un-[] = un-[]
-+-un (< p) (un-∷ un₁) un₂ = un-∷ (+-un p un₁ un₂)
-+-un (> p) un₁ (un-∷ un₂) = un-∷ (+-un p un₁ un₂)
+∗-un (un-[] ⟨ • ⟩ un-[])    = un-[]
+∗-un (un-∷ un ⟨ < σ ⟩ un′)  = un-∷ (∗-un (un ⟨ σ ⟩ un′))
+∗-un (un ⟨ > σ ⟩ un-∷ un′)  = un-∷ (∗-un (un ⟨ σ ⟩ un′))
 \end{code}

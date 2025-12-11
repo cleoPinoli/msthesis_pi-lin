@@ -15,23 +15,25 @@
 \\
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Relation.Binary.PropositionalEquality}\AgdaSpace{}%
-\AgdaKeyword{using}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}≡\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaInductiveConstructor{refl}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaFunction{cong}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaFunction{cong₂}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
 \AgdaModule{Data.List.Base}\AgdaSpace{}%
 \AgdaKeyword{using}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaDatatype{List}\AgdaSymbol{;}\AgdaSpace{}%
 \AgdaInductiveConstructor{[]}\AgdaSymbol{;}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}∷\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[\AgdaUnderscore{}]}}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}++\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaFunction{map}\AgdaSymbol{)}\<%
+\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}++\AgdaUnderscore{}}}\AgdaSymbol{)}\<%
+\\
+\>[0]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Relation.Unary}\<%
+\\
+\>[0]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Relation.Binary.PropositionalEquality}\AgdaSpace{}%
+\AgdaKeyword{using}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}≡\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
+\AgdaInductiveConstructor{refl}\AgdaSymbol{;}\AgdaSpace{}%
+\AgdaFunction{cong}\AgdaSymbol{)}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
@@ -44,13 +46,17 @@
 \label{sec:context-agda}
 
 We are going to adopt a nameless representation of channels whereby a channel is
-identified by its position in a typing context. This representation is akin to
-using De Bruijn indices, except that the index, instead of being represented
-explicitly by a natural number, is computable from the \emph{proof} that the
-type of the channel belong to the typing context.
+identified by the position of its type in a typing context. This representation
+is akin to using De Bruijn indices except that the index, instead of being
+represented explicitly by a natural number, is computable from the proof that
+the type of the channel belongs to the typing context.
 %
-Typing contexts are represented using \emph{lists} of types, where the
-(polymorphic) \AgdaDatatype{List} type is defined in Agda's standard library.
+Typing contexts are represented using lists of types, where the (polymorphic)
+\AgdaDatatype{List} type and its constructors \AgdaInductiveConstructor{[]} and
+\AgdaInductiveConstructor{\_∷\_} are defined in the module
+\AgdaModule{Data.List} of Agda's standard library. We will keep using
+$\ContextC$, $\ContextD$ and $\ContextE$ to range over typing contexts, even
+though in the Agda formalization they are lists instead of finite maps.
 
 \begin{code}%
 \>[0]\AgdaFunction{Context}\AgdaSpace{}%
@@ -64,7 +70,7 @@ Typing contexts are represented using \emph{lists} of types, where the
 \end{code}
 
 The most important operation concerning typing contexts is \emph{splitting}. The
-splitting of $\ContextC$ into $\ContextD$ and $\ContextE$, which is denoted by
+splitting of $\ContextC$ into $\ContextD$ and $\ContextE$, which we denote by
 $\Splitting\ContextC\ContextD\ContextE$, represents the fact that $\ContextC$
 contains all the types contained in $\ContextD$ and $\ContextE$, preserving both
 their overall \emph{multiplicity} and also their relative \emph{order} within
@@ -73,10 +79,17 @@ $\Splitting\ContextC\ContextD\ContextE$ shows how the types in $\ContextC$ are
 distributed in $\ContextD$ and $\ContextE$ from left to right.
 
 \begin{code}[hide]%
-\>[0]\AgdaKeyword{infix}\AgdaSpace{}%
-\AgdaNumber{4}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}≃\AgdaUnderscore{}+\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}∋\AgdaUnderscore{}⊳\AgdaUnderscore{}}}\<%
+\>[0]\AgdaKeyword{infix}%
+\>[7]\AgdaNumber{4}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}≃\AgdaUnderscore{}+\AgdaUnderscore{}}}\<%
+\\
+\>[0]\AgdaKeyword{infixr}\AgdaSpace{}%
+\AgdaNumber{8}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}─∗\AgdaUnderscore{}}}\<%
+\\
+\>[0]\AgdaKeyword{infixr}\AgdaSpace{}%
+\AgdaNumber{9}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}∗\AgdaUnderscore{}}}\<%
 \end{code}
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -152,10 +165,10 @@ distributed in $\ContextD$ and $\ContextE$ from left to right.
 When splitting a context $\Context$ into $\ContextD + \ContextE$, for each type
 in $\Context$ we use one of the prefix operators \AgdaInductiveConstructor{<}
 and \AgdaInductiveConstructor{>} to indicate whether the type is meant to be
-placed in $\ContextD$ or $\ContextE$, respectively.
+placed in $\ContextD$ or $\ContextE$.
 %
-As an example, below is the splitting of the context $[A, B, C, D]$ into $[B] +
-[A, C, D]$.
+For example, below is a proof of the splitting $\Splitting{[A, B, C,
+D]}{[B]}{[A, C, D]}$.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -208,8 +221,8 @@ As an example, below is the splitting of the context $[A, B, C, D]$ into $[B] +
 \end{code}
 
 Context splitting enjoys a number of expected properties. In particular, it is
-easy to see that splitting is commutative and that the empty context is both a
-left and right unit of splitting.
+easy to see that splitting is commutative and that the empty context/list is
+both a left and right unit of splitting.
 
 \begin{code}%
 \>[0]\AgdaFunction{+-comm}%
@@ -333,7 +346,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \begin{code}%
 \>[0]\AgdaFunction{+-assoc-r}%
 \>[11]\AgdaSymbol{:}%
-\>[202I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\>[204I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{Θ}\AgdaSpace{}%
 \AgdaBound{Δ′}\AgdaSpace{}%
@@ -352,7 +365,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaBound{Θ′}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[202I]%
+\>[.][@{}l@{}]\<[204I]%
 \>[13]\AgdaFunction{∃[}\AgdaSpace{}%
 \AgdaBound{Γ′}\AgdaSpace{}%
 \AgdaFunction{]}\AgdaSpace{}%
@@ -370,7 +383,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \\
 \>[0]\AgdaFunction{+-assoc-l}%
 \>[11]\AgdaSymbol{:}%
-\>[233I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
+\>[235I]\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{Θ}\AgdaSpace{}%
 \AgdaBound{Δ′}\AgdaSpace{}%
@@ -389,7 +402,7 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaBound{Θ′}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[233I]%
+\>[.][@{}l@{}]\<[235I]%
 \>[13]\AgdaFunction{∃[}\AgdaSpace{}%
 \AgdaBound{Γ′}\AgdaSpace{}%
 \AgdaFunction{]}\AgdaSpace{}%
@@ -521,38 +534,17 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaBound{p′}\<%
 \end{code}
 
-It is often the case that the context $\ContextD$ in a splitting
-$\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. We use this
-particular splitting to describe the presence of a channel of type $A$ in
-$\ContextC$ and giving a name $\ContextE$ to the residual context. For this
-particular case, we introduce the dedicated notation
-$\SimpleSplitting\ContextC{A}\ContextE$ which we find clearer.
+% It is often the case that the context $\ContextD$ in a splitting
+% $\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. We use this
+% particular splitting to describe the presence of a channel of type $A$ in
+% $\ContextC$ and giving a name $\ContextE$ to the residual context. For this
+% particular case, we introduce the dedicated notation
+% $\SimpleSplitting\ContextC{A}\ContextE$ which we find clearer.
 
-\begin{code}%
-\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}∋\AgdaUnderscore{}⊳\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{Context}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{Type}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{Context}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\<%
-\\
-\>[0]\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{∋}}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⊳}}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
-\AgdaBound{Δ}\<%
-\end{code}
+% \begin{code}
+% _∋_⊳_ : Context → Type → Context → Set
+% Γ ∋ A ⊳ Δ = Γ ≃ [ A ] + Δ
+% \end{code}
 \begin{code}[hide]%
 \>[0]\AgdaFunction{+-empty-l}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -585,8 +577,8 @@ $\SimpleSplitting\ContextC{A}\ContextE$ which we find clearer.
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \end{code}
 
-Note that, when specifying a splitting $\SimpleSplitting\ContextC{A}\ContextE$,
-it may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
+Note that, when specifying a splitting $\Splitting\ContextC{[A]}\ContextE$, it
+may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
 applications of \AgdaInductiveConstructor{>} after the $A$ type has been
 reached. For instance, \AgdaFunction{splitting-example₁} can be written
 equivalently and in a more compact way as shown below. More usages of
@@ -610,9 +602,11 @@ equivalently and in a more compact way as shown below. More usages of
 \AgdaPostulate{D}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaInductiveConstructor{[]}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{∋}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaPostulate{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⊳}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaPostulate{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaPostulate{C}\AgdaSpace{}%
@@ -629,10 +623,167 @@ equivalently and in a more compact way as shown below. More usages of
 \AgdaFunction{≫}\<%
 \end{code}
 
-To conclude the modeling of typing contexts, we define a predicate $\AgdaDatatype{Un}~\Context$ that holds
-whenever $\Context$ is \emph{unrestricted}, namely when it is made of types of
-the form $?A$. We will need this predicate in the definition of a server, which
-must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
+\begin{table}
+  \begin{tabular}{|lll|}
+    \hline
+    \textbf{Notation} & \textbf{Definition} & \textbf{Meaning} \\
+    \hline
+    $\AgdaFunction{∀[}~P~\AgdaFunction]$ & $\forall\{x\} \to P~x$ & implicit universality \\
+    $P~\AgdaFunction{⇒}~Q$ & $\lambda x \to P~x \to Q~x$ & implication \\
+    $P~\AgdaFunction{∪}~Q$ & $\lambda x \to P~x~\AgdaDatatype{⊎}~Q~x$ & disjunction \\
+    $P~\AgdaFunction{∩}~Q$ & $\lambda x \to P~x~\AgdaDatatype{×}~Q~x$ & conjunction \\
+    $f~\AgdaFunction{⊢}~P$ & $\lambda x \to P~(f~x)$ & update \\
+    $\AgdaFunction{U}$ & $\lambda x \to \AgdaModule{Data.Unit}.\AgdaDatatype{⊤}$ & universal
+    set \\
+    $\AgdaFunction{⋂[}~X~\AgdaFunction{:}~A~\AgdaFunction]~P$ & $\lambda x \to (X : A) \to P~X~x$ & infinitary conjunction \\
+    \hline
+  \end{tabular}
+  \caption{\label{tab:predicates} Useful definitions from Agda's \AgdaModule{Relation.Unary} module.}
+\end{table}
+
+In the following we will make extensive use of predicates over contexts. For
+this reason, it is worth recalling a number of definitions from the
+\AgdaModule{Relation.Unary} module in Agda's standard library in
+\Cref{tab:predicates}.
+
+Context splitting is going to be pervasive in the subsequent development, to the
+point that it contributes substantially to the complexity of the formalization.
+For this reason, we invest some effort in defining a few abstractions that allow
+us to occasionally hide context splittings and enhance code readability.
+%
+Inspired by separation logic~\cite{Hoare} and
+following~\citet{RouvoetPoulsenKrebbersVisser20}, we define the \emph{separating
+conjunction} $P \sand Q$ of two predicates $P$ and $Q$ over contexts:
+\begin{code}%
+\>[0]\AgdaKeyword{data}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}∗\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{Pred}\AgdaSpace{}%
+\AgdaFunction{Context}\AgdaSpace{}%
+\AgdaSymbol{\AgdaUnderscore{})}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{Context}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⟨\AgdaUnderscore{}⟩\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\end{code}
+
+The predicate $P \sand Q$ holds for those contexts $\ContextC$ that can be split
+into $\ContextD$ and $\ContextE$ where $P$ holds for $\ContextD$ and $Q$ holds
+for $\ContextE$.
+%
+The constructor \AgdaInductiveConstructor{\_⟨\_⟩\_} has three explicit arguments
+witnessing the splitting $\Splitting\ContextC\ContextD\ContextE$ along with
+$P~\ContextD$ and $Q~\ContextE$.\Luca{Nei related fare presente che queste
+definizioni seguono sostanzialmente \citet{RouvoetPoulsenKrebbersVisser20} ed
+evidenziare le differenze.}
+
+Along with \AgdaDatatype{∗} we define the \emph{separating implication} (also
+known as ``magic wand'')
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}─∗\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{Pred}\AgdaSpace{}%
+\AgdaFunction{Context}\AgdaSpace{}%
+\AgdaSymbol{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{Pred}\AgdaSpace{}%
+\AgdaFunction{Context}\AgdaSpace{}%
+\AgdaSymbol{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{Context}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+\>[0]\AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{─∗}}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
+\AgdaBound{Γ}\<%
+\end{code}
+and prove that \AgdaFunction{─∗} can be used to curry \AgdaDatatype{∗}:
+\begin{code}%
+\>[0]\AgdaFunction{curry∗}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{P}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
+\AgdaBound{R}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{∀[}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⇒}}\AgdaSpace{}%
+\AgdaBound{R}\AgdaSpace{}%
+\AgdaFunction{]}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{∀[}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⇒}}\AgdaSpace{}%
+\AgdaBound{Q}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{─∗}}\AgdaSpace{}%
+\AgdaBound{R}\AgdaSpace{}%
+\AgdaFunction{]}\<%
+\\
+\>[0]\AgdaFunction{curry∗}\AgdaSpace{}%
+\AgdaBound{F}\AgdaSpace{}%
+\AgdaBound{px}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
+\AgdaBound{qx}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{F}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{px}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟩}}\AgdaSpace{}%
+\AgdaBound{qx}\AgdaSymbol{)}\<%
+\end{code}
+
+To conclude the modeling of typing contexts, we define a predicate
+\AgdaDatatype{Un} that holds for \emph{unrestricted} contexts, namely those
+contexts solely made of types of the form $?A$. We will need this predicate in
+the definition of a server, which must obey the typing rule \ServerRule of
+\Cref{tab:typing-rules}.
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -652,74 +803,74 @@ must obey the typing rule \ServerRule of \Cref{tab:typing-rules}.
 %
 \>[2]\AgdaInductiveConstructor{un-∷}%
 \>[9]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Un}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Un}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⇒}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSymbol{)}\<%
+\AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
+\AgdaDatatype{Un}\AgdaSpace{}%
+\AgdaFunction{]}\<%
 \end{code}
 
-% It is a simple fact that the merging of two unrestricted contexts
-% $\Context_1$ and $\Context_2$ results in an unrestricted context.\Luca{Serve?}
+It is easy to prove that $\Splitting\ContextC\ContextD\ContextE$ is unrestricted
+if so are $\ContextD$ and $\ContextE$:
 
-\begin{code}[hide]%
-\>[0]\AgdaFunction{+-un}\AgdaSpace{}%
+\begin{code}%
+\>[0]\AgdaFunction{∗-un}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaBound{Γ₁}\AgdaSpace{}%
-\AgdaBound{Γ₂}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
-\AgdaBound{Γ₁}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
-\AgdaBound{Γ₂}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Un}\AgdaSpace{}%
-\AgdaBound{Γ₁}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaDatatype{Un}\AgdaSpace{}%
-\AgdaBound{Γ₂}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⇒}}\AgdaSpace{}%
 \AgdaDatatype{Un}\AgdaSpace{}%
-\AgdaBound{Γ}\<%
-\\
-\>[0]\AgdaFunction{+-un}\AgdaSpace{}%
+\AgdaFunction{]}\<%
+\end{code}
+\begin{code}[hide]%
+\>[0]\AgdaFunction{∗-un}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{un-[]}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
 \AgdaInductiveConstructor{•}\AgdaSpace{}%
-\AgdaInductiveConstructor{un-[]}\AgdaSpace{}%
-\AgdaInductiveConstructor{un-[]}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟩}}\AgdaSpace{}%
+\AgdaInductiveConstructor{un-[]}\AgdaSymbol{)}%
+\>[28]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{un-[]}\<%
 \\
-\>[0]\AgdaFunction{+-un}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
+\>[0]\AgdaFunction{∗-un}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{un-∷}\AgdaSpace{}%
-\AgdaBound{un₁}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaBound{un₂}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{un}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟩}}\AgdaSpace{}%
+\AgdaBound{un′}\AgdaSymbol{)}%
+\>[28]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{un-∷}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{+-un}\AgdaSpace{}%
-\AgdaBound{p}\AgdaSpace{}%
-\AgdaBound{un₁}\AgdaSpace{}%
-\AgdaBound{un₂}\AgdaSymbol{)}\<%
+\AgdaSymbol{(}\AgdaFunction{∗-un}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{un}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟩}}\AgdaSpace{}%
+\AgdaBound{un′}\AgdaSymbol{))}\<%
 \\
-\>[0]\AgdaFunction{+-un}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaBound{p}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaBound{un₁}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{un-∷}\AgdaSpace{}%
-\AgdaBound{un₂}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
+\>[0]\AgdaCatchallClause{\AgdaFunction{∗-un}}\AgdaSpace{}%
+\AgdaCatchallClause{\AgdaSymbol{(}}\AgdaCatchallClause{\AgdaBound{un}}\AgdaSpace{}%
+\AgdaCatchallClause{\AgdaOperator{\AgdaInductiveConstructor{⟨}}}\AgdaSpace{}%
+\AgdaCatchallClause{\AgdaOperator{\AgdaInductiveConstructor{>}}}\AgdaSpace{}%
+\AgdaCatchallClause{\AgdaBound{σ}}\AgdaSpace{}%
+\AgdaCatchallClause{\AgdaOperator{\AgdaInductiveConstructor{⟩}}}\AgdaSpace{}%
+\AgdaCatchallClause{\AgdaInductiveConstructor{un-∷}}\AgdaSpace{}%
+\AgdaCatchallClause{\AgdaBound{un′}}\AgdaCatchallClause{\AgdaSymbol{)}}%
+\>[28]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{un-∷}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{+-un}\AgdaSpace{}%
-\AgdaBound{p}\AgdaSpace{}%
-\AgdaBound{un₁}\AgdaSpace{}%
-\AgdaBound{un₂}\AgdaSymbol{)}\<%
+\AgdaSymbol{(}\AgdaFunction{∗-un}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{un}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⟩}}\AgdaSpace{}%
+\AgdaBound{un′}\AgdaSymbol{))}\<%
 \end{code}

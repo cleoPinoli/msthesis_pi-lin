@@ -143,7 +143,8 @@ that swaps the first two elements of a typing context;
 typing context; \AgdaInductiveConstructor{trans} for the sequential composition
 of permutations.
 
-The definition of \AgdaDatatype{\_↭\_} data type is nearly the same found in
+The definition of \AgdaDatatype{\_↭\_} data type is nearly the same found in the
+module \AgdaModule{Data.List.Relation.Binary.Permutation.Propositional} of
 Agda's standard library. We have preferred defining our own notion of
 permutation for improved simplicity and convenience: the
 \AgdaInductiveConstructor{swap} constructor does not need a sub-permutation for
@@ -274,41 +275,9 @@ implicit, which streamlines their usage in the rest of the code.
 \AgdaBound{π′}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{↭rot}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaBound{C}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{C}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{↭}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{C}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaFunction{↭rot}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{trans}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaInductiveConstructor{prep}\AgdaSpace{}%
-\AgdaInductiveConstructor{swap}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaInductiveConstructor{swap}\<%
 \end{code}
 
-Just like permutations from Agda's standard library, also \AgdaDatatype{\_↭\_}
+Just like permutations in Agda's standard library, also \AgdaDatatype{\_↭\_}
 enjoys a number of expected properties, such as symmetry. Among them, in the
 following we will make use of a specific property that relates context
 splitting, list concatenation and permutations: if
@@ -577,18 +546,22 @@ the concatenation of $\ContextD$ and $\ContextE$.
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{∋}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⊳}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
 \AgdaBound{Γ′}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaFunction{∃[}\AgdaSpace{}%
 \AgdaBound{Δ′}\AgdaSpace{}%
 \AgdaFunction{]}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{∋}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⊳}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{]}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
 \AgdaBound{Δ′}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{×}}\AgdaSpace{}%
 \AgdaBound{Γ′}\AgdaSpace{}%

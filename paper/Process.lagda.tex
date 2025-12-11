@@ -2,10 +2,9 @@
 {-# OPTIONS --rewriting #-}
 open import Data.Unit using (tt)
 open import Data.Sum
-open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
-open import Data.List.Base using (List; []; _∷_; [_]; _++_)
+open import Data.Product using (_,_)
+open import Data.List.Base using ([]; _∷_; [_])
 open import Relation.Unary
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; cong₂)
 
 open import Type
 open import Context
@@ -15,15 +14,15 @@ open import Permutations
 \subsection{Process Representation}
 \label{sec:process-agda}
 
-We adopt a representation of processes that is \emph{intrinsically typed} and
-based on \emph{co-de Bruijn indexes}. The intrinsically typed representation
-makes sure that only well-typed processes can be constructed. This choice
-increases the effort in the definition of the datatypes for representing
-processes and their operational semantics, but pays off in the rest of the
-formalization for at least three reasons:
+We adopt an \emph{intrinsically-typed} representation of processes with
+\emph{nameless} channels. The intrinsically-typed representation makes sure that
+only well-typed processes can be constructed. This choice increases the effort
+in the definition of the datatypes for representing processes and their
+operational semantics, but pays off in the rest of the formalization for at
+least three reasons:
 \begin{itemize}
-\item we can adopt a \emph{nameless} representation of channels, thus avoiding
-  all the technicalities and pitfalls that a named representation entails;
+\item we need not give explicit names to channels, thus we avoid all the
+  technicalities and pitfalls that a named representation entails;
 \item we conflate processes and typing rules in the same datatype, thus reducing
   the overall number of datatypes defined in the formalization;
 \item the typing preservation results are embedded in the very definition of the
@@ -31,10 +30,11 @@ formalization for at least three reasons:
   (\Cref{sec:agda-semantics}).
 \end{itemize}
 
-We use \emph{co-de Bruijn indexes}~\cite{McBride18} to represent channels. Co-de
-Bruijn indexes are akin to de Bruijn indexes, with the key difference that the
-typing context used to type a certain process $P$ is guaranteed to only contain
-the type of those channels that actually occur in $P$. For this reason, typing
+Channels are not given any name. Instead, they are represented as terms
+witnessing that their type is present in the typing context. This is known as
+\emph{co-de Bruijn syntax}~\cite{McBride18}, according to which the typing
+context associated with a term (a process, a channel) only contains the types of
+the channels that actually occur within the term. For this reason, typing
 contexts are split as soon as possible, according to the structure of processes,
 to make sure that channels are appropriately (and above all linearly)
 distributed among sub-processes, so that each channel occurs (and is used)
@@ -43,93 +43,18 @@ exactly once.\footnote{Strictly speaking, the typing context of a
 (and therefore are not used) by the process, but we consider this case as an
 exception that does not alter in a substantial way the provided intuition
 underlying the use of co-de Bruijn representation.}
-
-From this informal introduction to the representation of processes it is clear
-that context splitting is going to be a pervasive notion in the subsequent
-development, to the point that it contributes substantially to the complexity of
-the formalization. For this reason, it is worth investing some effort in a
-defining an abstraction that allows us to express the type of processes in a
-more compact and hopefully more readable way.
-\citet{RouvoetPoulsenKrebbersVisser20} observe that both channels and processes
-can be thought of as \emph{predicates on typing contexts}:
-\begin{itemize}
-\item a channel of type $A$ is a predicate that holds for the singleton context
-  $\AgdaFunction[~A~\AgdaFunction]$;
-\item a process that is well typed in a typing context $\Context$ is a predicate
-  that holds for $\Context$.
-\end{itemize}
-
-Inspired by separation logic~\cite{Hoare},
-\citet{RouvoetPoulsenKrebbersVisser20} define the \emph{separating conjunction}
-$P \sand Q$ of two predicates $P$ and $Q$. The separating conjunction of $P$ and
-$Q$ holds for those contexts $\ContextC$ that can be split into $\ContextD$ and
-$\ContextE$ where $P$ holds for $\ContextD$ and $Q$ holds for $\ContextE$. In
-Agda, \citet{RouvoetPoulsenKrebbersVisser20} define $\sand$ as a record, thus:
-\begin{code}
-record _∗_ (P Q : Pred Context _) (Γ : Context) : Set where
-  constructor _⟨_⟩_
-  field
-    {Δ Θ} : Context
-    px    : P Δ
-    p     : Γ ≃ Δ + Θ
-    qx    : Q Θ
-\end{code}
-\begin{code}[hide]
-infixr 9 _∗_
-\end{code}
-
-The record has five fields: the (implicit) fields $\ContextD$ and $\ContextE$,
-which represent the decomposition of $\ContextC$; the fields \AgdaField{px} and
-\AgdaField{qx}, which are proofs witnessing that $P$ and $Q$ hold respectively
-for $\ContextD$ and $\ContextE$; the field \AgdaField{p}, which witnesses that
-$\ContextD$ and $\ContextE$ are indeed a splitting of $\ContextC$. The
-constructor \AgdaInductiveConstructor{$\_\langle\_\rangle\_$} provides a
-convenient syntax for specifying the (explicit) fields of the record to provide
-(and pattern match) separating conjunctions.
-
-To illustrate a typical usage pattern of separating conjunction we first
-introduce our first predicate \AgdaDatatype{Ch} on typing contexts, which we use
-to describe well-typed channels:
+%
+Concretely, a channel of type $A$ is a predicate that holds for the singleton
+context $\AgdaFunction[~A~\AgdaFunction]$:
 
 \begin{code}
 data Ch (A : Type) : Context → Set where
   ch : Ch A [ A ]
 \end{code}
 
-The predicate $\AgdaDatatype{Ch}~A$ holds for the singleton typing context
-$[A]$. Hence the predicate $\AgdaDatatype{Ch}~A\sand\AgdaDatatype{Ch}~B$ holds
-for those typing contexts that can be split into $[A]$ and $[B]$, as exemplified
-below:
-\begin{code}
-_ : ∀{A B} → (Ch A ∗ Ch B) (A ∷ B ∷ [])
-_ = ch ⟨ < > • ⟩ ch
-
-_ : ∀{A B} → (Ch A ∗ Ch B) (B ∷ A ∷ [])
-_ = ch ⟨ > < • ⟩ ch
-\end{code}
-
-\begin{table}
-  \begin{tabular}{|lll|}
-    \hline
-    \textbf{Notation} & \textbf{Definition} & \textbf{Meaning} \\
-    \hline
-    $\AgdaFunction{∀[}~P~\AgdaFunction]$ & $\forall\{x\} \to P~x$ & implicit universality \\
-    $P~\AgdaFunction{⇒}~Q$ & $\lambda x \to P~x \to Q~x$ & implication \\
-    $P~\AgdaFunction{∪}~Q$ & $\lambda x \to P~x~\AgdaDatatype{⊎}~Q~x$ & disjunction \\
-    $P~\AgdaFunction{∩}~Q$ & $\lambda x \to P~x~\AgdaDatatype{×}~Q~x$ & conjunction (non-separating) \\
-    $f~\AgdaFunction{⊢}~P$ & $\lambda x \to P~(f~x)$ & update \\
-    $\AgdaFunction{U}$ & $\lambda x \to \AgdaModule{Data.Unit}.\AgdaDatatype{⊤}$ & universal
-    set \\
-    $\AgdaFunction{⋂[}~X~\AgdaFunction{:}~A~\AgdaFunction]~P$ & $\lambda x \to (X : A) \to P~X~x$ & infinitary conjunction \\
-    \hline
-  \end{tabular}
-  \caption{\label{tab:predicates} Used definitions from Agda's \AgdaModule{Relation.Unary} module.}
-\end{table}
-
-We now illustrate the datatype \AgdaDatatype{Proc} for representing processes
-and then describe its key aspects in detail. This datatype uses, in addition to
-$\sand$, a number of definitions from the \AgdaModule{Relation.Unary} module in
-Agda's standard library which are worth recalling in \Cref{tab:predicates}.
+A process that is well typed in a typing context $\Context$ is a predicate that
+holds for $\Context$. Here is the datatype \AgdaDatatype{Proc} for representing
+processes:
 
 \begin{code}
 data Proc : Context → Set where
@@ -141,8 +66,7 @@ data Proc : Context → Set where
               ∀[ Ch (A & B) ∗ ((A ∷_) ⊢ Proc ∩ (B ∷_) ⊢ Proc) ⇒ Proc ]
   select    : ∀{A B} →
               ∀[ Ch (A ⊕ B) ∗ ((A ∷_) ⊢ Proc ∪ (B ∷_) ⊢ Proc) ⇒ Proc ]
-  join      : ∀{A B} →
-              ∀[ Ch (A ⅋ B) ∗ ((A ∷_) ⊢ (B ∷_) ⊢ Proc) ⇒ Proc ]
+  join      : ∀{A B} → ∀[ Ch (A ⅋ B) ∗ ((A ∷_) ⊢ (B ∷_) ⊢ Proc) ⇒ Proc ]
   fork      : ∀{A B} →
               ∀[ Ch (A ⊗ B) ∗ ((A ∷_) ⊢ Proc) ∗ ((B ∷_) ⊢ Proc) ⇒ Proc ]
   all       : ∀{A} →
@@ -155,15 +79,16 @@ data Proc : Context → Set where
   cut       : ∀{A} → ∀[ ((A ∷_) ⊢ Proc) ∗ ((dual A ∷_) ⊢ Proc) ⇒ Proc ]
 \end{code}
 
-Let us start from the constructors representing input/output actions, namely
-those from \AgdaInductiveConstructor{fail} through
-\AgdaInductiveConstructor{contract}. They all basically follow the same pattern:
-they possibly quantify over some types $A$ and $B$ and then (implicitly) over a
-typing context $\Context$ through the function \AgdaFunction{∀[\_]} applied to a
-predicate of the form $\cdots~\AgdaFunction{⇒}~\AgdaDatatype{Proc}$. The
-predicate states how to build a process of a particular form, provided that the
-typing context $\Context$ satisfies the predicate on the l.h.s. of
-\AgdaFunction{⇒}.
+All the constructors representing input/output actions, namely those from
+\AgdaInductiveConstructor{fail} through \AgdaInductiveConstructor{contract},
+basically follow the same pattern: they possibly quantify over some types $A$
+and $B$ and then (implicitly) over a typing context $\Context$ through the
+function \AgdaFunction{∀[\_]} applied to a predicate of the form
+$P~\AgdaFunction{⇒}~\AgdaDatatype{Proc}$. The predicate states how to build a
+process that is well typed in $\Context$, provided that $\Context$ satisfies
+$P$. In general, $P$ is a (separating) conjunction of sub-predicates
+corresponding to the channel on which the process is acting and to the premises
+of its typing rule.
 
 The constructor \AgdaInductiveConstructor{fail} requires the context $\Context$
 to satisfy the predicate
@@ -171,8 +96,16 @@ $\AgdaDatatype{Ch}~\AgdaInductiveConstructor{⊤}~\AgdaDatatype{∗}~\AgdaFuncti
 meaning that $\Context$ must contain an entry \AgdaInductiveConstructor{⊤}. That
 form of $\Context$ matches the one in the conclusion of \FailRule.
 
-The constructor \AgdaInductiveConstructor{close} requires the typing context to
-be the singleton list $[\One]$.
+The constructor \AgdaInductiveConstructor{wait} corresponds to a process of the
+form $\Wait\x.P$ and requires $\Context$ to (separately) satisfy
+$\AgdaDatatype{Ch}~\AgdaInductiveConstructor{⊥}$, that is the channel $x$ on
+which the process is operating, as well as \AgdaDatatype{Proc}, that is the
+continuation process $P$, which must be well typed in the remaining typing
+context.
+
+The constructor \AgdaInductiveConstructor{close}, which corresponds to a process
+of the form $\Close\x$, requires the typing context to be the singleton list
+$[\One]$.
 
 Crucially, the type of the continuation channels are \emph{prepended} to the
 context that indexes the continuation processes using the

@@ -38,7 +38,8 @@ that swaps the first two elements of a typing context;
 typing context; \AgdaInductiveConstructor{trans} for the sequential composition
 of permutations.
 
-The definition of \AgdaDatatype{\_↭\_} data type is nearly the same found in
+The definition of \AgdaDatatype{\_↭\_} data type is nearly the same found in the
+module \AgdaModule{Data.List.Relation.Binary.Permutation.Propositional} of
 Agda's standard library. We have preferred defining our own notion of
 permutation for improved simplicity and convenience: the
 \AgdaInductiveConstructor{swap} constructor does not need a sub-permutation for
@@ -64,12 +65,9 @@ implicit, which streamlines their usage in the rest of the code.
 ↭solo-inv refl = refl
 ↭solo-inv (prep π) rewrite ↭empty-inv π = refl
 ↭solo-inv (trans π π′) rewrite ↭solo-inv π | ↭solo-inv π′ = refl
-
-↭rot : ∀{A B C Γ} → (A ∷ B ∷ C ∷ Γ) ↭ (C ∷ A ∷ B ∷ Γ)
-↭rot = trans (prep swap) swap
 \end{code}
 
-Just like permutations from Agda's standard library, also \AgdaDatatype{\_↭\_}
+Just like permutations in Agda's standard library, also \AgdaDatatype{\_↭\_}
 enjoys a number of expected properties, such as symmetry. Among them, in the
 following we will make use of a specific property that relates context
 splitting, list concatenation and permutations: if
@@ -91,7 +89,7 @@ the concatenation of $\ContextD$ and $\ContextE$.
 ... | Θ₁ , Θ₂ , p′ , π₁ , π₂ with ↭split π′ p′
 ... | Δ₁ , Δ₂ , q , π₁′ , π₂′ = Δ₁ , Δ₂ , q , trans π₁ π₁′ , trans π₂ π₂′
 
-↭solo : ∀{A Γ Γ′ Δ} → Γ ↭ Δ → Γ ∋ A ⊳ Γ′ → ∃[ Δ′ ] (Δ ∋ A ⊳ Δ′ × Γ′ ↭ Δ′)
+↭solo : ∀{A Γ Γ′ Δ} → Γ ↭ Δ → Γ ≃ [ A ] + Γ′ → ∃[ Δ′ ] (Δ ≃ [ A ] + Δ′ × Γ′ ↭ Δ′)
 ↭solo π p with ↭split π p
 ... | _ , _ , q , π₁ , π₂ rewrite ↭solo-inv π₁ = _ , q , π₂
 

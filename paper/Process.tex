@@ -18,33 +18,19 @@
 \AgdaKeyword{import}\AgdaSpace{}%
 \AgdaModule{Data.Product}\AgdaSpace{}%
 \AgdaKeyword{using}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}×\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{},\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaFunction{∃}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaFunction{∃-syntax}\AgdaSymbol{)}\<%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{},\AgdaUnderscore{}}}\AgdaSymbol{)}\<%
 \\
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
 \AgdaModule{Data.List.Base}\AgdaSpace{}%
 \AgdaKeyword{using}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaDatatype{List}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{;}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{[]}\AgdaSymbol{;}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}∷\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{[\AgdaUnderscore{}]}}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}++\AgdaUnderscore{}}}\AgdaSymbol{)}\<%
+\AgdaOperator{\AgdaFunction{[\AgdaUnderscore{}]}}\AgdaSymbol{)}\<%
 \\
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
 \AgdaModule{Relation.Unary}\<%
-\\
-\>[0]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Relation.Binary.PropositionalEquality}\AgdaSpace{}%
-\AgdaKeyword{using}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}≡\AgdaUnderscore{}}}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaInductiveConstructor{refl}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaFunction{cong}\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaFunction{cong₂}\AgdaSymbol{)}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
@@ -64,15 +50,15 @@
 \subsection{Process Representation}
 \label{sec:process-agda}
 
-We adopt a representation of processes that is \emph{intrinsically typed} and
-based on \emph{co-de Bruijn indexes}. The intrinsically typed representation
-makes sure that only well-typed processes can be constructed. This choice
-increases the effort in the definition of the datatypes for representing
-processes and their operational semantics, but pays off in the rest of the
-formalization for at least three reasons:
+We adopt an \emph{intrinsically-typed} representation of processes with
+\emph{nameless} channels. The intrinsically-typed representation makes sure that
+only well-typed processes can be constructed. This choice increases the effort
+in the definition of the datatypes for representing processes and their
+operational semantics, but pays off in the rest of the formalization for at
+least three reasons:
 \begin{itemize}
-\item we can adopt a \emph{nameless} representation of channels, thus avoiding
-  all the technicalities and pitfalls that a named representation entails;
+\item we need not give explicit names to channels, thus we avoid all the
+  technicalities and pitfalls that a named representation entails;
 \item we conflate processes and typing rules in the same datatype, thus reducing
   the overall number of datatypes defined in the formalization;
 \item the typing preservation results are embedded in the very definition of the
@@ -80,10 +66,11 @@ formalization for at least three reasons:
   (\Cref{sec:agda-semantics}).
 \end{itemize}
 
-We use \emph{co-de Bruijn indexes}~\cite{McBride18} to represent channels. Co-de
-Bruijn indexes are akin to de Bruijn indexes, with the key difference that the
-typing context used to type a certain process $P$ is guaranteed to only contain
-the type of those channels that actually occur in $P$. For this reason, typing
+Channels are not given any name. Instead, they are represented as terms
+witnessing that their type is present in the typing context. This is known as
+\emph{co-de Bruijn syntax}~\cite{McBride18}, according to which the typing
+context associated with a term (a process, a channel) only contains the types of
+the channels that actually occur within the term. For this reason, typing
 contexts are split as soon as possible, according to the structure of processes,
 to make sure that channels are appropriately (and above all linearly)
 distributed among sub-processes, so that each channel occurs (and is used)
@@ -92,96 +79,9 @@ exactly once.\footnote{Strictly speaking, the typing context of a
 (and therefore are not used) by the process, but we consider this case as an
 exception that does not alter in a substantial way the provided intuition
 underlying the use of co-de Bruijn representation.}
-
-From this informal introduction to the representation of processes it is clear
-that context splitting is going to be a pervasive notion in the subsequent
-development, to the point that it contributes substantially to the complexity of
-the formalization. For this reason, it is worth investing some effort in a
-defining an abstraction that allows us to express the type of processes in a
-more compact and hopefully more readable way.
-\citet{RouvoetPoulsenKrebbersVisser20} observe that both channels and processes
-can be thought of as \emph{predicates on typing contexts}:
-\begin{itemize}
-\item a channel of type $A$ is a predicate that holds for the singleton context
-  $\AgdaFunction[~A~\AgdaFunction]$;
-\item a process that is well typed in a typing context $\Context$ is a predicate
-  that holds for $\Context$.
-\end{itemize}
-
-Inspired by separation logic~\cite{Hoare},
-\citet{RouvoetPoulsenKrebbersVisser20} define the \emph{separating conjunction}
-$P \sand Q$ of two predicates $P$ and $Q$. The separating conjunction of $P$ and
-$Q$ holds for those contexts $\ContextC$ that can be split into $\ContextD$ and
-$\ContextE$ where $P$ holds for $\ContextD$ and $Q$ holds for $\ContextE$. In
-Agda, \citet{RouvoetPoulsenKrebbersVisser20} define $\sand$ as a record, thus:
-\begin{code}%
-\>[0]\AgdaKeyword{record}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{\AgdaUnderscore{}∗\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{Pred}\AgdaSpace{}%
-\AgdaFunction{Context}\AgdaSpace{}%
-\AgdaSymbol{\AgdaUnderscore{})}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{Context}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaPrimitive{Set}\AgdaSpace{}%
-\AgdaKeyword{where}\<%
-\\
-\>[0][@{}l@{\AgdaIndent{0}}]%
-\>[2]\AgdaKeyword{constructor}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⟨\AgdaUnderscore{}⟩\AgdaUnderscore{}}}\<%
-\\
 %
-\>[2]\AgdaKeyword{field}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{\{}\AgdaField{Δ}\AgdaSpace{}%
-\AgdaField{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{Context}\<%
-\\
-%
-\>[4]\AgdaField{px}%
-\>[10]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{P}\AgdaSpace{}%
-\AgdaField{Δ}\<%
-\\
-%
-\>[4]\AgdaField{p}%
-\>[10]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{Γ}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{≃}}\AgdaSpace{}%
-\AgdaField{Δ}\AgdaSpace{}%
-\AgdaOperator{\AgdaDatatype{+}}\AgdaSpace{}%
-\AgdaField{Θ}\<%
-\\
-%
-\>[4]\AgdaField{qx}%
-\>[10]\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaBound{Q}\AgdaSpace{}%
-\AgdaField{Θ}\<%
-\end{code}
-\begin{code}[hide]%
-\>[0]\AgdaKeyword{infixr}\AgdaSpace{}%
-\AgdaNumber{9}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{\AgdaUnderscore{}∗\AgdaUnderscore{}}}\<%
-\end{code}
-
-The record has five fields: the (implicit) fields $\ContextD$ and $\ContextE$,
-which represent the decomposition of $\ContextC$; the fields \AgdaField{px} and
-\AgdaField{qx}, which are proofs witnessing that $P$ and $Q$ hold respectively
-for $\ContextD$ and $\ContextE$; the field \AgdaField{p}, which witnesses that
-$\ContextD$ and $\ContextE$ are indeed a splitting of $\ContextC$. The
-constructor \AgdaInductiveConstructor{$\_\langle\_\rangle\_$} provides a
-convenient syntax for specifying the (explicit) fields of the record to provide
-(and pattern match) separating conjunctions.
-
-To illustrate a typical usage pattern of separating conjunction we first
-introduce our first predicate \AgdaDatatype{Ch} on typing contexts, which we use
-to describe well-typed channels:
+Concretely, a channel of type $A$ is a predicate that holds for the singleton
+context $\AgdaFunction[~A~\AgdaFunction]$:
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -205,88 +105,9 @@ to describe well-typed channels:
 \AgdaOperator{\AgdaFunction{]}}\<%
 \end{code}
 
-The predicate $\AgdaDatatype{Ch}~A$ holds for the singleton typing context
-$[A]$. Hence the predicate $\AgdaDatatype{Ch}~A\sand\AgdaDatatype{Ch}~B$ holds
-for those typing contexts that can be split into $[A]$ and $[B]$, as exemplified
-below:
-\begin{code}%
-\>[0]\AgdaFunction{\AgdaUnderscore{}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaDatatype{Ch}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
-\AgdaDatatype{Ch}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaSymbol{\AgdaUnderscore{}}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{ch}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaInductiveConstructor{•}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⟩}}\AgdaSpace{}%
-\AgdaInductiveConstructor{ch}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{\AgdaUnderscore{}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaDatatype{Ch}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
-\AgdaDatatype{Ch}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\<%
-\\
-\>[0]\AgdaSymbol{\AgdaUnderscore{}}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaInductiveConstructor{ch}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaInductiveConstructor{•}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⟩}}\AgdaSpace{}%
-\AgdaInductiveConstructor{ch}\<%
-\end{code}
-
-\begin{table}
-  \begin{tabular}{|lll|}
-    \hline
-    \textbf{Notation} & \textbf{Definition} & \textbf{Meaning} \\
-    \hline
-    $\AgdaFunction{∀[}~P~\AgdaFunction]$ & $\forall\{x\} \to P~x$ & implicit universality \\
-    $P~\AgdaFunction{⇒}~Q$ & $\lambda x \to P~x \to Q~x$ & implication \\
-    $P~\AgdaFunction{∪}~Q$ & $\lambda x \to P~x~\AgdaDatatype{⊎}~Q~x$ & disjunction \\
-    $P~\AgdaFunction{∩}~Q$ & $\lambda x \to P~x~\AgdaDatatype{×}~Q~x$ & conjunction (non-separating) \\
-    $f~\AgdaFunction{⊢}~P$ & $\lambda x \to P~(f~x)$ & update \\
-    $\AgdaFunction{U}$ & $\lambda x \to \AgdaModule{Data.Unit}.\AgdaDatatype{⊤}$ & universal
-    set \\
-    $\AgdaFunction{⋂[}~X~\AgdaFunction{:}~A~\AgdaFunction]~P$ & $\lambda x \to (X : A) \to P~X~x$ & infinitary conjunction \\
-    \hline
-  \end{tabular}
-  \caption{\label{tab:predicates} Used definitions from Agda's \AgdaModule{Relation.Unary} module.}
-\end{table}
-
-We now illustrate the datatype \AgdaDatatype{Proc} for representing processes
-and then describe its key aspects in detail. This datatype uses, in addition to
-$\sand$, a number of definitions from the \AgdaModule{Relation.Unary} module in
-Agda's standard library which are worth recalling in \Cref{tab:predicates}.
+A process that is well typed in a typing context $\Context$ is a predicate that
+holds for $\Context$. Here is the datatype \AgdaDatatype{Proc} for representing
+processes:
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -305,7 +126,7 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
@@ -319,7 +140,7 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaInductiveConstructor{⊤}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaFunction{U}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⇒}}\AgdaSpace{}%
 \AgdaDatatype{Proc}\AgdaSpace{}%
@@ -331,7 +152,7 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaInductiveConstructor{⊥}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaDatatype{Proc}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⇒}}\AgdaSpace{}%
 \AgdaDatatype{Proc}\AgdaSpace{}%
@@ -350,17 +171,17 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 %
 \>[2]\AgdaInductiveConstructor{case}%
 \>[12]\AgdaSymbol{:}%
-\>[166I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[82I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[166I]%
+\>[.][@{}l@{}]\<[82I]%
 \>[14]\AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{\&}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
@@ -377,17 +198,17 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 %
 \>[2]\AgdaInductiveConstructor{select}%
 \>[12]\AgdaSymbol{:}%
-\>[186I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[102I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[186I]%
+\>[.][@{}l@{}]\<[102I]%
 \>[14]\AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⊕}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
@@ -403,18 +224,16 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \\
 %
 \>[2]\AgdaInductiveConstructor{join}%
-\>[12]\AgdaSymbol{:}%
-\>[206I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[12]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
-\\
-\>[.][@{}l@{}]\<[206I]%
-\>[14]\AgdaFunction{∀[}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
@@ -429,22 +248,22 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 %
 \>[2]\AgdaInductiveConstructor{fork}%
 \>[12]\AgdaSymbol{:}%
-\>[224I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
+\>[141I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[224I]%
+\>[.][@{}l@{}]\<[141I]%
 \>[14]\AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
 \AgdaDatatype{Proc}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{B}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
@@ -456,15 +275,15 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 %
 \>[2]\AgdaInductiveConstructor{all}%
 \>[12]\AgdaSymbol{:}%
-\>[244I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
+\>[161I]\AgdaSymbol{∀\{}\AgdaBound{A}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[244I]%
+\>[.][@{}l@{}]\<[161I]%
 \>[14]\AgdaFunction{∀[}\AgdaSpace{}%
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaFunction{⋂[}\AgdaSpace{}%
 \AgdaBound{X}\AgdaSpace{}%
 \AgdaFunction{∶}\AgdaSpace{}%
@@ -492,7 +311,7 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{`∃}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
@@ -514,7 +333,7 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{`!}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaDatatype{Un}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{∩}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{A}\AgdaSpace{}%
@@ -534,7 +353,7 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
@@ -552,7 +371,7 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaDatatype{Proc}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⇒}}\AgdaSpace{}%
 \AgdaDatatype{Proc}\AgdaSpace{}%
@@ -567,7 +386,7 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaDatatype{Ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaInductiveConstructor{`?}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
@@ -591,7 +410,7 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
 \AgdaDatatype{Proc}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaRecord{∗}}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∗}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaFunction{dual}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
@@ -602,15 +421,16 @@ Agda's standard library which are worth recalling in \Cref{tab:predicates}.
 \AgdaFunction{]}\<%
 \end{code}
 
-Let us start from the constructors representing input/output actions, namely
-those from \AgdaInductiveConstructor{fail} through
-\AgdaInductiveConstructor{contract}. They all basically follow the same pattern:
-they possibly quantify over some types $A$ and $B$ and then (implicitly) over a
-typing context $\Context$ through the function \AgdaFunction{∀[\_]} applied to a
-predicate of the form $\cdots~\AgdaFunction{⇒}~\AgdaDatatype{Proc}$. The
-predicate states how to build a process of a particular form, provided that the
-typing context $\Context$ satisfies the predicate on the l.h.s. of
-\AgdaFunction{⇒}.
+All the constructors representing input/output actions, namely those from
+\AgdaInductiveConstructor{fail} through \AgdaInductiveConstructor{contract},
+basically follow the same pattern: they possibly quantify over some types $A$
+and $B$ and then (implicitly) over a typing context $\Context$ through the
+function \AgdaFunction{∀[\_]} applied to a predicate of the form
+$P~\AgdaFunction{⇒}~\AgdaDatatype{Proc}$. The predicate states how to build a
+process that is well typed in $\Context$, provided that $\Context$ satisfies
+$P$. In general, $P$ is a (separating) conjunction of sub-predicates
+corresponding to the channel on which the process is acting and to the premises
+of its typing rule.
 
 The constructor \AgdaInductiveConstructor{fail} requires the context $\Context$
 to satisfy the predicate
@@ -618,8 +438,16 @@ $\AgdaDatatype{Ch}~\AgdaInductiveConstructor{⊤}~\AgdaDatatype{∗}~\AgdaFuncti
 meaning that $\Context$ must contain an entry \AgdaInductiveConstructor{⊤}. That
 form of $\Context$ matches the one in the conclusion of \FailRule.
 
-The constructor \AgdaInductiveConstructor{close} requires the typing context to
-be the singleton list $[\One]$.
+The constructor \AgdaInductiveConstructor{wait} corresponds to a process of the
+form $\Wait\x.P$ and requires $\Context$ to (separately) satisfy
+$\AgdaDatatype{Ch}~\AgdaInductiveConstructor{⊥}$, that is the channel $x$ on
+which the process is operating, as well as \AgdaDatatype{Proc}, that is the
+continuation process $P$, which must be well typed in the remaining typing
+context.
+
+The constructor \AgdaInductiveConstructor{close}, which corresponds to a process
+of the form $\Close\x$, requires the typing context to be the singleton list
+$[\One]$.
 
 Crucially, the type of the continuation channels are \emph{prepended} to the
 context that indexes the continuation processes using the
