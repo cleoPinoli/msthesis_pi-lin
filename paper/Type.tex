@@ -797,7 +797,7 @@ variable with a (pre)type. It is convenient to introduce this substitution once
 and for all, which we do here.
 
 \begin{code}%
-\>[0]\AgdaOperator{\AgdaFunction{[\AgdaUnderscore{}/\AgdaUnderscore{}]}}\AgdaSpace{}%
+\>[0]\AgdaOperator{\AgdaFunction{[\AgdaUnderscore{}/]}}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -813,19 +813,17 @@ and for all, which we do here.
 \\
 \>[0]\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{/}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{/]}}\AgdaSpace{}%
 \AgdaInductiveConstructor{zero}%
-\>[12]\AgdaOperator{\AgdaFunction{]}}%
-\>[15]\AgdaSymbol{=}\AgdaSpace{}%
+\>[16]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{A}\<%
 \\
 \>[0]\AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{/}}\AgdaSpace{}%
-\AgdaInductiveConstructor{suc}\AgdaSpace{}%
-\AgdaBound{k}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{]}}%
-\>[15]\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{/]}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
+\AgdaBound{k}\AgdaSymbol{)}%
+\>[16]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{var}\AgdaSpace{}%
 \AgdaBound{k}\<%
 \end{code}
@@ -835,7 +833,7 @@ Duality and substitutions are meant to commute.
 \begin{code}%
 \>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[583I]\AgdaSymbol{∀\{}\AgdaBound{m}\AgdaSpace{}%
+\>[582I]\AgdaSymbol{∀\{}\AgdaBound{m}\AgdaSpace{}%
 \AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{σ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -850,7 +848,7 @@ Duality and substitutions are meant to commute.
 \AgdaBound{m}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[583I]%
+\>[.][@{}l@{}]\<[582I]%
 \>[13]\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%

@@ -143,9 +143,9 @@ variable with a (pre)type. It is convenient to introduce this substitution once
 and for all, which we do here.
 
 \begin{code}
-[_/_] : ∀{n} → PreType n → Fin (suc n) → PreType n
-[ A / zero  ]  = A
-[ A / suc k ]  = var k
+[_/] : ∀{n} → PreType n → Fin (suc n) → PreType n
+[ A /] zero     = A
+[ A /] (suc k)  = var k
 \end{code}
 
 Duality and substitutions are meant to commute.

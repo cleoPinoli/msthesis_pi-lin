@@ -292,7 +292,7 @@ processes:
 \AgdaSymbol{((}\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaBound{X}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{/\AgdaUnderscore{}]}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{/]}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
@@ -315,7 +315,7 @@ processes:
 \AgdaSymbol{((}\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaBound{B}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{/\AgdaUnderscore{}]}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{/]}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⊢}}\AgdaSpace{}%
@@ -482,17 +482,17 @@ would have to do in a ``true'' session type system without explicit continuation
 channels.
 
 The interpretation of the remaining constructors is analogous, so we only
-comment \AgdaInductiveConstructor{all}, which represents a process
+comment \AgdaInductiveConstructor{all}, which represents a polymorphic process
 $\Forall\x\X\y.P$. This constructor models the continuation $P$ using
 higher-order abstract syntax (HOAS~\cite{}): witnessing that a context
 $\Context$ satisfies the predicate
 \[
-  \AgdaFunction{⋂[}~X~\AgdaFunction{∶}~\AgdaDatatype{Type}~\AgdaFunction]~((\AgdaFunction{subst~[}~X~\AgdaFunction{/\_]}~A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}
+  \AgdaFunction{⋂[}~X~\AgdaFunction{∶}~\AgdaDatatype{Type}~\AgdaFunction]~((\AgdaFunction{subst~[}~X~\AgdaFunction{/]}~A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}
 \]
 means providing a function that, for every type $X$, produces a witness for the
 predicate
 \[
-  ((\AgdaFunction{subst~[}~X~\AgdaFunction{/\_]}~A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}
+  ((\AgdaFunction{subst~[}~X~\AgdaFunction{/]}~A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}
 \]
 applied to $\Context$. Note that the side condition $X \not\in \fv\Context$ of
 \ForallRule is enforced \emph{by definition}:
@@ -503,9 +503,9 @@ a typing context, that is a list of $\AgdaDatatype{Type} =
 \AgdaDatatype{PreType}~\AgdaInductiveConstructor{0}$ without free type
 variables. Therefore, $X$ cannot occur in $\Context$.
 
-We conclude this module proving that permutations preserve process typeability.
-Since list permutations basically correspond to channel renaming, we can read
-this property as the fact that typeability is preserved by (injective) name
+We conclude this module proving that permutations preserve process typing. Since
+list permutations basically correspond to channel renaming, we can read this
+property as the fact that typing is preserved by (injective) name
 substitutions.\Luca{Abbiamo detto da qualche parte dove emergono gli indici di
 de Bruijn e di fare attenzione al fatto che lo splitting li altera? Serve questa
 digressione?}\Luca{Da qualche parte mettere un remark per far notare che l'uso
