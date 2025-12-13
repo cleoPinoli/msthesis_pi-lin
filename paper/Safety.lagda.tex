@@ -4,6 +4,7 @@
 \begin{code}[hide]
 {-# OPTIONS --rewriting #-}
 open import Data.List.Base using ([]; _∷_; [_])
+open import Relation.Unary
 
 open import Type
 open import Context
@@ -24,12 +25,10 @@ given reduction context and therefore specified as a parameter of the data type:
 \begin{code}
 data ReductionContext (Δ : Context) : Context → Set where
   hole   : ReductionContext Δ Δ
-  cut-l  : ∀{Γ Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂) →
-           ReductionContext Δ (A ∷ Γ₁) → Process (dual A ∷ Γ₂) →
-           ReductionContext Δ Γ
-  cut-r  : ∀{Γ Γ₁ Γ₂ A} (p : Γ ≃ Γ₁ + Γ₂) →
-           Process (A ∷ Γ₁) → ReductionContext Δ (dual A ∷ Γ₂) →
-           ReductionContext Δ Γ
+  cut-l  : ∀{A} → ∀[  ((A ∷_) ⊢ ReductionContext Δ) ∗ ((dual A ∷_) ⊢ Proc) ⇒
+                      ReductionContext Δ ]
+  cut-r  : ∀{A} → ∀[  ((A ∷_) ⊢ Proc) ∗ ((dual A ∷_) ⊢ ReductionContext Δ) ⇒
+                      ReductionContext Δ ]
 \end{code}
 
 Substitution inside a reduction context $\ReductionContext$ is a straightforward
@@ -37,17 +36,17 @@ function $\AgdaFunction{\_⟦\_⟧}$ that operates recursively on the structure 
 $\ReductionContext$:
 
 \begin{code}
-_⟦_⟧ : ∀{Γ Δ} → ReductionContext Δ Γ → Process Δ → Process Γ
-hole ⟦ P ⟧         = P
-cut-l p 𝒞 Q ⟦ P ⟧  = cut p (𝒞 ⟦ P ⟧) Q
-cut-r p Q 𝒞 ⟦ P ⟧  = cut p Q (𝒞 ⟦ P ⟧)
+_⟦_⟧ : ∀{Γ Δ} → ReductionContext Δ Γ → Proc Δ → Proc Γ
+hole               ⟦ P ⟧ = P
+cut-l (𝒞 ⟨ p ⟩ Q)  ⟦ P ⟧ = cut ((𝒞 ⟦ P ⟧) ⟨ p ⟩ Q)
+cut-r (Q ⟨ p ⟩ 𝒞)  ⟦ P ⟧ = cut (Q ⟨ p ⟩ (𝒞 ⟦ P ⟧))
 \end{code}
 
 A process $P$ is well formed if every unguarded sub-process $Q$ in it is alive.
 
 \begin{code}
-WellFormed        : ∀{Γ} → Process Γ → Set
-WellFormed {Γ} P  = ∀{Δ} {𝒞 : ReductionContext Δ Γ} {Q : Process Δ} →
+WellFormed : ∀{Γ} → Proc Γ → Set
+WellFormed {Γ} P = ∀{Δ} {𝒞 : ReductionContext Δ Γ} {Q : Proc Δ} →
                    P ⊒ (𝒞 ⟦ Q ⟧) → Alive Q
 \end{code}
 
@@ -55,6 +54,6 @@ The proof of type safety ends up being a trivial application of
 \AgdaFunction{deadlock-freedom}.
 
 \begin{code}
-type-safety : ∀{Γ} (P : Process Γ) → WellFormed P
+type-safety : ∀{Γ} (P : Proc Γ) → WellFormed P
 type-safety P {_} {_} {Q} _ = deadlock-freedom Q
 \end{code}
