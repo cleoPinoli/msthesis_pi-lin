@@ -54,7 +54,7 @@ occurrences of $X$ in $A$ with $B$.
 \subsection{Processes}
 \label{sec:syntax}
 
-\begin{table}
+\begin{table}[t]
     \caption{Syntax of \Calculus.}\label{tab:syntax}
     \begin{tabular}{c}
         \begin{math}
@@ -85,7 +85,7 @@ ranged over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
 %
 A link $\Link\x\y$ denotes the merging of the channels $x$ and $y$, so that
 every message sent on one of the channels is forwarded to the other. As
-discussed in the literature~\cite{LindleyMorris}, this form is also useful for
+discussed in the literature~\cite{LindleyMorris15}, this form is also useful for
 modeling \emph{delegation}, that is the exchange of an existing session endpoint
 in another session.
 %
@@ -142,7 +142,7 @@ identify processes up to renaming of bound names.
 \subsection{Operational Semantics}
 \label{sec:semantics}
 
-\begin{table}
+\begin{table}[t]
     \caption{Operational semantics of \Calculus.}
     \label{tab:semantics}
     \begin{tabular}{@{}c@{}}
@@ -326,7 +326,7 @@ types in its range are prefixed by the $\WhyNot$ modality. We call these types
 \emph{unrestricted}, since they are used to denote shared channels that can be
 (explicitly) discarded and duplicated at will.
 
-\begin{table}
+\begin{table}[t]
     \caption{Typing rules of \Calculus.}
     \label{tab:typing-rules}
     \begin{tabular}{@{}c@{}}

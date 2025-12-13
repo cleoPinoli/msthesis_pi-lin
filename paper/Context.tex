@@ -623,7 +623,7 @@ equivalently and in a more compact way as shown below. More usages of
 \AgdaFunction{≫}\<%
 \end{code}
 
-\begin{table}
+\begin{table}[t]
   \begin{tabular}{|lll|}
     \hline
     \textbf{Notation} & \textbf{Definition} & \textbf{Meaning} \\
@@ -651,7 +651,7 @@ point that it contributes substantially to the complexity of the formalization.
 For this reason, we invest some effort in defining a few abstractions that allow
 us to occasionally hide context splittings and enhance code readability.
 %
-Inspired by separation logic~\cite{Hoare} and
+Inspired by separation logic~\cite{OHearnPym99} and
 following~\citet{RouvoetPoulsenKrebbersVisser20}, we define the \emph{separating
 conjunction} $P \sand Q$ of two predicates $P$ and $Q$ over contexts:
 \begin{code}%
