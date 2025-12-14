@@ -3,26 +3,28 @@ NULL =
 
 SOURCES = \
   2016Goto \
+  2016Goto-safety \
+  2016Goto-extra \
   2019Thiemann \
-  2019Thiemann-eval \
   2020Castro \
   2020Ciccone \
-  2020Rouvet \
-  2020Rouvet-lib \
-  2020Rouvet-eval \
   2020Zalakain \
   2020Zalakain-lib \
   2022Jacobs \
+  2022Jacobs-df \
   2022Jacobs-lib \
   2023Sano \
   2025Zackon \
   2025Zackon-lib \
   2025Padovani \
+  2025Padovani-safety \
+  2025Padovani-df \
   $(NULL)
 
 TARGETS = \
-	$(SOURCES:%=%.txt) \
+	$(SOURCES:%=%.stripped.txt) \
 	$(SOURCES:%=%.squeezed.txt) \
+	$(SOURCES:%=%.size.txt) \
 	$(NULL)
 
 all: $(TARGETS)
@@ -30,14 +32,14 @@ all: $(TARGETS)
 %.zip: %
 	zip -r $@ $<
 
-%.txt: %
-	cat `find $< -name "*.*"` >$@
+%.stripped.txt: %
+	grep -r -h -v -f $<.patterns $</ >$@
 
-%.squeezed.txt: %.txt
+%.squeezed.txt: %.stripped.txt
 	tr -s [:space:] <$< >$@
 
-%.size: %
-	tr -s [:space:] <$< | wc -c
+%.size.txt: %.squeezed.txt
+	tr -s [:space:] <$< | wc >$@
 
 clean:
 	rm -f $(TARGETS)
