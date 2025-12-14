@@ -1,6 +1,0 @@
-
-tp : type.
-
-
-LF eq : tp → tp → type =
-| refl : eq A A;
