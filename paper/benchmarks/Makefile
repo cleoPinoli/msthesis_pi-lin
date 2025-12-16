@@ -8,6 +8,8 @@ SOURCES = \
   2019Thiemann \
   2020Castro \
   2020Ciccone \
+  2020Rouvoet \
+  2020Rouvoet-lib \
   2020Zalakain \
   2020Zalakain-lib \
   2022Jacobs \

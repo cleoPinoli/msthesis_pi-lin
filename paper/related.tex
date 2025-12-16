@@ -1,25 +1,39 @@
 \section{Related Work}
 \label{sec:related}
 
+\Cref{tab:comparison} summarizes a comparison among the formalizations of binary
+session calculus that we are aware of, roughly sorted by publication date. We
+have selected those formalizations that define a calculus of binary sessions
+equipped with a small-step reduction semantics and prove subject reduction and
+possibly deadlock freedom. \fullcite{RouvoetPoulsenKrebbersVisser20} also
+formalize a subset of \CP as case study for their approach based on separation
+logic, which we have partially taken inspiration from for the representation of
+processes (\cref{sec:context-agda,sec:process-agda}). Their formalization adopts
+the same intrinsically-typed representation of processes with nameless channels
+as our own, but their formalization focuses on the implementation of an
+interpreter (no small-step semantics is defined) and subject reduction is 
+
 come sono stati misurati
 
 eliminati commenti
 eliminati esempi
 squeezed spazi (in generale sono significativi)
 
+
 \begin{table}[t]
     \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
     \newcommand{\CHECK}{\checkmark}
     \newcommand{\SessionPI}{session $\pi$}
     \newcommand{\SessionLAM}{session $\lambda$}
-    \begin{tabular}{@{}rccccrrrrr@{}}
+    \caption{\label{tab:comparison} Comparison of different formalizations of binary session calculi.}
+    \begin{tabular}{@{}r|c|ccc|rr|rr|r@{}}
         \textbf{Formalization} &
         \textlabel{Proof assistant} &
         \textlabel{Calculus} &
         \textlabel{Shared channels} &
         \textlabel{Polymorphism} &
         \textlabel{Subject reduction} &
-        \textlabel{Safety} &
+        \textlabel{Library} &
         \textlabel{Deadlock freedom} &
         \textlabel{Library} &
         \textlabel{\bf Total size}
@@ -30,8 +44,8 @@ squeezed spazi (in generale sono significativi)
         \SessionPI & 
         \CHECK &
         \CHECK &
-        559 &
-        4 &
+        543 &
+        -- &
         -- &
         -- &
         \textbf{563}
@@ -39,24 +53,24 @@ squeezed spazi (in generale sono significativi)
         \fullcite{Thiemann19} &
         Agda &
         \SessionLAM &
-        ? &
+        \CHECK &
         -- &
-        156 &
+        177 &
         -- &
         -- &
         -- &
-        \textbf{156}
+        \textbf{177}
         \\
         \fullcite{CastroFerreiraYoshida20} &
         Coq &
         \SessionPI &
         \CHECK &
         -- &
-        209 &
+        204 &
         -- &
         -- &
         -- &
-        \textbf{209}
+        \textbf{204}
         \\
         \fullcite{CicconePadovani20} &
         Agda &
@@ -71,48 +85,69 @@ squeezed spazi (in generale sono significativi)
         \\
         \fullcite{RouvoetPoulsenKrebbersVisser20} &
         Agda &
-        \SessionLAM &
+        \CP &
         -- &
-        -- & \\
+        -- &
+        27 &
+        55 &
+        -- &
+        -- &
+        \textbf{82}
+        \\
         \fullcite{ZalakainDardha21} &
         Agda &
         graded $\pi$ &
         \CHECK &
         -- &
+        82 &
+        8 &
+        -- &
+        -- &
+        \textbf{90}
         \\
         \fullcite{JacobsBalzerKrebbers22} &
         Coq &
         \SessionLAM &
         -- &
         -- &
+        68 &
+        -- &
+        25 &
+        171 &
+        \textbf{264}
         \\
         \fullcite{SanoKavanaghPientka23} &
         Beluga &
         S\CP &
         -- &
         -- &
+        35 &
+        -- &
+        -- &
+        -- &
+        \textbf{35}
         \\
         \fullcite{ZackonEtAl25} &
         Beluga &
         \CP &
         -- &
         -- &
-        47 &
-        -- &
-        -- &
+        56 &
         73 &
-        \textbf{120}
+        -- &
+        -- &
+        \textbf{129}
         \\
         this work &
         Agda &
         linear \CP &
         \CHECK &
         \CHECK &
-        20 &
-        1 &
-        17 &
+        21 &
         -- &
-        \textbf{38}
+        15 &
+        -- &
+        \textbf{36}
     \end{tabular}
 \end{table}
 
