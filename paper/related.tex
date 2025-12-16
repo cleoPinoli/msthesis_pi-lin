@@ -19,14 +19,14 @@ eliminati commenti
 eliminati esempi
 squeezed spazi (in generale sono significativi)
 
-
 \begin{table}[t]
     \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
     \newcommand{\CHECK}{\checkmark}
     \newcommand{\SessionPI}{session $\pi$}
     \newcommand{\SessionLAM}{session $\lambda$}
     \caption{\label{tab:comparison} Comparison of different formalizations of binary session calculi.}
-    \begin{tabular}{@{}r|c|ccc|rr|rr|r@{}}
+    \begin{minipage}{.9\textwidth}
+    \begin{tabular}{@{}r|c|ccc|rr|rr|r@{~}l@{}}
         \textbf{Formalization} &
         \textlabel{Proof assistant} &
         \textlabel{Calculus} &
@@ -36,7 +36,7 @@ squeezed spazi (in generale sono significativi)
         \textlabel{Library} &
         \textlabel{Deadlock freedom} &
         \textlabel{Library} &
-        \textlabel{\bf Total size}
+        \textlabel{\bf Total size} &
         \\
         \hline
         \fullcite{GotoEtAl16} &
@@ -48,7 +48,8 @@ squeezed spazi (in generale sono significativi)
         -- &
         -- &
         -- &
-        \textbf{563}
+        \textbf{563} &
+        \footnote{Excluding safety results.}
         \\
         \fullcite{Thiemann19} &
         Agda &
@@ -59,7 +60,8 @@ squeezed spazi (in generale sono significativi)
         -- &
         -- &
         -- &
-        \textbf{177}
+        \textbf{177} &
+        \footnote{Including support for subtyping and the interpreter.}
         \\
         \fullcite{CastroFerreiraYoshida20} &
         Coq &
@@ -70,7 +72,8 @@ squeezed spazi (in generale sono significativi)
         -- &
         -- &
         -- &
-        \textbf{204}
+        \textbf{204} &
+        \footnote{Excluding the original syntax.}
         \\
         \fullcite{CicconePadovani20} &
         Agda &
@@ -81,7 +84,8 @@ squeezed spazi (in generale sono significativi)
         -- &
         -- &
         -- &
-        \textbf{77}
+        \textbf{77} &
+        \footnote{Including support for dependent session types.}
         \\
         \fullcite{RouvoetPoulsenKrebbersVisser20} &
         Agda &
@@ -92,7 +96,8 @@ squeezed spazi (in generale sono significativi)
         55 &
         -- &
         -- &
-        \textbf{82}
+        \textbf{82} &
+        \footnote{Including type-preserving evaluator and library for proof-relevant separation algebra.}
         \\
         \fullcite{ZalakainDardha21} &
         Agda &
@@ -103,7 +108,8 @@ squeezed spazi (in generale sono significativi)
         8 &
         -- &
         -- &
-        \textbf{90}
+        \textbf{90} &
+        \footnote{Including library for algebra of types.}
         \\
         \fullcite{JacobsBalzerKrebbers22} &
         Coq &
@@ -114,7 +120,8 @@ squeezed spazi (in generale sono significativi)
         -- &
         25 &
         171 &
-        \textbf{264}
+        \textbf{264} &
+        \footnote{Including deadlock freedom and the library for connectivity graphs.}
         \\
         \fullcite{SanoKavanaghPientka23} &
         Beluga &
@@ -136,7 +143,8 @@ squeezed spazi (in generale sono significativi)
         73 &
         -- &
         -- &
-        \textbf{129}
+        \textbf{129} &
+        \footnote{Excluding the correspondence between \CP and S\CP.}
         \\
         this work &
         Agda &
@@ -147,8 +155,10 @@ squeezed spazi (in generale sono significativi)
         -- &
         15 &
         -- &
-        \textbf{36}
+        \textbf{36} &
+        \footnote{Including deadlock freedom and excluding safety results.}
     \end{tabular}
+    \end{minipage}
 \end{table}
 
 paper di Marco a ECOOP (multiparty)
