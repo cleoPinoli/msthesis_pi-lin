@@ -4,14 +4,30 @@
 \Cref{tab:comparison} summarizes a comparison among the formalizations of binary
 session calculus that we are aware of, roughly sorted by publication date. We
 have selected those formalizations that define a calculus of binary sessions
-equipped with a small-step reduction semantics and prove subject reduction and
-possibly deadlock freedom. \fullcite{RouvoetPoulsenKrebbersVisser20} also
-formalize a subset of \CP as case study for their approach based on separation
-logic, which we have partially taken inspiration from for the representation of
-processes (\cref{sec:context-agda,sec:process-agda}). Their formalization adopts
-the same intrinsically-typed representation of processes with nameless channels
-as our own, but their formalization focuses on the implementation of an
-interpreter (no small-step semantics is defined) and subject reduction is 
+equipped with a reduction/evaluation semantics with proofs of subject reduction
+and possibly of deadlock freedom.
+%
+The formalizations differ substantially in terms of reference calculus, used
+proof assistant, process/expression/channel representation, handling of
+linearity.
+%
+Most importantly, almost all of them predates the publlication of the linearity
+challenge~\cite{CarboneEtAl24} hence were not necessarily targeted to solving
+that particular problem. Nonetheless, they provide a broad spectrum of
+techniques
+
+\fullcite{GotoEtAl16} describe the oldest formalization of a session-based
+calculus for which we were able to access the source code (the formalization of
+\citet{Gay01} predates this work, but the source code is no longer publicly
+available).
+
+fullcite{RouvoetPoulsenKrebbersVisser20} also formalize a subset of \CP as case
+study for their approach based on separation logic, which we have partially
+taken inspiration from for the representation of processes
+(\cref{sec:context-agda,sec:process-agda}). Their formalization adopts the same
+intrinsically-typed representation of processes with nameless channels as our
+own, but their formalization focuses on the implementation of an interpreter (no
+small-step semantics is defined) and subject reduction is 
 
 come sono stati misurati
 
@@ -20,16 +36,21 @@ eliminati esempi
 squeezed spazi (in generale sono significativi)
 
 \begin{table}[t]
+    \footnotesize
     \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
-    \newcommand{\CHECK}{\checkmark}
-    \newcommand{\SessionPI}{session $\pi$}
-    \newcommand{\SessionLAM}{session $\lambda$}
-    \caption{\label{tab:comparison} Comparison of different formalizations of binary session calculi.}
+    \newcommand{\YES}{$+$}
+    \newcommand{\NO}{$-$}
+    \newcommand{\MAYBE}{$\pm$}
+    \caption{\label{tab:comparison} A summary of different formalizations of binary session calculi. All sizes are in kb.}
     \begin{minipage}{.9\textwidth}
-    \begin{tabular}{@{}r|c|ccc|rr|rr|r@{~}l@{}}
+    \begin{tabular}{@{}r@{~}|@{~}c@{~}|@{~}c@{~~}c@{~~}c@{~~}c@{~~}c@{~~}c@{~~}c@{~}|@{~}r@{~~}r@{~}|@{~}r@{~~}r@{~}|@{~}r@{~}l@{}}
         \textbf{Formalization} &
         \textlabel{Proof assistant} &
         \textlabel{Calculus} &
+        \textlabel{Intrinsically typed} &
+        \textlabel{Channel linearity} &
+        \textlabel{Channel names} &
+        \textlabel{Continuations} &
         \textlabel{Shared channels} &
         \textlabel{Polymorphism} &
         \textlabel{Subject reduction} &
@@ -41,83 +62,111 @@ squeezed spazi (in generale sono significativi)
         \hline
         \fullcite{GotoEtAl16} &
         Coq &
-        \SessionPI & 
-        \CHECK &
-        \CHECK &
+        \SessionPI &
+        \NO &
+        splitting &
+        loc. nameless &
+        \NO &
+        \YES &
+        \YES &
         543 &
-        -- &
-        -- &
-        -- &
-        \textbf{563} &
+        \NO &
+        \NO &
+        \NO &
+        \textbf{543} &
         \footnote{Excluding safety results.}
         \\
         \fullcite{Thiemann19} &
         Agda &
         \SessionLAM &
-        \CHECK &
-        -- &
+        \YES &
+        splitting &
+        co-de Bruijn &
+        \MAYBE &
+        \YES &
+        \NO &
         177 &
-        -- &
-        -- &
-        -- &
+        \NO &
+        \NO &
+        \NO &
         \textbf{177} &
-        \footnote{Including support for subtyping and the interpreter.}
+        \footnote{Including support for recursive types, subtyping and the interpreter.}
         \\
         \fullcite{CastroFerreiraYoshida20} &
         Coq &
         \SessionPI &
-        \CHECK &
-        -- &
+        \NO &
+        splitting &
+        loc. nameless &
+        \NO &
+        \YES &
+        \NO &
         204 &
-        -- &
-        -- &
-        -- &
+        \NO &
+        \NO &
+        \NO &
         \textbf{204} &
         \footnote{Excluding the original syntax.}
         \\
         \fullcite{CicconePadovani20} &
         Agda &
-        linear $\pi$ & 
-        \CHECK &
-        -- &
+        \LinearPI & 
+        \YES &
+        splitting &
+        co-de Bruijn &
+        \YES &
+        \YES &
+        \NO &
         77 &
-        -- &
-        -- &
-        -- &
+        \NO &
+        \NO &
+        \NO &
         \textbf{77} &
-        \footnote{Including support for dependent session types.}
+        \footnote{Including support for recursive and dependent session types.}
         \\
         \fullcite{RouvoetPoulsenKrebbersVisser20} &
         Agda &
         \CP &
-        -- &
-        -- &
+        \YES &
+        splitting &
+        co-de Bruijn &
+        \YES &
+        \NO &
+        \NO &
         27 &
         55 &
-        -- &
-        -- &
+        \NO &
+        \NO &
         \textbf{82} &
         \footnote{Including type-preserving evaluator and library for proof-relevant separation algebra.}
         \\
         \fullcite{ZalakainDardha21} &
         Agda &
-        graded $\pi$ &
-        \CHECK &
-        -- &
+        \GradedPI &
+        \NO &
+        leftovers &
+        de Bruijn &
+        \YES &
+        \YES &
+        \NO &
         82 &
         8 &
-        -- &
-        -- &
+        \NO &
+        \NO &
         \textbf{90} &
         \footnote{Including library for algebra of types.}
         \\
         \fullcite{JacobsBalzerKrebbers22} &
         Coq &
         \SessionLAM &
-        -- &
-        -- &
+        \NO &
+        splitting &
+        named &
+        \MAYBE &
+        \NO &
+        \NO &
         68 &
-        -- &
+        \NO &
         25 &
         171 &
         \textbf{264} &
@@ -125,36 +174,48 @@ squeezed spazi (in generale sono significativi)
         \\
         \fullcite{SanoKavanaghPientka23} &
         Beluga &
-        S\CP &
-        -- &
-        -- &
+        \SCP &
+        \NO &
+        predicates &
+        HOAS &
+        \MAYBE &
+        \NO &
+        \NO &
         35 &
-        -- &
-        -- &
-        -- &
+        \NO &
+        \NO &
+        \NO &
         \textbf{35}
         \\
         \fullcite{ZackonEtAl25} &
         Beluga &
         \CP &
-        -- &
-        -- &
+        \NO &
+        tags &
+        HOAS &
+        \NO &
+        \NO &
+        \NO &
         56 &
         73 &
-        -- &
-        -- &
+        \NO &
+        \NO &
         \textbf{129} &
-        \footnote{Excluding the correspondence between \CP and S\CP.}
+        \footnote{Excluding the correspondence between \CP and \SCP.}
         \\
         this work &
         Agda &
-        linear \CP &
-        \CHECK &
-        \CHECK &
+        \Calculus &
+        \YES &
+        splitting &
+        co-de Bruijn &
+        \YES &
+        \YES &
+        \YES &
         21 &
-        -- &
+        \NO &
         15 &
-        -- &
+        \NO &
         \textbf{36} &
         \footnote{Including deadlock freedom and excluding safety results.}
     \end{tabular}
