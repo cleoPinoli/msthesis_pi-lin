@@ -2,32 +2,86 @@
 \label{sec:related}
 
 \Cref{tab:comparison} summarizes a comparison among the formalizations of binary
-session calculus that we are aware of, roughly sorted by publication date. We
-have selected those formalizations that define a calculus of binary sessions
-equipped with a reduction/evaluation semantics with proofs of subject reduction
-and possibly of deadlock freedom.
-%
+session calculi and of the linear $\pi$-calculus, sorted by publication date. We
+have selected those formalizations that include the following characteristics:
+\begin{itemize}
+\item syntax and reduction/evaluation semantics for a calculus with support for
+    binary sessions, either natively or through their encoding in terms of
+    linear channels~\cite{KobayashiPierceTurner99,Kobayashi02b};
+\item a type system along with the usual typing preservation results;
+\item a proof of global progress/deadlock freedom, for those type systems that
+    enforce it.
+\end{itemize}
+
 The formalizations differ substantially in terms of reference calculus, used
 proof assistant, process/expression/channel representation, handling of
 linearity.
 %
-Most importantly, almost all of them predates the publlication of the linearity
-challenge~\cite{CarboneEtAl24} hence were not necessarily targeted to solving
-that particular problem. Nonetheless, they provide a broad spectrum of
-techniques
+Most importantly, almost all of them predate the publication of the linearity
+challenge~\citep{CarboneEtAl24}, hence they are not necessarily targeted to
+solving that particular problem.
 
-\fullcite{GotoEtAl16} describe the oldest formalization of a session-based
-calculus for which we were able to access the source code (the formalization of
-\citet{Gay01} predates this work, but the source code is no longer publicly
-available).
+\citet{GotoEtAl16} describe the formalization of a session-based variant of the
+$\pi$-calculus which supports channel polymorphism. This is the oldest
+formalization of a session-based calculus for which we were able to retrieve the
+source code (the work of \citet{Gay01} predates this one, but its source code is
+not publicly available any more).
 
-fullcite{RouvoetPoulsenKrebbersVisser20} also formalize a subset of \CP as case
-study for their approach based on separation logic, which we have partially
-taken inspiration from for the representation of processes
-(\cref{sec:context-agda,sec:process-agda}). Their formalization adopts the same
-intrinsically-typed representation of processes with nameless channels as our
-own, but their formalization focuses on the implementation of an interpreter (no
-small-step semantics is defined) and subject reduction is 
+\citet{Thiemann19} formalizes a subset of \GV~\citep{GayVasconcelos10}, a
+functional language extended with session communication primitives, along with
+an interpreter.
+
+\citet{RouvoetPoulsenKrebbersVisser20} present a library of abstractions
+inspired to separation logic aiding the formalization of interpreters for
+computing models supported by linear type systems. One of the presented case
+studies is the formalization of a fragment of \GV~\citep{Wadler14}.
+
+% as case study for their approach based on separation logic, which we have
+% partially taken inspiration from for the representation of processes
+% (\cref{sec:context-agda,sec:process-agda}). Their formalization adopts the same
+% intrinsically-typed representation of processes with nameless channels as our
+% own, but their formalization focuses on the implementation of an interpreter (no
+% small-step semantics is defined) and subject reduction is 
+
+\citet{CastroFerreiraYoshida20} describe EMTST, a library for the formalization
+of session type systems which includes as case studies the session calculus of
+\citet{HondaVasconcelosKubo98} (called ``original system'') and a revised
+version of it that is more amenable to be formalized using a locally nameless
+representation of channels.
+
+\citet{CicconePadovani20} formalize a variant of the linear
+$\pi$-calculus~\cite{KobayashiPierceTurner99} that supports dependent types, so
+as to enable the description of communication protocols whose structure depends
+on the content of exchanged messages.
+
+All the formalizations mentioned make use of context splitting. In contrast,
+\citet{ZalakainDardha21} formalize a generalization of the linear $\pi$-calculus
+which is parametric in a \emph{usage algebra} (to account for channel
+sharing/linearity) and that is based on \emph{leftover typing}~\cite{}. The
+basic idea is that a process is typed with respect to an \emph{input context},
+which describes the overall available channels, and an \emph{output context},
+which describes the remaining channels not consumed by the process. In this way,
+it is possible to ``concatenate'' typing judgments instead of splitting them
+beforehand.
+
+Another work based on context splitting is the one by
+\citet{JacobsBalzerKrebbers22}, who formalize a library of \emph{connectivity
+graphs} for reasoning and enforcing deadlock freedom in a variant of
+\GV~\citep{GayVasconcelos10,Wadler14}. This is the first formalization of
+deadlock freedom for a calculus of sessions.
+
+Motivated by the technical difficulties arising from the splitting of typing
+contexts, \citet{SanoKavanaghPientka23} propose an alternative approach based on
+\emph{linearity predicates}. The key idea is to treat typing contexts
+structurally, and to enforce the linear usage of channels by means of separate
+predicates checking the syntactical occurrence of channels.
+
+\citet{ZackonEtAl25} describe yet another approach to the handling of typing
+contexts whereby channels are associated not just with a type but also with a
+\emph{tag} (or \emph{multiplicity}) from a given resource algebra for describing
+their availability. This approach streamlines context splitting in the sense
+that contexts can be treated in an essentially structural way, except for tags
+which are conveninently combined using operations from the resource algebra.
 
 come sono stati misurati
 
@@ -36,23 +90,22 @@ eliminati esempi
 squeezed spazi (in generale sono significativi)
 
 \begin{table}[t]
-    \footnotesize
     \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
     \newcommand{\YES}{$+$}
     \newcommand{\NO}{$-$}
     \newcommand{\MAYBE}{$\pm$}
     \caption{\label{tab:comparison} A summary of different formalizations of binary session calculi. All sizes are in kb.}
     \begin{minipage}{.9\textwidth}
-    \begin{tabular}{@{}r@{~}|@{~}c@{~}|@{~}c@{~~}c@{~~}c@{~~}c@{~~}c@{~~}c@{~~}c@{~}|@{~}r@{~~}r@{~}|@{~}r@{~~}r@{~}|@{~}r@{~}l@{}}
+    \begin{tabular}{@{}r@{~}|@{~}c@{~}|@{~}c@{~~}c@{~~}c@{~~}c@{~~}c@{~}|@{~}r@{~~}r@{~}|@{~}r@{~~}r@{~}|@{~}r@{~}l@{}}
         \textbf{Formalization} &
         \textlabel{Proof assistant} &
         \textlabel{Calculus} &
-        \textlabel{Intrinsically typed} &
         \textlabel{Channel linearity} &
         \textlabel{Channel names} &
+        \textlabel{Intrinsically typed} &
         \textlabel{Continuations} &
-        \textlabel{Shared channels} &
-        \textlabel{Polymorphism} &
+        % \textlabel{Shared channels} &
+        % \textlabel{Polymorphism} &
         \textlabel{Subject reduction} &
         \textlabel{Library} &
         \textlabel{Deadlock freedom} &
@@ -60,79 +113,47 @@ squeezed spazi (in generale sono significativi)
         \textlabel{\bf Total size} &
         \\
         \hline
-        \fullcite{GotoEtAl16} &
+        \citet{GotoEtAl16} &
         Coq &
         \SessionPI &
-        \NO &
         splitting &
         loc. nameless &
         \NO &
-        \YES &
-        \YES &
+        \NO &
+        % \YES &
+        % \YES &
         543 &
         \NO &
         \NO &
         \NO &
         \textbf{543} &
-        \footnote{Excluding safety results.}
+        \footnote{Including shared and polymorphic channels, excluding safety results.}
         \\
-        \fullcite{Thiemann19} &
+        \citet{Thiemann19} &
         Agda &
-        \SessionLAM &
-        \YES &
+        \GV &
         splitting &
         co-de Bruijn &
-        \MAYBE &
         \YES &
-        \NO &
+        \MAYBE &
+        % \YES &
+        % \NO &
         177 &
         \NO &
         \NO &
         \NO &
         \textbf{177} &
-        \footnote{Including support for recursive types, subtyping and the interpreter.}
+        \footnote{Including shared channels, recursive types, subtyping and the interpreter.}
         \\
-        \fullcite{CastroFerreiraYoshida20} &
-        Coq &
-        \SessionPI &
-        \NO &
-        splitting &
-        loc. nameless &
-        \NO &
-        \YES &
-        \NO &
-        204 &
-        \NO &
-        \NO &
-        \NO &
-        \textbf{204} &
-        \footnote{Excluding the original syntax.}
-        \\
-        \fullcite{CicconePadovani20} &
+        \citet{RouvoetPoulsenKrebbersVisser20} &
         Agda &
-        \LinearPI & 
-        \YES &
+        \GV &
         splitting &
         co-de Bruijn &
         \YES &
-        \YES &
-        \NO &
-        77 &
-        \NO &
-        \NO &
-        \NO &
-        \textbf{77} &
-        \footnote{Including support for recursive and dependent session types.}
-        \\
-        \fullcite{RouvoetPoulsenKrebbersVisser20} &
-        Agda &
-        \CP &
-        \YES &
-        splitting &
-        co-de Bruijn &
-        \YES &
-        \NO &
-        \NO &
+        \MAYBE &
+        % \NO &
+        % \NO &
         27 &
         55 &
         \NO &
@@ -140,31 +161,63 @@ squeezed spazi (in generale sono significativi)
         \textbf{82} &
         \footnote{Including type-preserving evaluator and library for proof-relevant separation algebra.}
         \\
-        \fullcite{ZalakainDardha21} &
-        Agda &
-        \GradedPI &
+        \citet{CastroFerreiraYoshida20} &
+        Coq &
+        \SessionPI &
+        splitting &
+        loc. nameless &
         \NO &
+        \NO &
+        % \YES &
+        % \NO &
+        204 &
+        \NO &
+        \NO &
+        \NO &
+        \textbf{204} &
+        \footnote{Including shared channels, excluding the original syntax.}
+        \\
+        \citet{CicconePadovani20} &
+        Agda &
+        \LinearPI & 
+        splitting &
+        co-de Bruijn &
+        \YES &
+        \YES &
+        % \YES &
+        % \NO &
+        77 &
+        \NO &
+        \NO &
+        \NO &
+        \textbf{77} &
+        \footnote{Including shared channels, recursive and dependent session types.}
+        \\
+        \citet{ZalakainDardha21} &
+        Agda &
+        \LinearPI &
         leftovers &
         de Bruijn &
-        \YES &
-        \YES &
         \NO &
+        \YES &
+        % \YES &
+        % \NO &
         82 &
         8 &
         \NO &
         \NO &
         \textbf{90} &
-        \footnote{Including library for algebra of types.}
+        \footnote{Including shared channels and the library for algebra of types.}
         \\
-        \fullcite{JacobsBalzerKrebbers22} &
+        \citet{JacobsBalzerKrebbers22} &
         Coq &
-        \SessionLAM &
-        \NO &
+        \GV &
         splitting &
         named &
+        \NO &
         \MAYBE &
-        \NO &
-        \NO &
+        % \NO &
+        % \NO &
         68 &
         \NO &
         25 &
@@ -172,30 +225,30 @@ squeezed spazi (in generale sono significativi)
         \textbf{264} &
         \footnote{Including deadlock freedom and the library for connectivity graphs.}
         \\
-        \fullcite{SanoKavanaghPientka23} &
+        \citet{SanoKavanaghPientka23} &
         Beluga &
         \SCP &
-        \NO &
         predicates &
         HOAS &
+        \NO &
         \MAYBE &
-        \NO &
-        \NO &
+        % \NO &
+        % \NO &
         35 &
         \NO &
         \NO &
         \NO &
         \textbf{35}
         \\
-        \fullcite{ZackonEtAl25} &
+        \citet{ZackonEtAl25} &
         Beluga &
         \CP &
-        \NO &
         tags &
         HOAS &
         \NO &
         \NO &
-        \NO &
+        % \NO &
+        % \NO &
         56 &
         73 &
         \NO &
@@ -206,20 +259,27 @@ squeezed spazi (in generale sono significativi)
         this work &
         Agda &
         \Calculus &
-        \YES &
         splitting &
         co-de Bruijn &
         \YES &
         \YES &
-        \YES &
+        % \YES &
+        % \YES &
         21 &
         \NO &
         15 &
         \NO &
         \textbf{36} &
-        \footnote{Including deadlock freedom and excluding safety results.}
+        \footnote{Including shared, polymorphic channels and deadlock freedom, excluding safety results.}
     \end{tabular}
     \end{minipage}
 \end{table}
+
+instead of counting line numbers, which may be affected by indentation habits,
+readability issues, and other syntactical restrictions of the proof assistant
+being used, we count characters after spaces have been
+squeezed.\footnote{Sequences of two or more consecutive space-like characters
+are collapsed into a single space. The squeezing is obtained by running the
+command \texttt{tr -s [:space:] file} on Unix-like systems.}
 
 paper di Marco a ECOOP (multiparty)
