@@ -15,12 +15,14 @@ SOURCES = \
   2022Jacobs \
   2022Jacobs-df \
   2022Jacobs-lib \
+  2022Jacobs-multi \
   2023Sano \
   2025Zackon \
   2025Zackon-lib \
   2025Padovani \
   2025Padovani-safety \
   2025Padovani-df \
+  2025Tirore \
   $(NULL)
 
 TARGETS = \

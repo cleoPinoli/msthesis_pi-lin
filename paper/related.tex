@@ -312,7 +312,7 @@ obtained by running the command \texttt{tr -s [:space:] file} on Unix-like
 systems.}
 %
 The reported sizes account for the source code of the formalization excluding
-examples and any ``safety'' result, if present. We have noticed that the
+examples and any safety result, if present. We have noticed that the
 interpretation of ``safety'' varies widely among the formalizations and, except
 for our own, they all differ from the one stated in the linearity
 challenge~\citep{CarboneEtAl24} when available.
@@ -322,17 +322,68 @@ contexts. In these cases, the size of the library is reported separately next to
 the size of the part of the development that uses it.
 
 In general, it is difficult to draw firm conclusions on the effectiveness of the
-various approaches because the formalizations differ substantially in terms of
-reference calculus, feature coverage, proof assistant,
-process/expression/channel representation, handling of linearity. Also, most of
-them predate the linearity challenge~\cite{CarboneEtAl24}, hence they are not
-necessarily targeted towards that particular problem. However, some of
+various approaches in addressing the linearity challenge because the
+formalizations differ substantially in terms of reference calculus, feature
+coverage, proof assistant, process/expression/channel representation, handling
+of linearity. Also, most of them predate the publication of the linearity
+challenge~\cite{CarboneEtAl24}, hence they are not necessarily targeted towards
+that particular problem. However, some of
 them~\cite{RouvoetPoulsenKrebbersVisser20,ZalakainDardha21,SanoKavanaghPientka23,ZackonEtAl25}
 are explicitly motivated by the complexity arising from the linear usage of
 resources/channels and from context splitting in particular.
 
-we can make some inference based on the available data.
+Based on the available data, we can make the following observations.
+%
+Context splitting, which is very well represented, does not seem to be a good
+indicator of the complexity of the formalization, since it spans the whole range
+of formalization sizes. In particular, our formalization is based on context
+splitting and covers full \CP~\cite{Wadler14}, yet it is by far the smallest
+one.
 
+The largest formalizations~\cite{GotoEtAl16,CastroFerreiraYoshida20} are also
+the ones that adopt a locally nameless representation of channels. In this
+formalizations channels are represented in two different ways, depending on
+whether they are free or bound. This necessarily entails some duplication of
+effort as well as some transformation machinery between the two representations
+that contribute to the complexity of the formalization.
+%
+Other channel representations are not strong complexity indicators. Note that
+the adoption of co-de Bruijn syntax implies the use of context splitting, hence
+the two aspects are not completely independent.
 
+There is no strong evidence that the intrinsically typed representation of
+processes reduces the size of the formalization. As observed in
+\Cref{sec:process-agda}, this choice may help reducing the overall number of
+datatypes to be defined, but the definitions are necessarily more involved. In
+the end, it seems plausible to speculate that the effort for representing
+processes, types and typing rules is not substantially different overall.
 
-paper di Marco a ECOOP (multiparty)
+Finally, it seems that the use of (explicit) continuations helps taming the
+complexity of the formalization more than anything else. Indeed, the six
+smallest formalizations (excluding the deadlock freedom results) -- with an
+average size of around 62kb -- are all based on continuations, whether they are
+explicit (\LinearPI, \SCP, \LCP) or ``virtual'' (\GV), while the remaining ones
+are 263kb on average. This observation is in agreement with the observations we
+made earlier in this paper concerning the difference between \emph{updating}
+bindings versus \emph{removing and adding} bindings in a typing context. The
+adoption of continuations enables a clean linear management of channels and
+avoids the need for strong updates on the typing context.
+
+% It is also interesting to note that
+% whereby \SCP, which the authors~\citet{SanoKavanaghPientka23} do not relate
+% directly to the linear $\pi$-calculus, relies on explicit continuations to tame
+% the complexity of resource management. Our comparison suggests that this aspect,
+% more than the structural treatment of contexts, 
+
+% \citet{SanoKavanaghPientka23} do not relate it directly to the linear
+% $\pi$-calculus.
+
+% più che il trattamento strutturale dei contesti (ed evitare lo splitting) è
+% l'uso delle continuazione a fare la differenza
+
+In this work we have focused on models and theories of \emph{binary sessions},
+but there are also formalizations of \emph{multiparty session types}, notably
+those of \citet{JacobsBalzerKrebbers22a} and \citet{TiroreBengstonCarbone25},
+which are notoriously more complex than those of binary session types. Just to
+give an example, the formalization of \citet{TiroreBengstonCarbone25} amounts to
+more than 1Mb of Coq code.
