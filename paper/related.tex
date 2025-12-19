@@ -1,9 +1,9 @@
 \section{Related Work}
 \label{sec:related}
 
-\Cref{tab:comparison} summarizes a comparison among the formalizations of binary
-session calculi and of the linear $\pi$-calculus, sorted by publication date. We
-have selected those formalizations that include the following characteristics:
+We have compared our formalization with others that have appeared in the
+literature and for which we were able to retrieve the source code. We have
+looked at those formalizations that include the following characteristics:
 \begin{itemize}
 \item syntax and reduction/evaluation semantics for a calculus with support for
     binary sessions, either natively or through their encoding in terms of
@@ -12,14 +12,6 @@ have selected those formalizations that include the following characteristics:
 \item a proof of global progress/deadlock freedom, for those type systems that
     enforce it.
 \end{itemize}
-
-The formalizations differ substantially in terms of reference calculus, used
-proof assistant, process/expression/channel representation, handling of
-linearity.
-%
-Most importantly, almost all of them predate the publication of the linearity
-challenge~\citep{CarboneEtAl24}, hence they are not necessarily targeted to
-solving that particular problem.
 
 \citet{GotoEtAl16} describe the formalization of a session-based variant of the
 $\pi$-calculus which supports channel polymorphism. This is the oldest
@@ -73,8 +65,8 @@ deadlock freedom for a calculus of sessions.
 Motivated by the technical difficulties arising from the splitting of typing
 contexts, \citet{SanoKavanaghPientka23} propose an alternative approach based on
 \emph{linearity predicates}. The key idea is to treat typing contexts
-structurally, and to enforce the linear usage of channels by means of separate
-predicates checking the syntactical occurrence of channels.
+structurally and to enforce the linear usage of channels by checking the
+syntactical occurrence of channels within processes.
 
 \citet{ZackonEtAl25} describe yet another approach to the handling of typing
 contexts whereby channels are associated not just with a type but also with a
@@ -83,20 +75,15 @@ their availability. This approach streamlines context splitting in the sense
 that contexts can be treated in an essentially structural way, except for tags
 which are conveninently combined using operations from the resource algebra.
 
-come sono stati misurati
-
-eliminati commenti
-eliminati esempi
-squeezed spazi (in generale sono significativi)
+\newcommand{\YES}{$+$}
+\newcommand{\NO}{$-$}
+\newcommand{\MAYBE}{$\pm$}
 
 \begin{table}[t]
     \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
-    \newcommand{\YES}{$+$}
-    \newcommand{\NO}{$-$}
-    \newcommand{\MAYBE}{$\pm$}
     \caption{\label{tab:comparison} A summary of different formalizations of binary session calculi. All sizes are in kb.}
     \begin{minipage}{.9\textwidth}
-    \begin{tabular}{@{}r@{~}|@{~}c@{~}|@{~}c@{~~}c@{~~}c@{~~}c@{~~}c@{~}|@{~}r@{~~}r@{~}|@{~}r@{~~}r@{~}|@{~}r@{~}l@{}}
+    \begin{tabular}{@{}r@{~}@{~}c@{~~}c@{~}|@{~}c@{~~}c@{~~}c@{~~}c@{~}|@{~}r@{~~}r@{~~}r@{~~}r@{~~}r@{~}l@{}}
         \textbf{Formalization} &
         \textlabel{Proof assistant} &
         \textlabel{Calculus} &
@@ -127,7 +114,7 @@ squeezed spazi (in generale sono significativi)
         \NO &
         \NO &
         \textbf{543} &
-        \footnote{Including shared and polymorphic channels, excluding safety results.}
+        \footnote{Includes shared and polymorphic channels. Excluded safety results.}
         \\
         \citet{Thiemann19} &
         Agda &
@@ -143,7 +130,7 @@ squeezed spazi (in generale sono significativi)
         \NO &
         \NO &
         \textbf{177} &
-        \footnote{Including shared channels, recursive types, subtyping and the interpreter.}
+        \footnote{Includes shared channels, recursive types, subtyping and the interpreter.}
         \\
         \citet{RouvoetPoulsenKrebbersVisser20} &
         Agda &
@@ -159,7 +146,7 @@ squeezed spazi (in generale sono significativi)
         \NO &
         \NO &
         \textbf{82} &
-        \footnote{Including type-preserving evaluator and library for proof-relevant separation algebra.}
+        \footnote{Includes type-preserving evaluator and library for proof-relevant separation algebra.}
         \\
         \citet{CastroFerreiraYoshida20} &
         Coq &
@@ -175,7 +162,7 @@ squeezed spazi (in generale sono significativi)
         \NO &
         \NO &
         \textbf{204} &
-        \footnote{Including shared channels, excluding the original syntax.}
+        \footnote{Includes shared channels. Excluded original syntax.}
         \\
         \citet{CicconePadovani20} &
         Agda &
@@ -191,7 +178,7 @@ squeezed spazi (in generale sono significativi)
         \NO &
         \NO &
         \textbf{77} &
-        \footnote{Including shared channels, recursive and dependent session types.}
+        \footnote{Includes shared channels, recursive and dependent session types.}
         \\
         \citet{ZalakainDardha21} &
         Agda &
@@ -207,7 +194,7 @@ squeezed spazi (in generale sono significativi)
         \NO &
         \NO &
         \textbf{90} &
-        \footnote{Including shared channels and the library for algebra of types.}
+        \footnote{Includes shared channels and the library for algebra of types.}
         \\
         \citet{JacobsBalzerKrebbers22} &
         Coq &
@@ -223,7 +210,7 @@ squeezed spazi (in generale sono significativi)
         25 &
         171 &
         \textbf{264} &
-        \footnote{Including deadlock freedom and the library for connectivity graphs.}
+        \footnote{Includes deadlock freedom and the library for connectivity graphs.}
         \\
         \citet{SanoKavanaghPientka23} &
         Beluga &
@@ -254,7 +241,7 @@ squeezed spazi (in generale sono significativi)
         \NO &
         \NO &
         \textbf{129} &
-        \footnote{Excluding the correspondence between \CP and \SCP.}
+        \footnote{Excluded correspondence between \CP and \SCP.}
         \\
         this work &
         Agda &
@@ -270,16 +257,82 @@ squeezed spazi (in generale sono significativi)
         15 &
         \NO &
         \textbf{36} &
-        \footnote{Including shared, polymorphic channels and deadlock freedom, excluding safety results.}
+        \footnote{Includes shared, polymorphic channels and deadlock freedom. Excluded safety results.}
     \end{tabular}
     \end{minipage}
 \end{table}
 
-instead of counting line numbers, which may be affected by indentation habits,
-readability issues, and other syntactical restrictions of the proof assistant
-being used, we count characters after spaces have been
-squeezed.\footnote{Sequences of two or more consecutive space-like characters
-are collapsed into a single space. The squeezing is obtained by running the
-command \texttt{tr -s [:space:] file} on Unix-like systems.}
+\Cref{tab:comparison} summarizes a comparison of our formalization with the
+aforementioned ones. The three leftmost colums list the reference papers (sorted
+by publication date), the proof assistant and the formalized calculus.
+%
+For simplicity, we have grouped the calculi into classes identified by an
+acronym. Some acronyms, like \CP~\cite{Wadler14} and
+\GV~\cite{GayVasconcelos10,Wadler14} are well known in the literature on session
+types. It should be noted that the actual calculus being formalized usually
+differs from (typically, is a strict subset of) the one identified by the
+acronym, but it retains some of its key features. We use \SessionPI to denote
+(variants of) the session-based $\pi$-calculus presented by
+\citet{HondaVasconcelosKubo98} and \LinearPI to denote (variants of) the linear
+$\pi$-calculus~\cite{KobayashiPierceTurner99}, into which binary sessions can be
+encoded using explicit continuation channels as described by
+\citet{Kobayashi02b} and \citet{DardhaGiachinoSangiorgi17}. Finally, we use \SCP
+for the structural version of \CP introduced by \citet{SanoKavanaghPientka23}
+and \Calculus for our calculus, a linear version of \CP with explicit
+continuations.
+
+The four middle columns of \Cref{tab:comparison} report the relevant qualitative
+aspects of the formalizations, namely the technique used to enforce the linear
+usage of channels, the technique used to encode channels, whether the
+formalization is intrinsically or extrinsically typed, and whether the calculus
+makes use of continuation channels. Concerning the use of continuations, the
+approaches based directly on the linear $\pi$-calculus (into which sessions can
+be encoded) are marked with {\YES} and those based on a calculus with native
+sessions are marked with {\NO}, as expected. The calculus \SCP is marked with
+{\MAYBE} because, while not being strictly based on the linear $\pi$-calculus,
+it makes use of explicit continuations for defining the linearity predicates
+that check the linear usage of channels. Finally, all the approaches based on
+\GV are also marked with \MAYBE. In principle, \emph{none} of these calculi
+makes use of continuations. However, \GV is designed in such a way that each
+session operation acting on a channel $s$ returns the result of the operation
+(if any) \emph{along with the same channel $s$}. In this way, the type of $s$
+can be ``updated'' to take into account the effect of the operation. As observed
+by \citet{Padovani17}, this way of modelling the communication primitives is
+virtually indistinguishable from one making use of explicit continuation
+channels.
+
+The rightmost columns of \Cref{tab:comparison} report the \emph{size} (in
+kilobytes) of the formalizations as rough (and possibly questionable) estimates
+of their complexity. Instead of counting line numbers, which may depend on code
+indentation styles and syntactical constraints of the proof assistant being
+used, we have counted the number of characters after comments have been removed
+and spaces have been squeezed.\footnote{Sequences of two or more consecutive
+space-like characters are collapsed into a single space. The squeezing is
+obtained by running the command \texttt{tr -s [:space:] file} on Unix-like
+systems.}
+%
+The reported sizes account for the source code of the formalization excluding
+examples and any ``safety'' result, if present. We have noticed that the
+interpretation of ``safety'' varies widely among the formalizations and, except
+for our own, they all differ from the one stated in the linearity
+challenge~\citep{CarboneEtAl24} when available.
+%
+Some formalization define \emph{libraries} which could be reused in different
+contexts. In these cases, the size of the library is reported separately next to
+the size of the part of the development that uses it.
+
+In general, it is difficult to draw firm conclusions on the effectiveness of the
+various approaches because the formalizations differ substantially in terms of
+reference calculus, feature coverage, proof assistant,
+process/expression/channel representation, handling of linearity. Also, most of
+them predate the linearity challenge~\cite{CarboneEtAl24}, hence they are not
+necessarily targeted towards that particular problem. However, some of
+them~\cite{RouvoetPoulsenKrebbersVisser20,ZalakainDardha21,SanoKavanaghPientka23,ZackonEtAl25}
+are explicitly motivated by the complexity arising from the linear usage of
+resources/channels and from context splitting in particular.
+
+we can make some inference based on the available data.
+
+
 
 paper di Marco a ECOOP (multiparty)
