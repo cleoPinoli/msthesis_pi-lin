@@ -12,55 +12,72 @@ channels in systems of communicating processes, the need for coinductive
 definitions and proof methods for describing and reasoning on possibly infinite
 behaviors.
 %
-The benchmark aims at investigating effective formalization techniques that take
+The benchmark aims at identifying effective formalization techniques that take
 these features into account so as to foster the adoption of machine-checked
 proofs in research work concerning concurrent and distributed programming
 languages.
 
-This paper reports on a solution to one of the challenges in the benchmark
-concerned with the formalization of a minimal \emph{session calculus}. Hereafter
-we will refer to this challenge as the \emph{linearity challenge}.
+One of the challenges in the benchmark, henceforth called \emph{linearity
+challenge}, concerns the formalization of a minimal \emph{session calculus}.
 %
 Sessions and session types~\citep{Honda93,HondaVasconcelosKubo98,HuttelEtAl16}
 are established formalisms for the static analysis of distributed programs based
 on peer-to-peer communication channels. Every session type system revolves
 around three key ideas: (1) session endpoints are \emph{linear resources} that
-cannot be discarded or duplicated without jeopardizing some safety and liveness
+cannot be discarded or duplicated without compromising some safety and liveness
 properties of a program; (2) the type of a session endpoint is \emph{updated}
 after each use to reflect the state of the interaction it describes; (3) peer
 session endpoints are meant to be used in complementary ways so as to guarantee
 the absence of communication errors and, to some extent, progress of the
 interaction.
+%
+The linearity challenge is motivated by the observation that the proper handling
+of linear resources in a formalization often requires a large number of complex
+auxiliary definitions and technical results that divert from the main problem
+under consideration. One of the alleged culprits of such unwanted complexity is
+\emph{context splitting}, namely the operation that partitions a typing context
+in such a way that the linear resources described therein end up in only one of
+the partitions. This observation has led to the development of various
+techniques for dealing with typing contexts without splitting them, including
+leftover typing~\cite{ZalakainDardha21}, the use of linearity
+predicates~\cite{SanoKavanaghPientka23} and contexts with
+tags~\cite{ZackonEtAl25}.
 
+This paper presents a solution to the linearity challenge.
+%
 The calculus that we formalize, which we call \Calculus, and the one in the
-description of the challenge differ for two main aspects:
-\begin{enumerate}
-\item The challenge considers a minimal calculus of sessions, which is basically
-    a first-order $\pi$-calculus without replication, whereas \Calculus is
-    closely related to
-    \CP~\citep{CairesPfenning10,Wadler14,CairesPfenningToninho16}, a
-    fully-featured calculus of higher-order sessions with both linear and shared
-    channels and whose type system is based on linear logic.
-    %
-    Targeting \Calculus allows us to consider a model of sessions that is
-    well-known in the literature, that is based on firm logical grounds, and
-    that includes a broader range of features including higher-order sessions
-    and shared channels.
-\item While the calculus in the challenge is equipped with native sessions,
-    \Calculus is a \emph{linear} calculus where each channel is meant to be used
-    for a \emph{single} communication. Structured conversations pertaining the
-    same session and involving the exchange of several messages can still be
-    modeled thanks to the use of \emph{explicit continuation channels}, as in
-    the encoding of (binary) sessions into the linear
-    $\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
-    %
-    Overall, \Calculus has the same expressive power of \CP but is a lower-level
-    calculus in which sessions can be encoded instead of being featured
-    natively.
-\end{enumerate}
+challenge description differ for two key aspects.
+%
+First of all, the challenge only considers a minimal calculus of first-order
+sessions, whereas \LCP is a fully-featured calculus that includes support for
+higher-order, polymorphic sessions and both linear and shared channels. Also, as
+suggested by its name, \LCP is closely related to \CP~\citep{Wadler14} and its
+type system is based on classical linear logic.
+%
+The second difference is that the calculus in the challenge is equipped with
+\emph{native} sessions, whereas \LCP is a \emph{linear} calculus where each
+channel is meant to be used for a \emph{single} communication. Structured
+sessions involving the exchange of several messages can be modeled thanks to the
+use of \emph{explicit continuation channels}. This encoding of (binary) sessions
+using linear channels is well known in the
+literature~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
+%
+Overall, \LCP has the same expressive power of \CP, but is a lower-level
+calculus in which sessions can be encoded instead of being featured natively.
 
-\Luca{Da qualche parte dire quali sono le sfide della sfida: representation of
-channel names, context splitting. Parlare di co de bruijn?}
+The formalization we present is the most complete (in terms of features
+supported by the calculus) and, at the same time, the simplest one (in terms of
+code size). It is also one of only two formalizations that prove the deadlock
+freedom property, and it does so with an order of magnitude less code than the
+existing formalization~\cite{JacobsBalzerKrebbers22}.
+
+the outcome of our investigation are somehow surprising in the sense that the
+premises of the challenge and the assumption that the main technical challenge
+is the representation of contexts
+
+congetturiamo che la semplicità della formalizzazione derivi dalle
+caratteristiche del calcolo più che dalle tecniche utilizzate, che alla fine
+sono piuttosto standard.
 
 We value these aspects of \Calculus because their combined effect allows us to
 obtain a remarkably simple formalization.
@@ -89,13 +106,6 @@ definition.
 
 BISOGNA PARLARE DI RELATED WORK
 
-\begin{itemize}
-\item lavoro di Simon su formalizzazione pi calcolo con type system (anche
-    lineari?) \cite{Gay01} Il codice non c'è più online, ma si parla di 650 +
-    6500 linee di codice e prove. controllare che risultati vengono dimostrati
-\item Sano, Kavanagh, Pientka 2023, "mechanization is an art"
-\end{itemize}
-
 The rest of the paper is structured as follows. \Cref{sec:calculus} describes
 the syntax and the operational semantics of \Calculus and states the properties
 of well-typed processes that we formalize and prove. \Cref{sec:agda} outlines
@@ -104,4 +114,5 @@ representation of channel names and typing contexts. \Cref{sec:conclusion}
 summarizes our contributions, discusses some extensions and future work. The
 formalization has been carried out using Agda and its full code is available
 from a public\Luca{Related work? Confronto con altre formalizzazioni?}
-repository.\footnote{\url{https://github.com/boystrange/LinearityChallenge/tree/main/exp}}
+repository.\footnote{\url{https://github.com/boystrange/LinearityChallenge/tree/main/cp}}
+
