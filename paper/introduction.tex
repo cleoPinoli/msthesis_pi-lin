@@ -38,56 +38,56 @@ under study~\cite{CarboneEtAl24}. One of the alleged culprits of such complexity
 is \emph{context splitting}, namely the operation that partitions a typing
 context in such a way that the linear resources described therein end up in only
 one of the partitions. This observation has led to the exploration of various
-alternatives techniques including leftover typing~\cite{ZalakainDardha21}, the
+alternative techniques including leftover typing~\cite{ZalakainDardha21}, the
 use of linearity predicates~\cite{SanoKavanaghPientka23} and tagged
 contexts~\cite{ZackonEtAl25}.
 
 In this paper we attack the linearity challenge from a different perspective:
-\emph{instead of describing new techniques that are effective for the
-formalization of the calculus in the challenge, we describe a new calculus that
-is easy to formalize with known techniques}.\Luca{dobbiamo dire perché lo
-spirito della challenge è rispettato, e dunque giustificare il titolo
-dell'articolo. Dire che il nostro non è un calcolo ad hoc, ma ha fondamenti
-logici importanti, è completo, ed è strettamente in relazione con altri modelli
-analoghi (CP e linear pi)}
+\emph{instead of proposing techniques that make it easy to formalize the
+calculus in the challenge, we propose a (relatively new) calculus that is easy
+to formalize with the known techniques}.\Luca{dobbiamo dire perché lo spirito
+della challenge è rispettato, e dunque giustificare il titolo dell'articolo.
+Dire che il nostro non è un calcolo ad hoc, ma ha fondamenti logici importanti,
+è completo, ed è strettamente in relazione con altri modelli analoghi (CP e
+linear pi)}
 %
-More specifically, we present a calculus called \LCP whose type system coincides
-with the proof system of \emph{classical linear logic} and that features
-\emph{linear channels} instead of sessions. Linear channels are meant to be used
-for a \emph{single} communication. Structured sessions involving the exchange of
-several messages can be modeled in \LCP using \emph{explicit continuations}
-according to the well-known encoding of (binary) sessions into the linear
+More specifically, we describe a calculus called \LCP whose type system
+coincides with the proof system of \emph{classical linear logic} and that
+features \emph{linear channels} instead of sessions. Linear channels are meant
+to be used for a \emph{single} communication. Structured sessions involving the
+exchange of several messages can be modeled in \LCP using \emph{explicit
+continuations} according to the well-known encoding of (binary) sessions into
+the linear
 $\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
 %
-Overall, \LCP is a low-level calculus with a strong connection with linear logic
-and in which sessions are encodable instead of being featured natively.
+Overall, \LCP is a linear version of \CP~\cite{Wadler14} in which sessions are
+encodable instead of being featured natively.
 %
 These features play an important role in taming the complexity of its
 formalization.
 %
-The fact of working with a calculus based on linear logic prevents \emph{by
-construction} the same (sequential) process to own both endpoints of a session.
-This situation is clearly undesirable since it does not correspond to a useful
-pattern of interaction (every meaningful session requires its endpoints to be
-used by parallel processes) and is a potential source of deadlocks.
+Using a calculus based on linear logic prevents \emph{by construction} the same
+(sequential) process to own both endpoints of a session. This situation is
+clearly undesirable since it does not correspond to a useful pattern of
+interaction (every meaningful session requires its endpoints to be used by
+parallel processes) and is a potential source of deadlocks.
 %
 From the standpoint of the formalization, where the representation of channel
 names is a primary design choice, it spares us the need to \emph{distinguish}
-the two endpoints of a session, \eg by means of polarities~\citep{GayHole05} or
-by using different names connected by the same
-binder~\citep{Vasconcelos12,GayVasconcelos25}.
+the two endpoints of a session, \eg by means of
+polarities~\citep{GayHole05,ZalakainDardha21} or by using different names
+connected by the same binder~\citep{Vasconcelos12,GayVasconcelos25}.
 %
-Also, the fact of working with a calculus with \emph{linear} channels and
-explicit continuations spares us the need to \emph{update} the type of channels
-in typing contexts. When a channel is used it is effectively consumed, therefore
-its type can be \emph{removed} from the typing context and the type of the
-continuation channel is \emph{added} back to the typing context. As is turns
-out, removing and adding types is easier than updating them. Even more so
-considering that the type of continuation channels can be conveniently added
-\emph{at the beginning} of a typing context, since such channels are fresh by
-definition.
+Using a calculus with \emph{linear} channels and explicit continuations spares
+us the need to \emph{update} the type of channels in typing contexts. When a
+channel is used it is effectively consumed, therefore its type can be
+\emph{removed} from the typing context and the type of the continuation channel
+is \emph{added} back to the typing context. As is turns out, removing and adding
+types is easier than updating them. Even more so considering that the type of
+continuation channels can be conveniently added \emph{at the beginning} of a
+typing context, since such channels are fresh by definition.
 
-In the end, the formalization of \LCP is both the most complete (in terms of
+The formalization of \LCP that we obtain is both the most complete (in terms of
 features supported by the calculus) and the most streamlined (in terms of code
 size) among the known formalizations of session/linear
 calculi~\cite{GotoEtAl16,Thiemann19,CastroFerreiraYoshida20,CicconePadovani20,RouvoetPoulsenKrebbersVisser20,SanoKavanaghPientka23,JacobsBalzerKrebbers22,ZackonEtAl25,ZalakainDardha21}.
