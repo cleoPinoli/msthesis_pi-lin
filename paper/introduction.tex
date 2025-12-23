@@ -18,7 +18,7 @@ proofs in research work concerning concurrent and distributed programming
 languages.
 
 One of the challenges in the benchmark, henceforth called \emph{linearity
-challenge}, concerns the formalization of a \emph{session calculus}.
+challenge}, concerns the formalization of a \emph{minimal calculus of sessions}.
 %
 Sessions and session types~\citep{Honda93,HondaVasconcelosKubo98,HuttelEtAl16}
 are established formalisms for the static analysis of distributed programs based
@@ -32,43 +32,38 @@ the absence of communication errors and, to some extent, progress of the
 interaction.
 %
 The linearity challenge is motivated by the observation that the proper handling
-of linear resources in a formalization often requires a large number of complex
+of linear resources in a formalization often requires a large number of
 auxiliary definitions and technical results that divert from the main problem
-under consideration. One of the alleged culprits of such unwanted complexity is
-\emph{context splitting}, namely the operation that partitions a typing context
-in such a way that the linear resources described therein end up in only one of
-the partitions. This observation has led to the development of various
-alternatives to context splitting including leftover
-typing~\cite{ZalakainDardha21}, the use of linearity
-predicates~\cite{SanoKavanaghPientka23} and tagged contexts~\cite{ZackonEtAl25}.
+under study~\cite{CarboneEtAl24}. One of the alleged culprits of such complexity
+is \emph{context splitting}, namely the operation that partitions a typing
+context in such a way that the linear resources described therein end up in only
+one of the partitions. This observation has led to the exploration of various
+alternatives techniques including leftover typing~\cite{ZalakainDardha21}, the
+use of linearity predicates~\cite{SanoKavanaghPientka23} and tagged
+contexts~\cite{ZackonEtAl25}.
 
-This paper proposes a logical and linear solution of the linearity challenge. By
-``logical and linear solution'' we mean that the calculus that we formalize,
-dubbed \Calculus, and the one in the challenge description differ for two key
-aspects.
+In this paper we attack the linearity challenge from a different perspective:
+\emph{instead of describing new techniques that are effective for the
+formalization of the calculus in the challenge, we describe a new calculus that
+is easy to formalize with known techniques}.\Luca{dobbiamo dire perché lo
+spirito della challenge è rispettato, e dunque giustificare il titolo
+dell'articolo. Dire che il nostro non è un calcolo ad hoc, ma ha fondamenti
+logici importanti, è completo, ed è strettamente in relazione con altri modelli
+analoghi (CP e linear pi)}
 %
-First of all, the challenge considers an \emph{ad hoc}, minimal calculus of
-first-order sessions, whereas \LCP is a fully-featured calculus that supports
-higher-order, polymorphic, linear and shared channels. Also, \LCP is closely
-related to \CP~\citep{Wadler14} and its type system coincides with the proof
-system of classical linear logic.
+More specifically, we present a calculus called \LCP whose type system coincides
+with the proof system of \emph{classical linear logic} and that features
+\emph{linear channels} instead of sessions. Linear channels are meant to be used
+for a \emph{single} communication. Structured sessions involving the exchange of
+several messages can be modeled in \LCP using \emph{explicit continuations}
+according to the well-known encoding of (binary) sessions into the linear
+$\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
 %
-The second difference is that the calculus in the challenge is equipped with
-\emph{native} sessions, whereas \LCP features linear channels that are meant to
-be used for a \emph{single} communication. Structured sessions involving the
-exchange of several messages can be modeled using \emph{explicit continuations}
-according to the well-known encoding of (binary) sessions into linear
-channels~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
+Overall, \LCP is a low-level calculus with a strong connection with linear logic
+and in which sessions are encodable instead of being featured natively.
 %
-Overall, \LCP is a lower-level calculus in which sessions are encodable instead
-of being featured natively, but it has the same expressive power of \CP.
-
-We value these differences between \LCP and the calculus in the challenge
-description because we think that they contribute to the simplicity of the
-formalization more than the adopted formalization techniques, which end up being
-fairly standard.\Luca{Our work fits the spirit of the challenge identifying not
-only the most appropriate techniques but also the most appropriate models that
-aid the formalization of concurrent/distributed models of computation.}
+These features play an important role in taming the complexity of its
+formalization.
 %
 The fact of working with a calculus based on linear logic prevents \emph{by
 construction} the same (sequential) process to own both endpoints of a session.
@@ -92,15 +87,15 @@ considering that the type of continuation channels can be conveniently added
 \emph{at the beginning} of a typing context, since such channels are fresh by
 definition.
 
-% Compared to the other analogous formalizations of session/linear
-% calculi~\cite{GotoEtAl16,Thiemann19,CicconePadovani20,CastroFerreiraYoshida20,RouvoetPoulsenKrebbersVisser20,ZalakainDardha21,JacobsBalzerKrebbers22,SanoKavanaghPientka23,ZackonEtAl25},
-% the one we present here is both the most complete (in terms of features
-% supported by the calculus) and the most streamlined (in terms of code size). It
-% is also one of only two formalizations that prove the deadlock freedom property
-% for a session calculus, and it does so with substantially less code than the
-% existing formalization~\cite{JacobsBalzerKrebbers22}.
+In the end, the formalization of \LCP is both the most complete (in terms of
+features supported by the calculus) and the most streamlined (in terms of code
+size) among the known formalizations of session/linear
+calculi~\cite{GotoEtAl16,Thiemann19,CastroFerreiraYoshida20,CicconePadovani20,RouvoetPoulsenKrebbersVisser20,SanoKavanaghPientka23,JacobsBalzerKrebbers22,ZackonEtAl25,ZalakainDardha21}.
+It is also one of only two formalizations that prove the deadlock freedom
+property for a session calculus, and it does so with substantially less code
+than the existing formalization~\cite{JacobsBalzerKrebbers22}.
 
-\subparagraph*{Structure of the paper.}
+The rest of the paper is organized as follows.
 %
 \Cref{sec:calculus} describes the syntax and the operational semantics of \LCP
 and states the properties of well-typed processes that we formalize and prove,
