@@ -1,19 +1,23 @@
 \section{Linear \CP}
 \label{sec:calculus}
 
-The calculus of pure sessions that we formalize is dubbed \Calculus and is a
-linear version of \CP~\citep{Wadler14,GayVasconcelos25} such that every session
-endpoint is meant to be used \emph{exactly once}. This differs from \CP and
-other session calculi where session endpoints can be used repeatedly, albeit
-sequentially. The key idea is that each message sent on a session endpoint is
-paired with a \emph{fresh continuation channel} on which the rest of the
-conversation takes place.
+As we have anticipated in \Cref{sec:introduction}, \LCP is a linear version of
+\CP~\citep{Wadler14,GayVasconcelos25} such that every linear channel is meant to
+be used for \emph{exactly one} communication. This differs from \CP and other
+session calculi where session endpoints can be used repeatedly, albeit
+sequentially. A session consisting of several messages exchanged in sequence can
+be encoded using linear channels by pairing each message with a \emph{fresh
+continuation channel} on which the rest of the session takes place.
 %
 This way of encoding sessions using explicit continuations has been first
 described by \citet[extended version]{Kobayashi02b} and later studied by
 \citet{DardhaGiachinoSangiorgi17}.
 
-STRUCTURE OF SECTION
+In this section we present \LCP, starting from its types (\Cref{sec:types}),
+which coincide with classical linear logic propositions, its syntax
+(\Cref{sec:syntax}), the reduction semantics (\Cref{sec:semantics}), the typing
+rules (\Cref{sec:typing-rules}) and the formulation of the properties ensured by
+the type system (\Cref{sec:properties}).
 
 \subsection{Types}
 \label{sec:types}
