@@ -50,9 +50,9 @@ According to our nameless representation of channels, it is the \emph{order} of
 channels in a typing context $\Context$ that determines the binding location in
 the structure of a process. When the binding structure of a process changes, \eg
 because a structural pre-congruence rule is applied, or when a channel
-substitution occurs, \cf the right-hand side of the \LinkRule reduction, the
-typing context must be suitably rearranged. Such rearrangement is in fact a
-\emph{permutation} of the elements of $\Context$.
+substitution occurs, \cf the right-hand side of the \LinkRule reduction in
+\Cref{tab:semantics}, the typing context must be suitably rearranged. Such
+rearrangement is in fact a \emph{permutation} of the elements of $\Context$.
 
 We define typing context permutations inductively, as a binary relation
 \AgdaDatatype{\_↭\_}:
@@ -152,8 +152,9 @@ the tail of the typing context, which can always be performed, if needed, using
 \AgdaInductiveConstructor{prep} and \AgdaInductiveConstructor{trans}. Also, and
 more importantly, the data type is \emph{monomorphic} (it does not need to
 relate lists of arbitrary type) and the quantified arguments $A$ and $B$ of
-\AgdaInductiveConstructor{swap} and \AgdaInductiveConstructor{prep} are
-implicit, which streamlines their usage in the rest of the code.
+\AgdaInductiveConstructor{swap} and \AgdaInductiveConstructor{prep} can be made
+implicit, which streamlines the usage of these constructors in the rest of the
+code.
 
 \begin{code}[hide]%
 \>[0]\AgdaFunction{↭sym}\AgdaSpace{}%
