@@ -7,12 +7,10 @@ As we have anticipated in \Cref{sec:introduction}, \LCP is very closely related
 to \CP~\citep{Wadler14,GayVasconcelos25} except that \LCP features linear
 channels instead of sessions. A session consisting of several messages exchanged
 in sequence can be encoded in \LCP using linear channels by pairing each message
-with a \emph{fresh continuation channel} on which the rest of the session takes
-place.
+with a fresh continuation channel on which the rest of the session takes place.
 %
-This way of encoding sessions using explicit continuations has been first
-described by \citet[extended version]{Kobayashi02b} and later studied by
-\citet{DardhaGiachinoSangiorgi17}.
+This way of encoding sessions has been first described by \citet[extended
+version]{Kobayashi02b} and later studied by \citet{DardhaGiachinoSangiorgi17}.
 
 We present \LCP starting from its types (\Cref{sec:types}), which coincide with
 classical linear logic propositions, then moving on to the syntax of processes
@@ -92,8 +90,8 @@ over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
 A link $\Link\x\y$ denotes the merging of the channels $x$ and $y$, so that
 every message sent on one of the channels is forwarded to the other. As
 discussed in the literature~\cite{LindleyMorris15}, this form is also useful for
-modeling \emph{delegation}, that is the exchange of an existing session endpoint
-in another session.
+modeling delegation, that is the exchange of an existing session endpoint in
+another session.
 %
 The $\Wait\x.P$ and $\Close\x$ processes respectively model the input and output
 of a termination signal on the channel $x$. The latter process has no
@@ -108,7 +106,7 @@ describe the input/output of a label $\InTag_i$ along with a fresh continuation
 $z$ on the channel $x$. The receiver continues as $Q_i$ depending on the
 received label $\InTag_i$. In practice it is useful to consider arbitrary
 (domain-specific) sets of tags instead of the canonical $\InTag_1$ and
-$\InTag_2$. This generalization has no substantial impact on the formalization,
+$\InTag_2$. This generalisation has no substantial impact on the formalisation,
 so we stick to binary choices in line with the usual presentations of linear
 logic.
 %
@@ -196,7 +194,8 @@ processes up to renaming of bound channels.
 \label{sec:semantics}
 
 \begin{table}[t]
-    \caption{Operational semantics of \Calculus.}
+    \caption{Operational semantics of \Calculus. Some side conditions for the
+    \rulename{s-*} rules are omitted (see text).}
     \label{tab:semantics}
     \begin{tabular}{@{}c@{}}
         \begin{math}
@@ -320,7 +319,7 @@ binder for $x$ must not have free occurrences of $x$. This holds also for the
 type variable $X$ in the rule \SForall.
 %
 We content ourselves with such informal description of these side conditions
-given that we are going to formalize \Calculus later on.
+given that we are going to formalise \Calculus later on.
 %
 Note also that there are two versions of \SForkL and \SForkR depending on which
 of the two continuations $P$ and $Q$ contains free occurrences of the restricted
@@ -330,7 +329,7 @@ There is no pre-congruence rule asserting that parallel composition is
 associative. While this is a sound and expected property of parallel
 composition, it turns out to be inessential for proving the properties of
 \Calculus that we consider. We leave it out in light of the forthcoming
-formalization of the calculus, in which every simplification is welcome,
+formalisation of the calculus, in which every simplification is welcome,
 although standard presentations of classical linear logic admit such
 law~\cite{Wadler14,Doumane17}.
 %
@@ -656,7 +655,7 @@ their interpretation.
 \subsection{Properties of Well-Typed Processes}
 \label{sec:properties}
 
-The \emph{linearity challenge}~\citep{CarboneEtAl24} aims at formalizing two
+The \emph{linearity challenge}~\citep{CarboneEtAl24} aims at formalising two
 essential properties of well-typed processes: (1) typing is preserved by
 reductions; (2) peer endpoints are always used in complementary ways. This
 latter property is called \emph{well formedness} in the challenge. In this work
