@@ -40,14 +40,13 @@ proof of the splitting $\Splitting\ContextC{\Context_2}{\Context_1}$ from $p$.
 %
 Notice that this constructor also makes key use of the implicit rewriting rule
 \AgdaFunction{dual-inv} described in \Cref{sec:type-agda}. Indeed $P$ and $Q$
-have type $\AgdaDatatype{Process}~(A~\AgdaInductiveConstructor{∷}~\Context_1)$
-and
-$\AgdaDatatype{Process}~(\AgdaFunction{dual}~A~\AgdaInductiveConstructor{∷}~\Context_2)$,
+have type $\AgdaDatatype{Proc}~(A~\AgdaInductiveConstructor{∷}~\Context_1)$ and
+$\AgdaDatatype{Proc}~(\AgdaFunction{dual}~A~\AgdaInductiveConstructor{∷}~\Context_2)$,
 respectively, but the \AgdaInductiveConstructor{cut} on the r.h.s. of
 \AgdaInductiveConstructor{⊒} expects $P$ to have type
 $\AgdaFunction{dual}~(\AgdaFunction{dual}~A)$. Thanks to
 \AgdaFunction{dual-inv}, Agda considers these types equivalent without requiring
-intricate substitutions in the index of a data type.
+intricate substitutions in the index of \AgdaDatatype{Proc}.
 
 \begin{code}[hide]
   s-link :
@@ -71,7 +70,7 @@ The constructor \AgdaInductiveConstructor{s-wait} models the \SWait rule:
 
 There are two non-trivial aspects worth commenting. The first one concerns the
 proof $(\AgdaInductiveConstructor{>}~q)$ used in the
-\AgdaInductiveConstructor{wait} process before structural precongruence is
+\AgdaInductiveConstructor{wait} process before structural pre-congruence is
 applied. To understand the meaning of this proof, we must recall three key
 elements:
 \begin{enumerate}
@@ -88,11 +87,11 @@ elements:
     by the cut (say $x$, of type $A$) is different from the channel (say $y$, of
     type $\Bot$) consumed by the \AgdaInductiveConstructor{wait} process.
     %
-    We enforce the side condition $x \ne y$ of \SWait imposing that the type $A$
-    in front of $A~\AgdaInductiveConstructor{∷}~\Context_1$ necessarily comes
-    from the right component of the splitting $[\Bot] +
-    A~\AgdaInductiveConstructor{∷}~\Delta$ through the use of
-    \AgdaInductiveConstructor{>}.
+    We enforce the side condition $x \ne y$ of \SWait (which we left implicit in
+    \Cref{tab:semantics}) imposing that the type $A$ in front of
+    $A~\AgdaInductiveConstructor{∷}~\Context_1$ necessarily comes from the right
+    component of the splitting $[\Bot] + A~\AgdaInductiveConstructor{∷}~\Delta$
+    through the use of \AgdaInductiveConstructor{>}.
 \end{enumerate}
 
 The other aspect that is worth commenting concerns the rearrangement of the
@@ -101,15 +100,14 @@ Overall, $p$ and $q$ prove the splittings $([\Bot] + \ContextD) + \ContextC_2$,
 but the precongruence rule requires this splitting to be rearranged as $[\Bot] +
 (\ContextD + \ContextC_2)$. That is, we need to apply the left-to-right
 associativity property of context splitting which we called
-\AgdaFunction{+-assoc-l} in \Cref{sec:context-agda}.\Luca{Controllare
-left/right.} The nested \AgdaKeyword{let}-\AgdaKeyword{in} allows us to pattern
-match the result of the application $\AgdaFunction{+-assoc-l}~p~q$ and to
-extract the new proofs $p'$ and $q'$ for the rearranged splittings.
+\AgdaFunction{+-assoc-l} in \Cref{sec:context-agda}. The nested
+\AgdaKeyword{let}-\AgdaKeyword{in} allows us to pattern match on the result of
+the application $\AgdaFunction{+-assoc-l}~p~q$ and to extract the new proofs
+$p'$ and $q'$ for the rearranged splittings.
 
 The constructors \AgdaInductiveConstructor{s-select-l} and
 \AgdaInductiveConstructor{s-select-r} model \SSelect when the selected tag is
-respectively $\InTag_1$ and $\InTag_2$.\Luca{Controllare nomi dei tag con
-sintassi del calcolo. Chiamarli inj come in Agda così c'è consistenza?}
+respectively $\InTag_1$ and $\InTag_2$.
 %
 For example, for \AgdaInductiveConstructor{s-select-l} we have:
 
@@ -138,24 +136,24 @@ For example, for \AgdaInductiveConstructor{s-select-l} we have:
 
 Here the process
 $(\AgdaInductiveConstructor{select}~(\AgdaInductiveConstructor{ch ⟨
->}~q~\AgdaInductiveConstructor{⟩})~\AgdaInductiveConstructor{inj₁}~P)$, which is
-found under a cut for $x : A$, is using some channel $y : B \Plus C$ to send the
-tag $\InTag_1$.
+>}~q~\AgdaInductiveConstructor{⟩})~\AgdaInductiveConstructor{inj₁}~P)$, that is
+$\Select\y\LeftTag\z.P$, is found under a cut for $x : A$ and is using some
+channel $y : B \Plus C$ to send the tag $\InTag_1$.
 %
 Unlike \AgdaInductiveConstructor{wait}, which consumes the channel it operates
 on, the continuation process $P$ uses a fresh continuation channel $z : B$.
 Therefore, $P$ is required to be well typed in the context
 $B~\AgdaInductiveConstructor{∷}~A~\AgdaInductiveConstructor{∷}~\ContextD$, where
-the type of the continuation sits on top of the type of the restricted channel.
+the type of the continuation $z$ comes before the type of the restricted channel
+$x$.
 %
 After structural precongruence is applied, however, the type $B$ of the
-continuation channel $z$ ends up underneath that of the restricted channel $x$,
+continuation channel $z$ ends up behind that of the restricted channel $x$,
 because now the two channels are introduced in the opposite order. Therefore, we
 need to rename the channels in $P$ so that it is well typed in the context
 $A~\AgdaInductiveConstructor{∷}~B~\AgdaInductiveConstructor{∷}~\ContextD$. Such
 renaming is achieved applying the function \AgdaFunction{↭proc} to the
-\AgdaInductiveConstructor{swap} permutation, which swaps the two topmost types
-in a typing context, and finally to the process $P$.
+\AgdaInductiveConstructor{swap} permutation and to the process $P$.
 
 \begin{code}[hide]
   s-join :
