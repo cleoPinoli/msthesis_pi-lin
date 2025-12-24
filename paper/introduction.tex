@@ -12,17 +12,17 @@ channels in systems of communicating processes, the need for coinductive
 definitions and proof methods for describing and reasoning on possibly infinite
 behaviors.
 %
-The benchmark aims at identifying effective formalization techniques that take
+The benchmark aims at identifying effective formalisation techniques that take
 these features into account so as to foster the adoption of machine-checked
 proofs in research work concerning concurrent and distributed programming
 languages.
 
 One of the challenges in the benchmark, henceforth called \emph{linearity
-challenge}, concerns the formalization of a \emph{minimal calculus of sessions}.
+challenge}, concerns the formalisation of a \emph{minimal calculus of sessions}.
 %
 Sessions and session types~\citep{Honda93,HondaVasconcelosKubo98,HuttelEtAl16}
-are established formalisms for the static analysis of distributed programs based
-on peer-to-peer communication channels. Every session type system revolves
+are established abstractions for the static analysis of distributed programs
+based on peer-to-peer communication channels. Every session type system revolves
 around three key ideas: (1) session endpoints are \emph{linear resources} that
 cannot be discarded or duplicated without compromising some safety and liveness
 properties of a program; (2) the type of a session endpoint is \emph{updated}
@@ -32,7 +32,7 @@ the absence of communication errors and, to some extent, progress of the
 interaction.
 %
 The linearity challenge is motivated by the observation that the proper handling
-of linear resources in a formalization often requires a large number of
+of linear resources in a formalisation often requires a large number of
 auxiliary definitions and technical results that divert from the main problem
 under study~\cite{CarboneEtAl24}. One of the alleged culprits of such complexity
 is \emph{context splitting}, namely the operation that partitions a typing
@@ -43,24 +43,24 @@ use of linearity predicates~\cite{SanoKavanaghPientka23} and tagged
 contexts~\cite{ZackonEtAl25}.
 
 In this paper we attack the linearity challenge from a different angle:
-\emph{instead of proposing new techniques that make it easy to formalize the
+\emph{instead of proposing new techniques that make it easy to formalise the
 calculus in the challenge, we propose a (relatively) new calculus that is easy
-to formalize with the existing techniques}.
+to formalise with the existing techniques}.
 %
 More specifically, we describe a calculus called \LCP whose type system
-coincides with the proof system of \emph{classical linear logic} and that
-features \emph{linear channels} instead of sessions. Linear channels are meant
-to be used for a \emph{single} communication. Structured sessions involving the
-exchange of several messages can be modeled in \LCP using \emph{explicit
-continuations} according to the well-known encoding of (binary) sessions into
-the linear
+coincides with the proof system of classical linear logic and that features
+\emph{linear channels} instead of sessions. Linear channels are meant to be used
+for a \emph{single} communication. Structured communications involving the
+exchange of several messages within the same session can be modeled in \LCP
+using \emph{explicit continuations} according to the well-known encoding of
+(binary) sessions into the linear
 $\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
 %
 Overall, \LCP is a linear version of \CP~\cite{Wadler14} in which sessions are
 encodable instead of being featured natively.
-%
-These features play an important role in taming the complexity of its
-formalization.
+
+The logical foundations of \LCP and its use of explicit continuations play an
+important role in taming the complexity of its formalisation.
 %
 Using a calculus based on linear logic prevents \emph{by construction} the same
 (sequential) process to own both endpoints of a session. This situation is
@@ -68,36 +68,36 @@ clearly undesirable since it does not correspond to a useful pattern of
 interaction (every meaningful session requires its endpoints to be used by
 parallel processes) and is a potential source of deadlocks.
 %
-From the standpoint of the formalization, where the representation of channel
-names is a primary design choice, it spares us the need to \emph{distinguish}
-the two endpoints of a session, \eg by means of
+From the standpoint of the formalisation, where the representation of channel
+names is a primary design choice, it spares us the need to distinguish the two
+endpoints of a session, \eg by means of
 polarities~\citep{GayHole05,ZalakainDardha21} or by using different names
 connected by the same binder~\citep{Vasconcelos12,GayVasconcelos25}.
 %
-Using a calculus with \emph{linear} channels and explicit continuations spares
-us the need to \emph{update} the type of channels in typing contexts. When a
-channel is used it is effectively consumed, therefore its type can be
+Using a calculus with linear channels and explicit continuations spares us the
+need to \emph{update} the type of channels in typing contexts. Once a channel
+has been used it is effectively consumed, therefore its type can be
 \emph{removed} from the typing context and the type of the continuation channel
 is \emph{added} back to the typing context. As is turns out, removing and adding
 types is easier than updating them. Even more so considering that the type of
 continuation channels can be conveniently added \emph{at the beginning} of a
 typing context, since such channels are fresh by definition.
 
-The formalization of \LCP that we obtain is both the most complete (in terms of
+The formalisation of \LCP that we obtain is both the most complete (in terms of
 features supported by the calculus) and the most streamlined (in terms of code
-size) among the known formalizations of session/linear
+size) among the known formalisations of session/linear
 calculi~\cite{GotoEtAl16,Thiemann19,CastroFerreiraYoshida20,CicconePadovani20,RouvoetPoulsenKrebbersVisser20,SanoKavanaghPientka23,JacobsBalzerKrebbers22,ZackonEtAl25,ZalakainDardha21}.
-It is also one of only two formalizations that prove the deadlock freedom
+It is also one of only two formalisations that prove the deadlock freedom
 property for a session calculus~\cite{JacobsBalzerKrebbers22} and it does so
 with substantially less code.
 
-The rest of the paper is organized as follows.
+The rest of the paper is organised as follows.
 %
 \Cref{sec:calculus} describes the syntax and the operational semantics of \LCP
-and states the properties of well-typed processes that we formalize and prove,
+and states the properties of well-typed processes that we formalise and prove,
 namely typing preservation, deadlock freedom and runtime safety.
 %
-\Cref{sec:agda} presents a roadmap of the Agda formalization and discusses its
+\Cref{sec:agda} presents a roadmap of the Agda formalisation and discusses its
 key aspects with particular emphasis on the representation of channel names and
 of typing contexts. We assume that the reader is somewhat knowledgeable about
 Agda, but we also recall a few key definitions from Agda's standard library.
@@ -106,13 +106,13 @@ Agda, but we also recall a few key definitions from Agda's standard library.
 % represented in Agda and shows how to use Agda as an interpreter for \LCP.
 %
 \Cref{sec:related} discusses related work more in detail by providing a
-qualitative and quantitative comparison between the known formalizations of
+qualitative and quantitative comparison between the known formalisations of
 session/linear calculi, including the one for \LCP.
 %
-\Cref{sec:conclusion} summarizes our contributions and discusses some ongoing
+\Cref{sec:conclusion} summarises our contributions and discusses some ongoing
 and future work.
 
-The formalization has been carried out using Agda and the source code is
+The formalisation has been carried out using Agda and the source code is
 available on GitHub at
 \url{https://github.com/boystrange/LinearityChallenge/tree/main/lcp}.
 
