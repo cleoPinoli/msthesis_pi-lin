@@ -79,14 +79,13 @@ data Proc : Context → Set where
   cut       : ∀{A} → ∀[ ((A ∷_) ⊢ Proc) ∗ ((dual A ∷_) ⊢ Proc) ⇒ Proc ]
 \end{code}
 
-All the constructors representing input/output actions, namely those from
-\AgdaInductiveConstructor{fail} through \AgdaInductiveConstructor{contract},
-basically follow the same pattern: they possibly quantify over some types $A$
-and $B$ and then (implicitly) over a typing context $\Context$ through the
-function \AgdaFunction{∀[\_]} applied to a predicate of the form
-$P~\AgdaFunction{⇒}~\AgdaDatatype{Proc}$. The predicate states how to build a
-process that is well typed in $\Context$, provided that $\Context$ satisfies
-$P$. In general, $P$ is a (separating) conjunction of sub-predicates
+All the constructors except \AgdaInductiveConstructor{link} and
+\AgdaInductiveConstructor{cut} basically follow the same pattern: they possibly
+quantify over some types $A$ and $B$ and then (implicitly) over a typing context
+$\Context$ through the function \AgdaFunction{∀[\_]} applied to a predicate of
+the form $P~\AgdaFunction{⇒}~\AgdaDatatype{Proc}$. The predicate states how to
+build a process that is well typed in $\Context$, provided that $\Context$
+satisfies $P$. In general, $P$ is a (separating) conjunction of sub-predicates
 corresponding to the channel on which the process is acting and to the premises
 of its typing rule.
 
@@ -94,8 +93,10 @@ For example, the constructor \AgdaInductiveConstructor{fail}, which corresponds
 to a process of the form $\Fail\x$, requires the context $\Context$ to satisfy
 the predicate
 $\AgdaDatatype{Ch}~\AgdaInductiveConstructor{⊤}~\AgdaDatatype{∗}~\AgdaFunction{U}$,
-meaning that $\Context$ must contain an entry \AgdaInductiveConstructor{⊤}. That
-form of $\Context$ matches the one in the conclusion of \FailRule.
+meaning that $\Context$ must contain an entry \AgdaInductiveConstructor{⊤}
+(\AgdaFunction{U} is the universal predicate that holds for every context, \cf
+\Cref{tab:predicates}). That form of $\Context$ matches the one in the
+conclusion of \FailRule.
 
 The constructor \AgdaInductiveConstructor{wait} corresponds to a process of the
 form $\Wait\x.P$ and requires $\Context$ to (separately) satisfy
@@ -115,9 +116,10 @@ continuation channel $y$. In this case $\Context$ must satisfy the predicate
 \[
   \AgdaDatatype{Ch}~(A~\AgdaInductiveConstructor{\&}~B)~\AgdaDatatype{∗}~((A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}~\AgdaFunction{∩}~(B~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc})
 \]
-which looks intimidating at first but makes perfect sense once we recall
-\CaseRule. Remember that we are trying to establish whether $\Case\x\y{P}{Q}$ is
-well typed in $\Context$.
+which looks intimidating at first but makes perfect sense once we recall the
+typing rule \CaseRule and the definitions of \AgdaFunction{∩} and
+\AgdaFunction{⊢} in \Cref{tab:predicates}. Remember that we are trying to
+establish whether $\Case\x\y{P}{Q}$ is well typed in $\Context$.
 %
 The predicate $\AgdaDatatype{Ch}~(A~\AgdaInductiveConstructor{\&}~B)$ expresses
 the requirement that the type of $x$ must be of the form $A \With B$ and should
@@ -132,18 +134,18 @@ two new contexts are obtained by \emph{adding} either $A$ or $B$ to $\ContextD$,
 which we perform using \AgdaFunction{⊢}.
 %
 Crucially, the types $A$ and $B$ are \emph{prepended} to $\ContextD$, which is
-consistent with the fact that $y$ has been freshly introduced and $x$ has been
-consumed. Notice how easy it is to \emph{prepend} either $A$ or $B$ to
-$\ContextD$ instead of \emph{changing} the type of $x$ in $\Context$ from $A
-\With B$ to either $A$ or $B$ while preserving the position of the type, as we
-would have to do in a ``true'' session type system without explicit continuation
-channels.
+consistent with the fact that the continuation $y$ has been freshly introduced
+and the channel $x$ has been consumed. Notice how easy it is to \emph{prepend}
+either $A$ or $B$ to $\ContextD$ instead of \emph{changing} the type of $x$ in
+$\Context$ from $A \With B$ to either $A$ or $B$ while preserving the position
+of the type, as we would have to do in a ``true'' session type system without
+explicit continuation channels.
 
 The interpretation of the remaining constructors is analogous, so we only
 comment \AgdaInductiveConstructor{all}, which represents a polymorphic process
 $\Forall\x\X\y.P$. This constructor models the continuation $P$ using
-higher-order abstract syntax (HOAS~\cite{}): witnessing that a context
-$\Context$ satisfies the predicate
+higher-order abstract syntax: witnessing that a context $\Context$ satisfies the
+predicate
 \[
   \AgdaFunction{⋂[}~X~\AgdaFunction{∶}~\AgdaDatatype{Type}~\AgdaFunction]~((\AgdaFunction{subst~[}~X~\AgdaFunction{/]}~A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}
 \]
@@ -164,9 +166,7 @@ variables. Therefore, $X$ cannot occur in $\Context$.
 We conclude this module proving that permutations preserve process typing. Since
 list permutations basically correspond to channel renaming, we can read this
 property as the fact that typing is preserved by (injective) name
-substitutions.\Luca{Abbiamo detto da qualche parte dove emergono gli indici di
-de Bruijn e di fare attenzione al fatto che lo splitting li altera? Serve questa
-digressione?}\Luca{Da qualche parte mettere un remark per far notare che l'uso
+substitutions.\Luca{Da qualche parte mettere un remark per far notare che l'uso
 della separating conjunction introduce rumore, ma avere i costruttori
 currificati ne complica un po' l'interpretazione dei tipi. Forse è meglio fare
 questo rilievo nella prossima sezione quando è evidente il pattern matching che
