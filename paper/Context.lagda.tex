@@ -11,18 +11,14 @@ open import Type
 \subsection{Context Representation}
 \label{sec:context-agda}
 
-We are going to adopt a nameless representation of channels whereby a channel is
-identified by the position of its type in a typing context. This representation
-is akin to using De Bruijn indices except that the index, instead of being
-represented explicitly by a natural number, is computable from the proof that
-the type of the channel belongs to the typing context.
-%
-Typing contexts are represented using lists of types, where the (polymorphic)
+We are going to adopt a nameless representation of channels hence typing
+contexts are represented using lists of types, where the (polymorphic)
 \AgdaDatatype{List} type and its constructors \AgdaInductiveConstructor{[]} and
 \AgdaInductiveConstructor{\_∷\_} are defined in the module
 \AgdaModule{Data.List} of Agda's standard library. We will keep using
-$\ContextC$, $\ContextD$ and $\ContextE$ to range over typing contexts, even
-though in the Agda formalization they are lists instead of finite maps.
+$\ContextC$, $\ContextD$ and $\ContextE$ to range over typing contexts as we
+have done in \Cref{sec:typing-rules}, even though in the Agda formalization they
+are lists instead of finite maps.
 
 \begin{code}
 Context : Set
@@ -136,7 +132,7 @@ may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
 applications of \AgdaInductiveConstructor{>} after the $A$ type has been
 reached. For instance, \AgdaFunction{splitting-example₁} can be written
 equivalently and in a more compact way as shown below. More usages of
-\AgdaFunction{≫} will be given in \Cref{sec:examples}.
+\AgdaFunction{≫} will be provided in \Cref{sec:examples}.
 
 \begin{code}[hide]
 module _ where
@@ -164,15 +160,15 @@ module _ where
   \caption{\label{tab:predicates} Useful definitions from Agda's \AgdaModule{Relation.Unary} module.}
 \end{table}
 
-In the following we will make extensive use of predicates over contexts. For
-this reason, it is worth recalling a number of definitions from the
+Hereafter we will make extensive use of predicates over contexts. For this
+reason, it is worth recalling a number of definitions from the
 \AgdaModule{Relation.Unary} module in Agda's standard library in
 \Cref{tab:predicates}.
 
 Context splitting is going to be pervasive in the subsequent development, to the
 point that it contributes substantially to the complexity of the formalization.
 For this reason, we invest some effort in defining a few abstractions that allow
-us to occasionally hide context splittings and enhance code readability.
+us to hide context splittings and enhance code readability.
 %
 Inspired by separation logic~\cite{OHearnPym99} and
 following~\citet{RouvoetPoulsenKrebbersVisser20}, we define the \emph{separating
@@ -188,9 +184,11 @@ for $\ContextE$.
 %
 The constructor \AgdaInductiveConstructor{\_⟨\_⟩\_} has three explicit arguments
 witnessing the splitting $\Splitting\ContextC\ContextD\ContextE$ along with
-$P~\ContextD$ and $Q~\ContextE$.\Luca{Nei related fare presente che queste
-definizioni seguono sostanzialmente \citet{RouvoetPoulsenKrebbersVisser20} ed
-evidenziare le differenze.}
+$P~\ContextD$ and $Q~\ContextE$.
+%
+The use of the metavariables $P$ and $Q$ for denoting predicates over contexts
+is not without reason. As we will see shortly, in our formalization processes
+are indeed predicates over typing contexts, albeit not the only ones.
 
 Along with \AgdaDatatype{∗} we define the \emph{separating implication} (also
 known as ``magic wand'')
