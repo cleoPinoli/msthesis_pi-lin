@@ -79,8 +79,24 @@ data Proc : Context → Set where
   cut       : ∀{A} → ∀[ ((A ∷_) ⊢ Proc) ∗ ((dual A ∷_) ⊢ Proc) ⇒ Proc ]
 \end{code}
 
-All the constructors except \AgdaInductiveConstructor{link} and
-\AgdaInductiveConstructor{cut} basically follow the same pattern: they possibly
+The constructor \AgdaInductiveConstructor{link} models a process of the form
+$\Link\x\y$. This process is well typed in a context of the form $x : A, y :
+\dual{A}$, namely a context satisfying the predicate
+$\AgdaDatatype{Ch}~A~\AgdaDatatype{∗}~\AgdaDatatype{Ch}~(\AgdaFunction{dual}~A)$
+which we see on the left-hand side of \AgdaFunction{⇒}.
+%
+The constructor \AgdaInductiveConstructor{cut} models a cut $\Cut[A]\x{P}{Q}$.
+For this process to be well typed in a context $\Context$, it must be the case
+that $\Splitting\Context\ContextD\ContextE$ so that $P$ and $Q$ are well typed
+in the contexts $x : A, \ContextD$ and $x : \dual{A}, \ContextE$ respectively.
+Since $x$ is the most recently introduced channel, the types $A$ and $\dual{A}$
+must be added \emph{at the front} of $\ContextD$ and $\ContextE$, which we do by
+means of the functions $(A~\AgdaInductiveConstructor{∷\_})$ and
+$(\AgdaFunction{dual}~A~\AgdaInductiveConstructor{∷\_})$ (these are partial
+applications of the constructor $\AgdaInductiveConstructor{\_∷\_}$ for lists to
+which we have supplied the left operand).
+
+All the remaining constructors basically follow the same pattern: they possibly
 quantify over some types $A$ and $B$ and then (implicitly) over a typing context
 $\Context$ through the function \AgdaFunction{∀[\_]} applied to a predicate of
 the form $P~\AgdaFunction{⇒}~\AgdaDatatype{Proc}$. The predicate states how to
