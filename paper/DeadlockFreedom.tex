@@ -5,7 +5,7 @@ As we have seen in \Cref{sec:calculus}, the deadlock freedom result
 (\Cref{thm:df}) rests on some notions and predicates about processes which we
 now formalize in Agda. First of all we need to define the notion of
 \emph{thread}, that is any process other than a cut. As it turns out, it is
-convenient to provide an more fine-grained classification of threads,
+convenient to provide a more fine-grained classification of threads,
 distinguishing between links, input/output actions, and sometimes also whether
 such actions operate on free or bound channels. We define predicates for each of
 these process classes:
@@ -146,15 +146,15 @@ these process classes:
 \end{code}
 
 These predicates are relatively uninteresting since they are essentially
-isomorphic to the relevant parts of the \AgdaDatatype{Proc} datatype. The only
-relevant aspect that is worth pointing out here is that in \AgdaDatatype{Input},
+isomorphic to the relevant fragments of the \AgdaDatatype{Proc} datatype. The
+only aspect that is worth pointing out here is that in \AgdaDatatype{Input},
 \AgdaDatatype{Output} and \AgdaDatatype{Server} the channel being acted upon by
 the thread is the \emph{first} in $\Context$, hence it is the \emph{most
 recently introduced} channel, whereas in \AgdaDatatype{Delayed} and
 \AgdaDatatype{DelayedServer} the channel is older. This allows us to distinguish
 those threads that, in the context of a cut, operate on the channel bound by the
-cut or on a free channel. As an illustration, consider the
-\AgdaInductiveConstructor{wait} case in \AgdaDatatype{Input} and in
+cut or on a free channel. To clarify this aspect, consider the
+\AgdaInductiveConstructor{wait} constructor in \AgdaDatatype{Input} and in
 \AgdaDatatype{Delayed}. In the former predicate we have
 
 \begin{AgdaAlign}
@@ -604,7 +604,7 @@ thread operates on the most recent channel. In the latter predicate we have
 where the use of the \AgdaInductiveConstructor{>} constructor indicates that the
 thread operates on a channel other than the most recent one. Note that here we
 have to specify the type $C$ in front of $\Context$ or else Agda is unable to
-resolve some metavariables.
+automatically resolve some metavariables.
 
 \begin{code}[hide]%
 %
@@ -1133,7 +1133,7 @@ previous ones.
 \AgdaBound{P}\<%
 \end{code}
 
-We can now define observability, reducibility and aliveness in the expected way:
+We define observability, reducibility and aliveness in the expected way:
 
 \begin{code}%
 \>[0]\AgdaFunction{Observable}\AgdaSpace{}%
@@ -3401,7 +3401,7 @@ is a cut $\Cut[A]\x{P}{Q}$, \AgdaFunction{deadlock-freedom} is applied
 recursively on $P$ and $Q$. If either of these applications yields a reduction,
 then the whole cut is reducible and therefore alive. If both applications yield
 a thread, then we conclude that the cut is alive first rewriting it into a
-canonical cut (\AgdaFunction{canonical-cut}) and then using
+canonical cut with \AgdaFunction{canonical-cut} and then using
 \AgdaFunction{canonical-cut-alive}.
 
 \begin{code}[hide]%
