@@ -56,7 +56,11 @@
 
 \newcommand{\proofcase}[1]{\textbf{Case #1.}\xspace}
 
+\newcommand{\TrueP}{\mathit{True}}
+\newcommand{\FalseP}{\mathit{False}}
+\newcommand{\NotP}{\mathit{Not}}
 \newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Bool}{\mathbb{B}}
 \newcommand{\Real}{\mathbb{R}}
 \newcommand{\RealP}{\Real_{\geq0}}
 \newcommand{\CSLL}{\textsf{CSLL}\xspace}
@@ -147,7 +151,16 @@
 \newcommand{\Choice}[3][p]{#2 \mathbin{\ifblank{#1}{}{_{#1}}\boxplus} #3}
 \newcommand{\OneCase}[3]{#1\ifblank{#2}{}{\parens{#2}}#3}
 \newcommand{\Case}[4]{#1 \triangleright \ifblank{#2}{}{\parens{#2}}\braces{#3,#4}}
-\newcommand{\BigCase}[2]{\OneCase{#1}{\left\{\begin{array}{@{}r@{~:~}l@{}}#2\end{array}\right\}}}
+\newcommand{\BigCase}[4]{
+    #1 \triangleright
+    \ifblank{#2}{}{\parens{#2}}
+    \left\{
+      \begin{array}{@{}l@{}}
+        #3 \\
+        #4
+      \end{array}
+    \right\}
+}
 \newcommand{\Fork}[5]{#1\bracks{#2\ifblank{#3}{}{,#3}}.\parens{#4 \parop #5}}
 \renewcommand{\Join}[3]{#1\parens{#2\ifblank{#3}{}{,#3}}}
 \newcommand{\Client}[2]{{?}#1\bracks{#2}}

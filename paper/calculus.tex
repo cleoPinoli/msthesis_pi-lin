@@ -6,8 +6,8 @@ As we have anticipated in \Cref{sec:introduction}, \LCP is a linear version of
 be used for \emph{exactly one} communication. This differs from \CP and other
 session calculi where session endpoints can be used repeatedly, albeit
 sequentially. A session consisting of several messages exchanged in sequence can
-be encoded using linear channels by pairing each message with a \emph{fresh
-continuation channel} on which the rest of the session takes place.
+be encoded in \LCP using linear channels by pairing each message with a
+\emph{fresh continuation channel} on which the rest of the session takes place.
 %
 This way of encoding sessions using explicit continuations has been first
 described by \citet[extended version]{Kobayashi02b} and later studied by
@@ -43,7 +43,8 @@ but they can play the role of smallest/largest type in type systems that support
 a notion of subtyping~\citep{HornePadovani24}. 
 %
 The quantifiers $\forall X.A$ and $\exists X.A$ describe the input/output of a
-type $X$ followed by the protocol $A$.
+type $X$ followed by the protocol $A$ and are useful to describe parametric
+protocol polymorphism.
 %
 Finally, the ``of course'' modality $\OfCourse A$ and the ``why not'' modality
 $\WhyNot A$ describe servers and clients accepting and requesting connections to
@@ -84,8 +85,8 @@ occurrences of $X$ in $A$ with $B$.
     \end{tabular}
 \end{table}
 
-The syntax of \Calculus makes use of an infinite set of \emph{channel names},
-ranged over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
+The syntax of \Calculus makes use of an infinite set of \emph{channels}, ranged
+over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
 %
 A link $\Link\x\y$ denotes the merging of the channels $x$ and $y$, so that
 every message sent on one of the channels is forwarded to the other. As
@@ -107,8 +108,8 @@ $z$ on the channel $x$. The receiver continues as $Q_i$ depending on the
 received label $\InTag_i$. In practice it is useful to consider arbitrary
 (domain-specific) sets of tags instead of the canonical $\InTag_1$ and
 $\InTag_2$. This generalization has no substantial impact on the formalization,
-so we stick to the classical case of ``binary choices'' in line with the usual
-presentations of linear logic.
+so we stick to binary choices in line with the usual presentations of linear
+logic.
 %
 The processes $\Join\x\y\z.R$ and $\Fork\x\y\z{P}{Q}$ describe the input/output
 of a pair of fresh channels $y$ and $z$ on the channel $x$. The former process
@@ -116,9 +117,8 @@ forks into $P$ and $Q$, each using $y$ and $z$ respectively. The latter process
 continues as $R$. These forms are often used in conjunction with links to model
 \emph{delegation}.
 %
-The processes $\Exists\x{A}\z.P$ and $\Forall\x\X\z.P$ describe the input/output
-of a type on the channel $x$ along with a fresh continuation $z$. These forms
-are useful to describe polymorphic processes.
+The processes $\Forall\x\X\z.P$ and $\Exists\x{A}\z.P$ describe the input/output
+of a type on the channel $x$ along with a fresh continuation $z$.
 
 Next we have process forms dealing with shared (non-linear) channels. The
 $\Server\x\y.P$ and $\Client\x\y.P$ processes respectively denote \emph{servers}
@@ -127,21 +127,69 @@ client) spawns a copy of the server's body using the continuation channel $y$.
 The process $\Weaken\x.P$ denotes an explicit \emph{weakening}, that is a client
 that \emph{does not} use the server waiting on $x$. The process
 $\Contract\x\y\z.P$ denotes an explicit \emph{contraction}, that is a client
-that uses the server $x$ multiple times on the channels $y$ and $z$.
+that connects to the server waiting on $x$ multiple times on the channels $y$
+and $z$.
 
 \emph{Cuts} of the form $\Cut[A]\x{P}{Q}$ represent the parallel composition of
 the processes $P$ and $Q$ connected by a channel $x$, which has type $A$ in $P$
 and type $\dual{A}$ in $Q$. Henceforth we write $\Cut\x{P}{Q}$ omitting the type
 annotation $A$ when it is irrelevant or clear from the context.
 
-The notions of free and bound names are fairly standard, bearing in mind that
-output action prefixes bind continuation channels in (some) continuation
-processes. In particular, $\Select\x{\Tag_i}\z.P$ binds $z$ in $P$, while
-$\Fork\x\y\z{P}{Q}$ binds $y$ in $P$ but not in $Q$ and $z$ in $Q$ but not in
-$P$.
+The notions of free and bound channels are fairly standard, bearing in mind that
+output prefixes bind continuation channels in (some) continuation processes. In
+particular, $\Select\x{\Tag_i}\z.P$ binds $z$ in $P$, while $\Fork\x\y\z{P}{Q}$
+binds $y$ in $P$ but not in $Q$ and $z$ in $Q$ but not in $P$.
 %
-We write $\fn{P}$ for the set of channel names occurring free in $P$ and we
-identify processes up to renaming of bound names.
+We write $\fn{P}$ for the set of channels occurring free in $P$ and we identify
+processes up to renaming of bound channels.
+
+\begin{example}
+    \label{ex:booleans}
+    We can represent the type of a boolean value being produced as the
+    proposition $\Bool \eqdef \One \Plus \One$ and that of a boolean value being
+    consumed as its dual $\dual\Bool = \Bot \With \Bot$. Following these types,
+    the boolean constants can be modeled by the processes
+    \[
+        \TrueP(x) \eqdef \Select\x\LeftTag\z.\Close\z
+        \qquad
+        \FalseP(x) \eqdef \Select\x\RightTag\z.\Close\z
+    \]
+    and the boolean negation function by the process
+    \[
+        \NotP(x,y) \eqdef
+        \BigCase\x\u{
+            \Wait\u.\FalseP(y)
+        }{
+            \Wait\u.\TrueP(y)
+        }
+    \]
+
+    As an example, the composition $\Cut[\Bool]\x{\TrueP(x)}{\NotP(x,y)}$
+    computes the negation of true.
+    %
+    Note the use of explicit continuations in these processes and the fact that
+    each channel is used \emph{exactly once}. The same processes in \CP would be
+    written as
+    \[
+        \TrueP(x) \eqdef \Select\x\LeftTag{}.\Close\x
+        \quad
+        \FalseP(x) \eqdef \Select\x\RightTag{}.\Close\x
+        \quad
+        \NotP(x,y) \eqdef
+        \BigCase\x{}{
+            \Wait\x.\FalseP(y)
+        }{
+            \Wait\x.\TrueP(y)
+        }
+    \]
+    where each channel is used multiple times to indicate the various
+    input/output actions pertaining to the same session.
+    %
+    In general, the \CP version of an \LCP process can be obtained by reusing
+    the same channel $x$ in place of the continuation $z$ in \Cref{tab:syntax}.
+    %
+    \eoe
+\end{example}
 
 \subsection{Operational Semantics}
 \label{sec:semantics}
@@ -270,19 +318,19 @@ names when binders are moved around: terms entering or exiting the scope of a
 binder for $x$ must not have free occurrences of $x$. This holds also for the
 type variable $X$ in the rule \SForall.
 %
-We content ourselves with such informal description of these critical side
-conditions given that we are going to formalize \Calculus later on.
+We content ourselves with such informal description of these side conditions
+given that we are going to formalize \Calculus later on.
 %
 Note also that there are two versions of \SForkL and \SForkR depending on which
 of the two continuations $P$ and $Q$ contains free occurrences of the restricted
 channel $x$.
 
-Notably and somewhat surprisingly, there is no pre-congruence rule asserting
-that parallel composition is associative. While this is a sound and expected
-property of parallel composition, it turns out to be inessential for proving all
-of the properties of \Calculus that we consider. We leave it out in light of the
-forthcoming formalization of the calculus, in which every simplification is
-welcome, although standard presentations of classical linear logic admit such
+There is no pre-congruence rule asserting that parallel composition is
+associative. While this is a sound and expected property of parallel
+composition, it turns out to be inessential for proving the properties of
+\Calculus that we consider. We leave it out in light of the forthcoming
+formalization of the calculus, in which every simplification is welcome,
+although standard presentations of classical linear logic admit such
 law~\cite{Wadler14,Doumane17}.
 %
 Another rule that deserves attention is \SServer. In this case, a server prefix
