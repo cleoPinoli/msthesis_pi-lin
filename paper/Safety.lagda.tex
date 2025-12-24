@@ -17,10 +17,8 @@ We have seen that type safety is a simple instance of deadlock freedom, which is
 made even simpler to formalize in our development where processes are
 intrinsically typed. We start by defining reduction contexts as processes with a
 single hole. In our intrinsically-typed formalization, reduction contexts are
-typed and indexed by two typing contexts $\ContextD$ and $\ContextC$. The latter
-is the typing context under which the reduction context as a whole is well
-typed. The former is the typing context of the hole, which is invariant for a
-given reduction context and therefore specified as a parameter of the data type:
+parameterized by the typing context $\ContextD$ of the hole, which is invariant,
+and indexed by the typing context $\ContextC$ of the whole reduction context:
 
 \begin{code}
 data ReductionContext (Δ : Context) : Context → Set where
@@ -30,6 +28,11 @@ data ReductionContext (Δ : Context) : Context → Set where
   cut-r  : ∀{A} → ∀[  ((A ∷_) ⊢ Proc) ∗ ((dual A ∷_) ⊢ ReductionContext Δ) ⇒
                       ReductionContext Δ ]
 \end{code}
+
+Note the presence of two constructors \AgdaInductiveConstructor{cut-l} and
+\AgdaInductiveConstructor{cut-r} which distinguish on whether the hole is found
+in the left (respectively, right) sub-context, as per the grammar of reduction
+contexts in \Cref{sec:properties}.
 
 Substitution inside a reduction context $\ReductionContext$ is a straightforward
 function $\AgdaFunction{\_⟦\_⟧}$ that operates recursively on the structure of
@@ -51,7 +54,8 @@ WellFormed {Γ} P = ∀{Δ} {𝒞 : ReductionContext Δ Γ} {Q : Proc Δ} →
 \end{code}
 
 The proof of type safety ends up being a trivial application of
-\AgdaFunction{deadlock-freedom}.
+\AgdaFunction{deadlock-freedom}, since the process $Q$ in the hole of a
+reduction context is well typed by construction.
 
 \begin{code}
 type-safety : ∀{Γ} (P : Proc Γ) → WellFormed P
