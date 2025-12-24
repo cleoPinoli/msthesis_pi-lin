@@ -72,7 +72,7 @@ dual-inv {_} {`! A} = cong `! dual-inv
 dual-inv {_} {`? A} = cong `? dual-inv
 \end{code}
 
-This property is so important in the rest of the formalization that it is worth
+This property is so important in the rest of the formalisation that it is worth
 defining an implicit rewriting rule so that Agda can autonomously apply it
 whenever possible. This is achieved by means of the following pragma
 directive.\footnote{The directive is effective provided that the option
@@ -163,7 +163,7 @@ dual-subst {_} {_} {σ} {var x} = refl
 \end{code}
 
 It is worth looking at one case in the proof of \AgdaFunction{dual-subst},
-namely when the type is a dualized type variable:
+namely when the type is a dualised type variable:
 
 \begin{code}
 dual-subst {_} {_} {σ} {rav x} = refl
@@ -196,7 +196,7 @@ dual-subst {_} {_} {σ} {`? A} = cong `! (dual-subst {σ = σ} {A})
 \end{code}
 
 Just like \AgdaFunction{dual-inv}, \AgdaFunction{dual-subst} too is key in the
-formalization that follows. Therefore, we add it to the set of implicit
+formalisation that follows. Therefore, we add it to the set of implicit
 rewriting rules used by Agda so that we do not have to think about this property
 again.
 

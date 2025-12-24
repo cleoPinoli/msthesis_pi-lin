@@ -18,13 +18,13 @@ We adopt an \emph{intrinsically-typed} representation of processes with
 \emph{nameless} channels. The intrinsically-typed representation makes sure that
 only well-typed processes can be constructed. This choice increases the effort
 in the definition of the datatypes for representing processes and their
-operational semantics, but pays off in the rest of the formalization for at
+operational semantics, but pays off in the rest of the formalisation for at
 least three reasons:
 \begin{itemize}
 \item we need not give explicit names to channels, thus we avoid all the
   technicalities and pitfalls that a named representation entails;
 \item we conflate processes and typing rules in the same datatype, thus reducing
-  the overall number of datatypes defined in the formalization;
+  the overall number of datatypes defined in the formalisation;
 \item the typing preservation results are embedded in the very definition of the
   operational semantics of processes and need not require separate proofs
   (\Cref{sec:congruence-agda,sec:reduction-agda}).
@@ -35,10 +35,10 @@ witnessing that their type is present in the typing context. This is known as
 \emph{co-de Bruijn syntax}~\cite{McBride18}, according to which the typing
 context associated with a term (a process, a channel) only contains the types of
 the channels that actually occur within the term. For this reason, typing
-contexts are split as soon as possible, according to the structure of processes,
-to make sure that channels are appropriately (and above all linearly)
-distributed among sub-processes, so that each channel occurs (and is used)
-exactly once.\footnote{Strictly speaking, the typing context of a
+contexts are split eagerly, according to the structure of processes, to make
+sure that channels are appropriately (and above all linearly) distributed among
+sub-processes, so that each channel occurs (and is used) exactly
+once.\footnote{Strictly speaking, the typing context of a
 \AgdaInductiveConstructor{fail} process may contain channels that do not occur
 (and therefore are not used) by the process, but we consider this case as an
 exception that does not alter in a substantial way the provided intuition

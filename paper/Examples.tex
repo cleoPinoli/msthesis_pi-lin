@@ -75,7 +75,7 @@
 \end{code}
 
 In this section we revisit and expand the sample processes discussed in
-\Cref{ex:booleans,ex:echo} and show their encoding in our formalization. The
+\Cref{ex:booleans,ex:echo} and show their encoding in our formalisation. The
 encoding of $\Bool$ is straightforward.
 
 \begin{code}%
@@ -361,7 +361,7 @@ as terminating.
 \AgdaBound{Q}\<%
 \end{code}
 
-Now if we ask Agda to normalize the goal
+Now if we ask Agda to normalise the goal
 $\AgdaFunction{eval}~(\AgdaFunction{False}~\AgdaFunction{||}~\AgdaFunction{False})$
 we obtain
 $\AgdaInductiveConstructor{select}~(\AgdaInductiveConstructor{ch~⟨~<~•~⟩~inj₂}~(\AgdaInductiveConstructor{close~ch}))$,
@@ -537,5 +537,5 @@ be provided are usually small and fairly easy to understand. Most importantly,
 the use of \AgdaFunction{≫} helps truncating context splittings as soon as the
 seeked channel has been reached.
 %
-Either way, the formalization is meant to study the meta-theory of \Calculus
+Either way, the formalisation is meant to study the meta-theory of \Calculus
 rather than implementing a user-friendly DSL for it.

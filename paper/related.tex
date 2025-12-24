@@ -1,9 +1,9 @@
 \section{Related Work}
 \label{sec:related}
 
-We have compared our formalization with others that have appeared in the
+We have compared our formalisation with others that have appeared in the
 literature and for which we were able to retrieve the source code. We have
-looked at those formalizations that include the following features:
+looked at those formalisations that include the following features:
 \begin{itemize}
 \item reduction/evaluation semantics for a calculus with support for binary
     sessions, either natively or through their encoding in terms of linear
@@ -12,43 +12,43 @@ looked at those formalizations that include the following features:
 \item optionally, a proof of global progress/deadlock freedom.
 \end{itemize}
 
-\citet{GotoEtAl16} describe the formalization of a session-based variant of the
+\citet{GotoEtAl16} describe the formalisation of a session-based variant of the
 $\pi$-calculus which supports channel polymorphism. This is the oldest
-formalization of a session-based calculus for which we were able to retrieve the
+formalisation of a session-based calculus for which we were able to retrieve the
 source code (the work of \citet{Gay01} predates this one, but its source code is
 not publicly available any more).
 
-\citet{Thiemann19} formalizes a subset of \GV~\citep{GayVasconcelos10}, a
+\citet{Thiemann19} formalises a subset of \GV~\citep{GayVasconcelos10}, a
 functional language extended with session communication primitives, along with
 an interpreter. \citet{CicconePadovani20} have taken inspiration from Thiemann's
-work to formalize a variant of the linear
+work to formalise a variant of the linear
 $\pi$-calculus~\cite{KobayashiPierceTurner99} that supports dependent types, so
 as to enable the description of communication protocols whose structure depends
 on the content of messages.
 
-\citet{CastroFerreiraYoshida20} describe EMTST, a library for the formalization
+\citet{CastroFerreiraYoshida20} describe EMTST, a library for the formalisation
 of session type systems which includes as case studies the session calculus of
 \citet{HondaVasconcelosKubo98} (called ``original system'') and a revised
-version of it that is more amenable to be formalized using a locally nameless
+version of it that is more amenable to be formalised using a locally nameless
 representation of channels.
 
 \citet{RouvoetPoulsenKrebbersVisser20} present a library of abstractions
-inspired to separation logic aiding the formalization of interpreters for
+inspired to separation logic aiding the formalisation of interpreters for
 computing models supported by linear type systems. One of the presented case
-studies is the formalization of a fragment of \GV~\citep{Wadler14}. The
+studies is the formalisation of a fragment of \GV~\citep{Wadler14}. The
 separating conjunction we have introduced in \Cref{sec:context-agda} and the
 typing of the constructors for the representation of processes in
 \Cref{sec:process-agda} have been heavily inspired by this work. 
 
 % as case study for their approach based on separation logic, which we have
 % partially taken inspiration from for the representation of processes
-% (\cref{sec:context-agda,sec:process-agda}). Their formalization adopts the same
+% (\cref{sec:context-agda,sec:process-agda}). Their formalisation adopts the same
 % intrinsically-typed representation of processes with nameless channels as our
-% own, but their formalization focuses on the implementation of an interpreter (no
+% own, but their formalisation focuses on the implementation of an interpreter (no
 % small-step semantics is defined) and subject reduction is 
 
-All the formalizations mentioned so far make use of context splitting. In
-contrast, \citet{ZalakainDardha21} formalize a generalization of the linear
+All the formalisations mentioned so far make use of context splitting. In
+contrast, \citet{ZalakainDardha21} formalise a generalisation of the linear
 $\pi$-calculus which is parametric in a \emph{usage algebra} (to account for
 channel sharing/linearity) and that is based on \emph{leftover
 typing}~\cite{Allais17}. 
@@ -57,7 +57,7 @@ With leftover typing a process is typed with respect to an \emph{input context},
 which describes the overall available channels, and an \emph{output context},
 which describes the residual channels not consumed by the process. In this way,
 it is possible to ``concatenate'' typing judgments instead of splitting typing
-contexts beforehand. As \citet{ZalakainDardha21} nicely summarize, ``context
+contexts beforehand. As \citet{ZalakainDardha21} nicely summarise, ``context
 splits contain usage information that is already present'' in processes, and
 therefore can be omitted. This is true, but only provided that channels are
 given a \emph{name} in processes (\citet{ZalakainDardha21} use de Bruijn indices
@@ -68,9 +68,9 @@ channel names provide information that is already present in their (singleton)
 typing context, hence they can be omitted from contexts and processes.
 
 Another work based on context splitting is the one by
-\citet{JacobsBalzerKrebbers22}, who formalize a library of \emph{connectivity
+\citet{JacobsBalzerKrebbers22}, who formalise a library of \emph{connectivity
 graphs} for reasoning and enforcing deadlock freedom in a variant of
-\GV~\citep{GayVasconcelos10,Wadler14}. This is the first formalization of
+\GV~\citep{GayVasconcelos10,Wadler14}. This is the first formalisation of
 deadlock freedom for a calculus of sessions.
 
 Motivated by the technical difficulties arising from context splits,
@@ -95,10 +95,10 @@ which are conveninently combined using operations from the resource algebra.
 
 \begin{table}[t]
     \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
-    \caption{\label{tab:comparison} A summary of different formalizations of binary session calculi. All sizes are in kb.}
+    \caption{\label{tab:comparison} A summary of different formalisations of binary session calculi. All sizes are in kb.}
     \begin{minipage}{.9\textwidth}
     \begin{tabular}{@{}r@{~}@{~}c@{~~}c@{~}|@{~}c@{~~}c@{~~}c@{~~}c@{~}|@{~}r@{~~}r@{~~}r@{~~}r@{~~}r@{~}l@{}}
-        \textbf{Formalization} &
+        \textbf{Formalisation} &
         \textlabel{Proof assistant} &
         \textlabel{Calculus} &
         \textlabel{Channel linearity} &
@@ -276,14 +276,14 @@ which are conveninently combined using operations from the resource algebra.
     \end{minipage}
 \end{table}
 
-\Cref{tab:comparison} summarizes the comparison of our formalization with the
+\Cref{tab:comparison} summarises the comparison of our formalisation with the
 aforementioned ones. The three leftmost colums list the reference papers (sorted
-by publication date), the proof assistant and the formalized calculus.
+by publication date), the proof assistant and the formalised calculus.
 %
 For simplicity, we have grouped the calculi into classes identified by an
 acronym. Some acronyms, like \CP~\cite{Wadler14} and
 \GV~\cite{GayVasconcelos10,Wadler14} are well known in the literature on session
-types. It should be noted that the actual calculus being formalized usually
+types. It should be noted that the actual calculus being formalised usually
 differs from (typically, is a strict subset of) the one identified by the
 acronym, but it retains at least some of its key features. We use \SessionPI to
 denote (variants of) the session-based $\pi$-calculus presented by
@@ -296,9 +296,9 @@ version]{Kobayashi02b} and \citet{DardhaGiachinoSangiorgi17}. Finally, we use
 of \CP with explicit continuations.
 
 The four middle columns of \Cref{tab:comparison} report the relevant qualitative
-aspects of the formalizations, namely the technique used to enforce the linear
+aspects of the formalisations, namely the technique used to enforce the linear
 usage of channels, the technique used to encode channels, whether the
-formalization is intrinsically or extrinsically typed, and whether the calculus
+formalisation is intrinsically or extrinsically typed, and whether the calculus
 makes use of continuation channels. Concerning the use of continuations, the
 approaches based directly on the linear $\pi$-calculus (into which sessions can
 be encoded) are marked with {\YES} and those based on a calculus with native
@@ -316,7 +316,7 @@ virtually indistinguishable from one making use of explicit continuation
 channels.
 
 The rightmost columns of \Cref{tab:comparison} report the \emph{size} (in
-kilobytes) of the formalizations as rough (and possibly questionable) estimates
+kilobytes) of the formalisations as rough (and possibly questionable) estimates
 of their complexity. Instead of counting line numbers, which may be affected by
 code indentation styles and syntactical constraints of the proof assistant being
 used, we have counted the number of characters after comments have been removed
@@ -325,22 +325,22 @@ space-like characters are collapsed into a single space. The squeezing is
 obtained by running the command \texttt{tr -s [:space:] file} on Unix-like
 systems.}
 %
-The reported sizes account for the source code of the formalization excluding
+The reported sizes account for the source code of the formalisation excluding
 examples and any safety result, if present. We have noticed that the
-interpretation of ``safety'' varies widely among the formalizations and, except
+interpretation of ``safety'' varies widely among the formalisations and, except
 for our own, they all differ from the one stated in the linearity
 challenge~\citep{CarboneEtAl24} when available.
 %
-Some formalization define \emph{libraries} which could be reused in different
+Some formalisation define \emph{libraries} which could be reused in different
 contexts. In these cases, the size of the library is reported separately next to
 the size of the part of the development that uses it.
 
 In general, it is difficult to draw firm conclusions on the effectiveness of the
 various approaches in addressing the linearity challenge because the
-formalizations differ widely for a variety of entangled factors including the
+formalisations differ widely for a variety of entangled factors including the
 reference calculus, supported features, proof assistant,
 process/expression/channel representation, handling of linearity. Also, most
-formalizations predate the publication of the linearity
+formalisations predate the publication of the linearity
 challenge~\cite{CarboneEtAl24}, hence they are not necessarily targeted to
 solving that particular problem. However, some of
 them~\cite{RouvoetPoulsenKrebbersVisser20,ZalakainDardha21,SanoKavanaghPientka23,ZackonEtAl25}
@@ -350,23 +350,23 @@ resources/channels and from context splitting in particular.
 Based on the available data, we can make the following observations.
 %
 The use of context splitting, which is very well represented, does not seem to
-be a good indicator of the complexity of the formalization, since it spans the
-whole range of sizes. Our formalization is based on context splitting and it is
+be a good indicator of the complexity of the formalisation, since it spans the
+whole range of sizes. Our formalisation is based on context splitting and it is
 the only one that covers \CP in full, yet it is by far the smallest one.
 
-The largest formalizations~\cite{GotoEtAl16,CastroFerreiraYoshida20} are also
+The largest formalisations~\cite{GotoEtAl16,CastroFerreiraYoshida20} are also
 the ones that adopt a locally nameless representation of channels. In this
-formalizations channels are represented in two different ways, depending on
+formalisations channels are represented in two different ways, depending on
 whether they are free or bound. This necessarily entails some duplication of
 effort as well as some transformation machinery between the two representations
-that contribute to the complexity of the formalization.
+that contribute to the complexity of the formalisation.
 %
 Other channel representations are not strong complexity indicators. Note that
 the adoption of co-de Bruijn syntax implies the use of context splitting, hence
 the two aspects are not completely independent.
 
 There is no strong evidence that the intrinsically typed representation of
-processes reduces the size of the formalization. As observed in
+processes reduces the size of the formalisation. As observed in
 \Cref{sec:process-agda}, this choice may help reducing the overall number of
 datatypes to be defined, but the definitions are also more involved because they
 incorporate invariants and the proofs of typing preservation. In the end, it
@@ -374,8 +374,8 @@ seems plausible to speculate that the effort for representing processes, types
 and typing rules is not substantially different overall.
 
 Finally, it seems that the use of (explicit) continuations helps taming the
-complexity of the formalization more than anything else. Indeed, the six
-smallest formalizations (excluding the deadlock freedom results) -- with an
+complexity of the formalisation more than anything else. Indeed, the six
+smallest formalisations (excluding the deadlock freedom results) -- with an
 average size of around 62kb -- are all based on continuations, whether they are
 explicit (\LinearPI, \SCP, \LCP) or ``virtual'' (\GV), while the remaining ones
 are 263kb on average. This observation is in agreement with the considerations

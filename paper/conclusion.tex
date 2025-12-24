@@ -1,18 +1,18 @@
 \section{Concluding Remarks}
 \label{sec:conclusion}
 
-We have presented a formalization of \LCP, a variant of the linear
+We have presented a formalisation of \LCP, a variant of the linear
 $\pi$-calculus~\cite{KobayashiPierceTurner99} supported by the same type system
 of \CP~\cite{Wadler14}. Binary sessions can be modeled in \LCP using the
 continuation-passing encoding described by \citet[extended
 version]{Kobayashi02b} and \citet{DardhaGiachinoSangiorgi17}.
 %
-Under the assumption that the size of a formalization is a good measure of its
-complexity, the formalization of \LCP can be qualified as ``simple'' compared to
+Under the assumption that the size of a formalisation is a good measure of its
+complexity, the formalisation of \LCP can be qualified as ``simple'' compared to
 the existing ones.
 %
 In this respect, our work casts some doubts on the actual contribution of
-context splitting to the complexity of a formalization and hints instead at
+context splitting to the complexity of a formalisation and hints instead at
 explicit continuations in the underlying model as a simplifying factor.
 %
 It is quite interesting to note that, among the approaches that have been
@@ -32,18 +32,18 @@ Because of its logical foundations, we like to think of \LCP as a ``canonical''
 calculus that deserves its own space in the context of the linearity challenge
 alongside with (but not in substitution of) more traditional session calculi.
 
-The simple formalization of \LCP is a good basis for further investigations. We
+The simple formalisation of \LCP is a good basis for further investigations. We
 have already extended \LCP with support for infinite types and recursive
-processes (the formalization of this extension is publicly available in a
+processes (the formalisation of this extension is publicly available in a
 sibling folder of the one for \LCP). In the future, it would be interesting to
-formalize the strong normalization property of \LCP as a consequence of cut
+formalise the strong normalisation property of \LCP as a consequence of cut
 elimination of classical linear logic.
 
 In this work we have focused on models and theories of \emph{binary sessions}
-(those connecting exactly two processes), but there are also formalizations of
+(those connecting exactly two processes), but there are also formalisations of
 \emph{multiparty sessions}, notably those of \citet{JacobsBalzerKrebbers22a} and
 \citet{TiroreBengstonCarbone25}, which are significantly more complex than those
-of binary sessions. Just to give an example, the formalization by
+of binary sessions. Just to give an example, the formalisation by
 \citet{TiroreBengstonCarbone25} amounts to more than 1Mb of Coq code.
 Incidentally, multiparty sessions are not supported by a strong connection with
 linear logic and there is no known continuation-passing encoding of multiparty
