@@ -42,13 +42,14 @@ alternative techniques including leftover typing~\cite{ZalakainDardha21}, the
 use of linearity predicates~\cite{SanoKavanaghPientka23} and tagged
 contexts~\cite{ZackonEtAl25}.
 
-In this paper we attack the linearity challenge from a different perspective:
-\emph{instead of proposing techniques that make it easy to formalize the
-calculus in the challenge, we propose a calculus that is easy to formalize with
-the known techniques}.\Luca{dobbiamo dire perché lo spirito della challenge è
-rispettato, e dunque giustificare il titolo dell'articolo. Dire che il nostro
-non è un calcolo ad hoc, ma ha fondamenti logici importanti, è completo, ed è
-strettamente in relazione con altri modelli analoghi (CP e linear pi)}
+In this paper we attack the linearity challenge from a different angle:
+\emph{instead of proposing new techniques that make it easy to formalize the
+calculus in the challenge, we propose a (relatively) new calculus that is easy
+to formalize with the existing techniques}.\Luca{dobbiamo dire perché lo spirito
+della challenge è rispettato, e dunque giustificare il titolo dell'articolo.
+Dire che il nostro non è un calcolo ad hoc, ma ha fondamenti logici importanti,
+è completo, ed è strettamente in relazione con altri modelli analoghi (CP e
+linear pi)}
 %
 More specifically, we describe a calculus called \LCP whose type system
 coincides with the proof system of \emph{classical linear logic} and that
@@ -91,8 +92,8 @@ features supported by the calculus) and the most streamlined (in terms of code
 size) among the known formalizations of session/linear
 calculi~\cite{GotoEtAl16,Thiemann19,CastroFerreiraYoshida20,CicconePadovani20,RouvoetPoulsenKrebbersVisser20,SanoKavanaghPientka23,JacobsBalzerKrebbers22,ZackonEtAl25,ZalakainDardha21}.
 It is also one of only two formalizations that prove the deadlock freedom
-property for a session calculus, and it does so with substantially less code
-than the existing formalization~\cite{JacobsBalzerKrebbers22}.
+property for a session calculus~\cite{JacobsBalzerKrebbers22} and it does so
+with substantially less code.
 
 The rest of the paper is organized as follows.
 %
@@ -115,6 +116,6 @@ session/linear calculi, including the one for \LCP.
 and future work.
 
 The formalization has been carried out using Agda and the source code is
-available on Github at
+available on GitHub at
 \url{https://github.com/boystrange/LinearityChallenge/tree/main/lcp}.
 
