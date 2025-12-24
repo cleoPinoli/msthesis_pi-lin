@@ -1,23 +1,24 @@
 \section{Linear \CP}
 \label{sec:calculus}
 
-As we have anticipated in \Cref{sec:introduction}, \LCP is a linear version of
-\CP~\citep{Wadler14,GayVasconcelos25} such that every linear channel is meant to
-be used for \emph{exactly one} communication. This differs from \CP and other
-session calculi where session endpoints can be used repeatedly, albeit
-sequentially. A session consisting of several messages exchanged in sequence can
-be encoded in \LCP using linear channels by pairing each message with a
-\emph{fresh continuation channel} on which the rest of the session takes place.
+In this section we give a cursory presentation of \LCP.
+%
+As we have anticipated in \Cref{sec:introduction}, \LCP is very closely related
+to \CP~\citep{Wadler14,GayVasconcelos25} except that \LCP features linear
+channels instead of sessions. A session consisting of several messages exchanged
+in sequence can be encoded in \LCP using linear channels by pairing each message
+with a \emph{fresh continuation channel} on which the rest of the session takes
+place.
 %
 This way of encoding sessions using explicit continuations has been first
 described by \citet[extended version]{Kobayashi02b} and later studied by
 \citet{DardhaGiachinoSangiorgi17}.
 
-In this section we present \LCP, starting from its types (\Cref{sec:types}),
-which coincide with classical linear logic propositions, its syntax
-(\Cref{sec:syntax}), the reduction semantics (\Cref{sec:semantics}), the typing
-rules (\Cref{sec:typing-rules}) and the formulation of the properties ensured by
-the type system (\Cref{sec:properties}).
+We present \LCP starting from its types (\Cref{sec:types}), which coincide with
+classical linear logic propositions, then moving on to the syntax of processes
+(\Cref{sec:syntax}), their reduction semantics (\Cref{sec:semantics}), the
+typing rules (\Cref{sec:typing-rules}) and the formulation of the properties
+ensured by the type system (\Cref{sec:properties}).
 
 \subsection{Types}
 \label{sec:types}

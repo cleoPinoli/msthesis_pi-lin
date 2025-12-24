@@ -30,8 +30,8 @@
 \label{sec:type-agda}
 
 The representation of types is standard, with one constructor for each of the
-forms described in \Cref{sec:calculus}. We start by defining \emph{pre-types} as
-an indexed data type $\AgdaDatatype{PreType}~n$ where $n$ is the number of bound
+forms described in \Cref{sec:types}. We start by defining \emph{pre-types} as an
+indexed data type $\AgdaDatatype{PreType}~n$ where $n$ is the number of bound
 type variables and we use de Bruijn indices for denoting type variables. In this
 way, we make sure that pre-types are well-scoped.
 
@@ -381,8 +381,8 @@ This property is so important in the rest of the formalization that it is worth
 defining an implicit rewriting rule so that Agda can autonomously apply it
 whenever possible. This is achieved by means of the following pragma
 directive.\footnote{The directive is effective provided that the option
-\texttt{--rewriting} is enabled, either globally when invoking Agda or in the
-module's preamble.}
+\texttt{{-}{-}rewriting} is enabled, either globally when invoking Agda or in
+the module's preamble.}
 
 \begin{code}%
 \>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
@@ -631,7 +631,7 @@ substitutes \emph{all} variables of a (pre)type. The definition of
 \AgdaFunction{subst} relies on some auxiliary functions for \emph{renaming} type
 variables and \emph{lifting} substitutions across quantifiers. All such
 definitions are straightforward adaptations of those described by
-\cite{KokkeSiekWadler20}.
+\citet{KokkeSiekWadler20}.
 
 \begin{code}%
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
@@ -902,7 +902,9 @@ Duality and substitutions are meant to commute.
 \AgdaInductiveConstructor{refl}\<%
 \end{code}
 
-It is worth discussing one case in the proof of \AgdaFunction{dual-subst}:
+It is worth looking at one case in the proof of \AgdaFunction{dual-subst},
+namely when the type is a dualized type variable:
+
 \begin{code}%
 \>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
 \AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
@@ -922,11 +924,12 @@ $\AgdaFunction{subst}~\sigma~(\AgdaFunction{dual}~(\AgdaInductiveConstructor{rav
   \AgdaFunction{dual}~(\AgdaFunction{dual}~(\sigma~x))$.
 %
 We could easily prove this equivalence by invoking \AgdaFunction{dual-inv}, but
-thanks to the added rewriting rule a use of \AgdaInductiveConstructor{refl}
-suffices. In this case the saved effort is negligible, but in later results,
-where it is necessary to use \AgdaFunction{dual-inv} for rewriting part of the
-\emph{index} of some type families, having an implicit rewriting rule allows us
-to avoid writing some quite obscure Agda code.
+thanks to the rewriting rule that we have added just above a use of
+\AgdaInductiveConstructor{refl} suffices. In this case the saved effort is
+negligible, but in later results, where it is necessary to use
+\AgdaFunction{dual-inv} for rewriting part of the \emph{index} of some type
+families, having an implicit rewriting rule allows us to avoid writing some
+quite obscure Agda code.
 
 \begin{code}[hide]%
 \>[0]\AgdaFunction{dual-subst}\AgdaSpace{}%
@@ -1078,7 +1081,8 @@ to avoid writing some quite obscure Agda code.
 
 Just like \AgdaFunction{dual-inv}, \AgdaFunction{dual-subst} too is key in the
 formalization that follows. Therefore, we add it to the set of implicit
-rewriting rules used by Agda so that we do not have to think about it again.
+rewriting rules used by Agda so that we do not have to think about this property
+again.
 
 \begin{code}%
 \>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
