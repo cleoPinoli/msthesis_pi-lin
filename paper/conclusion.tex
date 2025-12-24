@@ -1,38 +1,51 @@
 \section{Concluding Remarks}
 \label{sec:conclusion}
 
-In this work we have focused on models and theories of \emph{binary sessions},
-but there are also formalizations of \emph{multiparty session types}, notably
-those of \citet{JacobsBalzerKrebbers22a} and \citet{TiroreBengstonCarbone25},
-which are notoriously more complex than those of binary session types. Just to
-give an example, the formalization of \citet{TiroreBengstonCarbone25} amounts to
-more than 1Mb of Coq code.
+We have presented a formalization of \LCP, a variant of the linear
+$\pi$-calculus~\cite{KobayashiPierceTurner99} supported by the same type system
+of \CP~\cite{Wadler14}. Binary sessions can be modeled in \LCP using the
+continuation-passing encoding described by \citet[extended
+version]{Kobayashi02b} and \citet{DardhaGiachinoSangiorgi17}.
+%
+Under the assumption that the size of a formalization is a good measure of its
+complexity, the formalization of \LCP can be qualified as ``simple'' compared to
+the existing ones.
+%
+In this respect, our work casts some doubts on the actual contribution of
+context splitting to the complexity of a formalization and hints instead at
+explicit continuations in the underlying model as a simplifying factor.
+%
+It is quite interesting to note that, among the approaches that have been
+proposed to overcome context splitting, the one of \citet{SanoKavanaghPientka23}
+makes use of explicit continuations.
 
-FARE CONFRONTO TRA LCP E IL CALCOLO NELLA CHALLENGE PER DIRE CHE NON SI RIESCONO
-A MODELLARE TUTTI I PROCESSI, MAGARI SI PUÒ FARE UN ESEMPIO NELLA SEZIONE SUL
-CALCOLO.
+We remark that \LCP and the calculus described in the linearity
+challenge~\cite{CarboneEtAl24} are fundamentally incomparable. On the one hand,
+the challenge only considers a minimal calculus of first-order, monomorphic
+sessions while \LCP is a fully-fledged calculus that supports linear, shared,
+higher-order, polymorphic channels. On the other hand, the logical foundations
+of \LCP prevent the modeling of deadlocks and of sequential processes that own
+both endpoints of a session, both of which can be modeled in the calculus of the
+challenge.
+%
+Because of its logical foundations, we like to think of \LCP as a ``canonical''
+calculus that deserves its own space in the context of the linearity challenge
+alongside with (but not in substitution of) more traditional session calculi.
 
-PARLARE DI CP E DI PI CALCOLO LINEARE
+The simple formalization of \LCP is a good basis for further investigations. We
+have already extended \LCP with support for infinite types and recursive
+processes (the formalization of this extension is publicly available in a
+sibling folder of the one for \LCP). In the future, it would be interesting to
+formalize the strong normalization property of \LCP as a consequence of cut
+elimination of classical linear logic.
 
-BELLIN E SCOTT?
-
-context splitting hard to read but overall doable
-
-working with an intrinsically typed calculus drastically reduces the number of
-cases that must be considered in proving properties (eg deadlock freedom)
-
-it also makes it trivial to reason about properties of sub-processes (see type
-safety, where Q is well typed)
-
-structural pre-congruence by far most involved, and it will grow even further in
-order to prove more complex properties (eg confluence)
-
-linear pi-calculus is good
-
-we think that a simple formalization is a good basis for further investigations.
-For examples, defined cut elimination, strong normalization, soundness of
-subtyping, for the linear fragment of \Calculus
-
-conclusioni: comparison in \Cref{sec:related} made under the assumption that the
-size of the formalization is a good measure of its complexity. But there are
-several factors that may invalidate this assumption. We should pursue 
+In this work we have focused on models and theories of \emph{binary sessions}
+(those connecting exactly two processes), but there are also formalizations of
+\emph{multiparty sessions}, notably those of \citet{JacobsBalzerKrebbers22a} and
+\citet{TiroreBengstonCarbone25}, which are significantly more complex than those
+of binary sessions. Just to give an example, the formalization by
+\citet{TiroreBengstonCarbone25} amounts to more than 1Mb of Coq code.
+Incidentally, multiparty sessions are not supported by a strong connection with
+linear logic and there is no known continuation-passing encoding of multiparty
+sessions. Hence, it is unclear whether the considerations made for this work
+also apply to the multiparty case.
