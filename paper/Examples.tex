@@ -367,43 +367,16 @@ we obtain
 $\AgdaInductiveConstructor{select}~(\AgdaInductiveConstructor{ch~⟨~<~•~⟩~inj₂}~(\AgdaInductiveConstructor{close~ch}))$,
 that is the definition of \AgdaFunction{False}, as expected.
 
-For the encoding of the echo server (\Cref{ex:echo}), it is convenient to
-introduce the linear implication connective according to the standard definition
-$A \multimap B \eqdef \dual{A} \Par B$.
-
-\begin{code}%
-\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⊸\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{PreType}\AgdaSpace{}%
-\AgdaBound{n}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{PreType}\AgdaSpace{}%
-\AgdaBound{n}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{PreType}\AgdaSpace{}%
-\AgdaBound{n}\<%
-\\
-\>[0]\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⊸}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
-\AgdaBound{B}\<%
-\end{code}
-
-Recall that the server is polymorphic in the sense that the type of the value it
-receives and sends back is arbitrary and denoted by a type variable $X$. The
-notation $\AgdaFunction{\#}~n$ is defined in Agda's standard library and creates
-an element of \AgdaDatatype{Fin} from the natural number $n$.
+For the encoding of the echo server (\Cref{ex:echo}), recall that the server is
+polymorphic in the sense that the type of the value it receives and sends back
+is arbitrary and denoted by a type variable $X$. The notation
+$\AgdaFunction{\#}~n$ is defined in Agda's standard library and creates an
+element of \AgdaDatatype{Fin} from the natural number $n$.
 
 \begin{code}%
 \>[0]\AgdaFunction{Echo}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[241I]\AgdaKeyword{let}\AgdaSpace{}%
+\>[223I]\AgdaKeyword{let}\AgdaSpace{}%
 \AgdaBound{X}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{var}\AgdaSpace{}%
@@ -411,31 +384,34 @@ an element of \AgdaDatatype{Fin} from the natural number $n$.
 \AgdaNumber{0}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaKeyword{in}\<%
 \\
-\>[.][@{}l@{}]\<[241I]%
+\>[.][@{}l@{}]\<[223I]%
 \>[7]\AgdaDatatype{Proc}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
 \AgdaInductiveConstructor{`!}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{X}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⊸}}\AgdaSpace{}%
-\AgdaBound{X}\AgdaSymbol{))}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⅋}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaBound{X}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{⊗}}\AgdaSpace{}%
+\AgdaInductiveConstructor{𝟙}\AgdaSymbol{)))}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{]}}\<%
 \\
 \>[0]\AgdaFunction{Echo}\AgdaSpace{}%
 \AgdaSymbol{=}%
-\>[256I]\AgdaFunction{curry∗}\AgdaSpace{}%
+\>[241I]\AgdaFunction{curry∗}\AgdaSpace{}%
 \AgdaInductiveConstructor{server}\AgdaSpace{}%
 \AgdaInductiveConstructor{ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\<%
 \\
-\>[256I][@{}l@{\AgdaIndent{0}}]%
+\>[241I][@{}l@{\AgdaIndent{0}}]%
 \>[13]\AgdaSymbol{(}\AgdaSpace{}%
 \AgdaInductiveConstructor{un-[]}\<%
 \\
 %
 \>[13]\AgdaOperator{\AgdaInductiveConstructor{,}}%
-\>[262I]\AgdaFunction{curry∗}\AgdaSpace{}%
+\>[247I]\AgdaFunction{curry∗}\AgdaSpace{}%
 \AgdaInductiveConstructor{all}\AgdaSpace{}%
 \AgdaInductiveConstructor{ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
@@ -444,7 +420,7 @@ an element of \AgdaDatatype{Fin} from the natural number $n$.
 \AgdaBound{X}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[262I]%
+\>[.][@{}l@{}]\<[247I]%
 \>[15]\AgdaFunction{curry∗}\AgdaSpace{}%
 \AgdaInductiveConstructor{join}\AgdaSpace{}%
 \AgdaInductiveConstructor{ch}\AgdaSpace{}%
@@ -454,11 +430,26 @@ an element of \AgdaDatatype{Fin} from the natural number $n$.
 \\
 %
 \>[15]\AgdaFunction{curry∗}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{curry∗}\AgdaSpace{}%
+\AgdaInductiveConstructor{fork}\AgdaSpace{}%
+\AgdaInductiveConstructor{ch}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
+\AgdaFunction{≫}\AgdaSymbol{))}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{curry∗}\AgdaSpace{}%
 \AgdaInductiveConstructor{link}\AgdaSpace{}%
 \AgdaInductiveConstructor{ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
+\AgdaInductiveConstructor{•}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaInductiveConstructor{ch}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaInductiveConstructor{ch}\AgdaSymbol{)}\<%
+\AgdaOperator{\AgdaFunction{\$}}\<%
+\\
+%
+\>[15]\AgdaInductiveConstructor{close}\AgdaSpace{}%
+\AgdaInductiveConstructor{ch}\AgdaSpace{}%
+\AgdaSymbol{)}\<%
 \end{code}
 
 We can test the server by connecting it with a \AgdaInductiveConstructor{client}
@@ -474,13 +465,13 @@ that sends true to it.
 \\
 \>[0]\AgdaFunction{Echo-True}\AgdaSpace{}%
 \AgdaSymbol{=}%
-\>[286I]\AgdaFunction{curry∗}\AgdaSpace{}%
+\>[283I]\AgdaFunction{curry∗}\AgdaSpace{}%
 \AgdaInductiveConstructor{cut}\AgdaSpace{}%
 \AgdaFunction{Echo}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{\$}}\<%
 \\
-\>[.][@{}l@{}]\<[286I]%
+\>[.][@{}l@{}]\<[283I]%
 \>[12]\AgdaFunction{curry∗}\AgdaSpace{}%
 \AgdaInductiveConstructor{client}\AgdaSpace{}%
 \AgdaInductiveConstructor{ch}\AgdaSpace{}%
@@ -490,7 +481,10 @@ that sends true to it.
 \\
 %
 \>[12]\AgdaFunction{curry∗}\AgdaSpace{}%
-\AgdaInductiveConstructor{ex}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaInductiveConstructor{ex}\AgdaSpace{}%
+\AgdaSymbol{\{\AgdaUnderscore{}\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaFunction{dual}\AgdaSpace{}%
+\AgdaFunction{𝔹}\AgdaSymbol{\})}\AgdaSpace{}%
 \AgdaInductiveConstructor{ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
@@ -498,20 +492,38 @@ that sends true to it.
 \\
 %
 \>[12]\AgdaFunction{curry∗}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{curry∗}\AgdaSpace{}%
 \AgdaInductiveConstructor{fork}\AgdaSpace{}%
 \AgdaInductiveConstructor{ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
-\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\$}}\AgdaSpace{}%
+\AgdaFunction{≫}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaFunction{True}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{⟩}}\AgdaSpace{}%
-\AgdaFunction{curry∗}\AgdaSpace{}%
-\AgdaInductiveConstructor{link}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\$}}\<%
+\\
+%
+\>[12]\AgdaFunction{curry∗}\AgdaSpace{}%
+\AgdaInductiveConstructor{join}\AgdaSpace{}%
 \AgdaInductiveConstructor{ch}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
 \AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\$}}\<%
+\\
+%
+\>[12]\AgdaFunction{curry∗}\AgdaSpace{}%
+\AgdaInductiveConstructor{wait}\AgdaSpace{}%
+\AgdaInductiveConstructor{ch}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
+\AgdaFunction{≫}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\$}}\<%
+\\
+%
+\>[12]\AgdaFunction{curry∗}\AgdaSpace{}%
+\AgdaInductiveConstructor{link}\AgdaSpace{}%
+\AgdaInductiveConstructor{ch}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaOperator{\AgdaInductiveConstructor{<}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{>}}\AgdaSpace{}%
+\AgdaInductiveConstructor{•}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaInductiveConstructor{ch}\<%
 \end{code}
 

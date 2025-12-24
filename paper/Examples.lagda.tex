@@ -105,28 +105,21 @@ we obtain
 $\AgdaInductiveConstructor{select}~(\AgdaInductiveConstructor{ch~⟨~<~•~⟩~inj₂}~(\AgdaInductiveConstructor{close~ch}))$,
 that is the definition of \AgdaFunction{False}, as expected.
 
-For the encoding of the echo server (\Cref{ex:echo}), it is convenient to
-introduce the linear implication connective according to the standard definition
-$A \multimap B \eqdef \dual{A} \Par B$.
-
-\begin{code}
-_⊸_ : ∀{n} → PreType n → PreType n → PreType n
-A ⊸ B = dual A ⅋ B
-\end{code}
-
-Recall that the server is polymorphic in the sense that the type of the value it
-receives and sends back is arbitrary and denoted by a type variable $X$. The
-notation $\AgdaFunction{\#}~n$ is defined in Agda's standard library and creates
-an element of \AgdaDatatype{Fin} from the natural number $n$.
+For the encoding of the echo server (\Cref{ex:echo}), recall that the server is
+polymorphic in the sense that the type of the value it receives and sends back
+is arbitrary and denoted by a type variable $X$. The notation
+$\AgdaFunction{\#}~n$ is defined in Agda's standard library and creates an
+element of \AgdaDatatype{Fin} from the natural number $n$.
 
 \begin{code}
 Echo : let X = var (# 0) in
-       Proc [ `! (`∀ (X ⊸ X)) ]
+       Proc [ `! (`∀ (X ⅋ (dual X ⊗ 𝟙))) ]
 Echo = curry∗ server ch (< ≫)
              ( un-[]
              , curry∗ all ch (< ≫) λ X →
                curry∗ join ch (< ≫) $
-               curry∗ link ch (< ≫) ch)
+               curry∗ (curry∗ fork ch (< ≫)) (curry∗ link ch (< > •) ch) (< ≫) $
+               close ch )
 \end{code}
 
 We can test the server by connecting it with a \AgdaInductiveConstructor{client}
@@ -136,8 +129,11 @@ that sends true to it.
 Echo-True : Proc [ 𝔹 ]
 Echo-True = curry∗ cut Echo ≫ $
             curry∗ client ch (< ≫) $
-            curry∗ ex ch (< ≫) $
-            curry∗ fork ch (< ≫) $ True ⟨ ≫ ⟩ curry∗ link ch (< ≫) ch
+            curry∗ (ex {_} {dual 𝔹}) ch (< ≫) $
+            curry∗ (curry∗ fork ch (< ≫)) True ≫ $
+            curry∗ join ch (< ≫) $
+            curry∗ wait ch (< ≫) $
+            curry∗ link ch (< > •) ch
 \end{code}
 
 If we ask Agda to evaluate this process we obtain \AgdaFunction{True}, as
