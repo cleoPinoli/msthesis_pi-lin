@@ -6,11 +6,11 @@ collection of challenges concerning the mechanisation of formal models of
 concurrent and distributed programming languages.
 %
 These models often make use of distinctive features that set them apart from the
-formal models of \emph{sequential} programming languages, such as the adoption
-of substructural (linear, affine) type systems, the dynamic scope of first-class
+formal models of sequential programming languages, such as the adoption of
+substructural (linear, affine) type systems, the dynamic scope of first-class
 channels in systems of communicating processes, the need for coinductive
 definitions and proof methods for describing and reasoning on possibly infinite
-behaviors.
+behaviours.
 %
 The benchmark aims at identifying effective formalisation techniques that take
 these features into account so as to foster the adoption of machine-checked
@@ -26,7 +26,7 @@ based on peer-to-peer communication channels. Every session type system revolves
 around three key ideas: (1) session endpoints are \emph{linear resources} that
 cannot be discarded or duplicated without compromising some safety and liveness
 properties of a program; (2) the type of a session endpoint is \emph{updated}
-after each use to reflect the state of the interaction it describes; (3) peer
+after each use to reflect the state of the protocol it describes; (3) peer
 session endpoints are meant to be used in complementary ways so as to guarantee
 the absence of communication errors and, to some extent, progress of the
 interaction.

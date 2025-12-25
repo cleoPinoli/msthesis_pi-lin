@@ -33,11 +33,12 @@ The interpretation of linear logic propositions as protocols is fairly
 usual~\cite{Wadler14}: the multiplicative constants $\Bot$ and $\One$ describe
 protocols that terminate with the input/output of a signal; the additive
 connectives $A \With B$ and $\A \Plus B$ describe protocols having two possible
-continuations of type $A$ and $B$ which are selected/offered; the multiplicative
-connectives $A \Par B$ and $A \Ten B$ describe bifurcating protocols with two
-continuations of type $A$ and $B$. The additive constants $\Zero$ and $\Top$ do
-not describe useful protocols, but they can play the role of smallest/largest
-type in type systems that support a notion of subtyping~\citep{HornePadovani24}. 
+continuations of type $A$ and $B$ which are respectively offered/selected; the
+multiplicative connectives $A \Par B$ and $A \Ten B$ describe bifurcating
+protocols with two continuations of type $A$ and $B$ that are respectively
+received and sent. The additive constants $\Zero$ and $\Top$ do not describe
+useful protocols, but they can play the role of smallest/largest type in type
+systems that support a notion of subtyping~\citep{HornePadovani24}. 
 %
 The quantifiers $\forall X.A$ and $\exists X.A$ describe the input/output of a
 type $X$ with a continuation $A$ and are useful to describe parametric protocol
@@ -85,11 +86,11 @@ occurrences of $X$ in $A$ with $B$.
 The syntax of processes makes use of an infinite set of \emph{channels}, ranged
 over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
 %
-A link $\Link\x\y$ denotes the merging of the channels $x$ and $y$, so that
-every message sent on one of the channels is forwarded to the other. As
-discussed in the literature~\cite{LindleyMorris15}, this form is useful for
-modeling higher-order sessions, that is the exchange of an existing channel on
-another channel.
+A link $\Link\x\y$ denotes the merging of the channels $x$ and $y$, so that the
+message sent on one of the channels is forwarded to the other. As discussed in
+the literature~\cite{LindleyMorris15}, this form is useful for modeling
+higher-order sessions, that is the exchange of an existing channel on another
+channel.
 %
 The processes $\Wait\x.P$ and $\Close\x$ respectively model the input and output
 of a termination signal on the channel $x$. The latter process has no
@@ -101,12 +102,11 @@ $x$.
 %
 The processes $\Case\x\z{Q_1}{Q_2}$ and $\Select\x{\InTag_i}\z.P$ for $i=1,2$
 describe the input/output of a label $\InTag_i$ along with a fresh continuation
-$z$ on the channel $x$. The receiver continues as $Q_i$ depending on the
-received label $\InTag_i$. In practice it is useful to consider arbitrary
-(domain-specific) sets of labels instead of the canonical $\InTag_1$ and
-$\InTag_2$. This generalisation has no substantial impact on the formalisation,
-so we stick to binary choices in line with the usual presentations of linear
-logic.
+$z$ on the channel $x$. The receiver continues as $Q_i$ depending on the label
+$\InTag_i$. In practice it is useful to consider arbitrary (domain-specific)
+sets of labels instead of the canonical $\InTag_1$ and $\InTag_2$. This
+generalisation has no substantial impact on the formalisation, so we stick to
+binary choices in line with the usual presentations of linear logic.
 %
 The processes $\Join\x\y\z.R$ and $\Fork\x\y\z{P}{Q}$ describe the input/output
 of a pair of fresh channels $y$ and $z$ on the channel $x$. The former process
@@ -142,10 +142,10 @@ processes up to renaming of bound channels.
 
 \begin{example}
     \label{ex:booleans}
-    We can represent the type of a boolean value being produced as the
-    proposition $\Bool \eqdef \One \Plus \One$ and that of a boolean value being
-    consumed as its dual $\dual\Bool = \Bot \With \Bot$. Following these types,
-    the boolean constants can be modeled by the processes
+    We can represent the type of a boolean value being produced as the protocol
+    $\Bool \eqdef \One \Plus \One$ and that of a boolean value being consumed as
+    its dual $\dual\Bool = \Bot \With \Bot$. Following these types, the boolean
+    constants can be modeled by the processes
     \[
         \TrueP(x) \eqdef \Select\x\LeftTag{x'}.\Close{x'}
         \qquad
@@ -179,7 +179,7 @@ processes up to renaming of bound channels.
             \Wait\x.\TrueP(y)
         }
     \]
-    where each channel is used multiple times to indicate the various
+    where each channel is used multiple times to indicate the sequence of
     input/output actions pertaining to the same session.
     %
     In general, the \CP version of an \LCP process can be obtained by reusing
@@ -308,8 +308,8 @@ Structural pre-congruence is the least pre-congruence defined by the
 The remaining rules, when read from left to right, push a cut on $x$ underneath
 the topmost prefix on $y$ of one of its sub-processes when $x \ne y$. These
 rules are key to float input/output actions to the top-level of a process, so
-that they can interact with corresponding complementary actions in the context
-surrounding the process.
+that they can interact with corresponding complementary actions in the
+surrounding context.
 %
 All these rules have implicit side-conditions (not shown in
 \Cref{tab:semantics}) aimed at preserving the meaning of channels when binders
@@ -321,7 +321,7 @@ We content ourselves with such informal description of these side conditions
 given that we are going to formalise \Calculus later on.
 %
 Note also that there are two versions of \SForkL and \SForkR depending on which
-of the two continuations (either $P$ or $Q$) contains free occurrences of the
+of the two continuations (either $P$ or $Q$) contains a free occurrence of the
 restricted channel $x$.
 
 There is no pre-congruence rule asserting that parallel composition is
@@ -329,7 +329,7 @@ associative. While this is a sound property of parallel composition, it turns
 out to be unnecessary for proving the properties of \LCP that we consider. We
 leave it out in light of the forthcoming formalisation of the calculus, in which
 every simplification is welcome, although standard presentations of classical
-linear logic admit such law~\cite{Wadler14}.
+linear logic admit such law~\cite{Wadler14,Doumane17}.
 %
 Another rule that deserves attention is \SServer. In this case, a server prefix
 $\Server\y\u$ can be pulled out of a cut only provided that the other process in
@@ -342,13 +342,13 @@ The reduction rules \RLink, \RClose, \RSelect, \RFork, \RExists, \RConnect,
 reductions of session calculi and the principal cut reductions of linear logic.
 \RLink eliminates a link $\Link\x\y$ by substituting $y$ for $x$. \RClose closes
 a session $x$ when a termination signal is exchanged on $x$. \RSelect and \RFork
-respectively model the communication of a tag $\InTag_i$ and of a fresh channel
-$y$. \RExists models the instantiation of a polymorphic variable $X$ as the
-communication of a type $A$. We write $Q\subst{A}\X$ for the process obtained by
-replacing every free occurrence of the type variable $X$ with $A$. Each of these
-communications consumes the channel $x$ and possibly creates and transfers a
-\emph{fresh continuation} $z$ on which the rest of the conversation takes place,
-in line with the encoding of sessions into the linear
+respectively model the communication of a tag $\InTag_i$ and of a pair of fresh
+continuation channels. \RExists models the instantiation of a polymorphic
+variable $X$ as the communication of a type $A$. We write $Q\subst{A}\X$ for the
+process obtained by replacing every free occurrence of the type variable $X$
+with $A$. Each of these communications consumes the channel $x$ and possibly
+creates and transfers \emph{fresh continuations} on which the rest of the
+conversation takes place, in line with the encoding of sessions into the linear
 $\pi$-calculus~\cite{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
 %
 The rules \RConnect, \RWeaken and \RContract describe interactions on shared
@@ -484,8 +484,8 @@ corresponding to the derivation for $\wtp{}\Context$.
 The typing rules are shown in \Cref{tab:typing-rules}. Since they are in
 one-to-one correspondence with -- and have exactly the same structure of -- the
 proof rules of classical linear logic, the reader may refer to the standard
-literature on linear logic or propositions as sessions~\citep{Wadler14} for
-their interpretation.
+literature on propositions as sessions~\citep{Wadler14} for their
+interpretation.
 
 % \begin{example}
 %     \label{ex:typing-booleans}
@@ -573,12 +573,12 @@ their interpretation.
         \Fork{y''}\v{y'''}{\Link\u\v}{\Close{y'''}}
     \]
 
-    The server accepts requests on the shared channel $x$. Each request
-    established a new session, initially represented by the channel $y$. The
-    session consists in receiving the type $X$ of the value being echoed
-    followed by the value itself $u$. The value is then sent back unchanged and
-    the session is terminated. Note the succession of different (linear)
-    channels $y, y', y'', y'''$ that chain the session together.
+    The server accepts requests on the shared channel $x$. Each request creates
+    a new session, initially represented by the channel $y$. The session
+    consists in receiving the type $X$ of the value being echoed followed by the
+    value itself $u$. The value is then sent back unchanged and the session is
+    terminated. Note the succession of different (linear) channels $y, y', y'',
+    y'''$ that chain the session together.
 
     We establish that $\EchoP(x)$ is well typed with the following derivation
     \[
@@ -689,7 +689,7 @@ possibly \SComm. Let us make all this more precise.
 
 We say that $P$ is a \emph{thread} if it is anything but a cut. In other words,
 a thread is either a link or a process that starts with an input/output action
-of some sort. Note that a thread may contain cuts, but these cuts must all
+of some sort. Note that a thread may contain cuts, but these cuts must be
 guarded underneath the topmost action prefix of the thread.
 %
 We say that $P$ is \emph{observable} if $P \pcong Q$ for some thread $Q$. An
