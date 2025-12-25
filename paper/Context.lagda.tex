@@ -11,14 +11,14 @@ open import Type
 \subsection{Context Representation}
 \label{sec:context-agda}
 
-We are going to adopt a nameless representation of channels hence typing
-contexts are represented using lists of types, where the (polymorphic)
+We are going to adopt a nameless representation of channels. Hence, typing
+contexts are represented as lists of types, where the (polymorphic)
 \AgdaDatatype{List} type and its constructors \AgdaInductiveConstructor{[]} and
 \AgdaInductiveConstructor{\_∷\_} are defined in the module
 \AgdaModule{Data.List} of Agda's standard library. We will keep using
-$\ContextC$, $\ContextD$ and $\ContextE$ to range over typing contexts as in
-\Cref{sec:typing-rules}, even though in the Agda formalisation they are lists
-instead of finite maps.
+$\ContextC$, $\ContextD$ and $\ContextE$ to range over typing contexts, even
+though in the Agda formalisation they are lists and not finite maps as in
+\Cref{sec:typing-rules}.
 
 \begin{code}
 Context : Set
@@ -49,7 +49,7 @@ data _≃_+_ : Context → Context → Context → Set where
 When splitting a context $\Context$ into $\ContextD + \ContextE$, for each type
 in $\Context$ we use one of the prefix operators \AgdaInductiveConstructor{<}
 and \AgdaInductiveConstructor{>} to indicate whether the type is meant to be
-placed in $\ContextD$ or $\ContextE$.
+placed in $\ContextD$ or in $\ContextE$.
 %
 For example, below is a proof of the splitting $\Splitting{[A, B, C,
 D]}{[B]}{[A, C, D]}$.
@@ -59,7 +59,7 @@ module _ where
   postulate A B C D : Type
 \end{code}
 \begin{code}
-  splitting-example₁ : (A ∷ B ∷ C ∷ D ∷ []) ≃ (B ∷ []) + (A ∷ C ∷ D ∷ [])
+  splitting-example₁ : (A ∷ B ∷ C ∷ D ∷ []) ≃ [ B ] + (A ∷ C ∷ D ∷ [])
   splitting-example₁ = > < > > •
 \end{code}
 
@@ -179,8 +179,8 @@ data _∗_ (P Q : Pred Context _) (Γ : Context) : Set where
 \end{code}
 
 If $P$ and $Q$ are predicates over contexts, the predicate $P \sand Q$ holds for
-those contexts $\ContextC$ that can be split into $\ContextD$ and $\ContextE$
-such that $P$ holds for $\ContextD$ and $Q$ holds for $\ContextE$.
+those contexts $\ContextC$ that can be split into $\ContextD$ and $\ContextE$ so
+that $P$ holds for $\ContextD$ and $Q$ holds for $\ContextE$.
 %
 The constructor \AgdaInductiveConstructor{\_⟨\_⟩\_} has three explicit arguments
 witnessing the splitting $\Splitting\ContextC\ContextD\ContextE$ along with
@@ -203,10 +203,9 @@ curry∗ F px σ qx = F (px ⟨ σ ⟩ qx)
 \end{code}
 
 To conclude the implementation of typing contexts, we define a predicate
-\AgdaDatatype{Un} that holds for \emph{unrestricted} contexts, namely those
-contexts solely made of types of the form $?A$. We will need this predicate in
-the definition of a server, which must obey the typing rule \ServerRule of
-\Cref{tab:typing-rules}.
+\AgdaDatatype{Un} that holds for \emph{unrestricted} contexts, those solely made
+of types of the form $?A$. We need this predicate in the definition of a server,
+which must comply with the typing rule \ServerRule in \Cref{tab:typing-rules}.
 
 \begin{code}
 data Un : Context → Set where

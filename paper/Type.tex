@@ -30,10 +30,11 @@
 \label{sec:type-agda}
 
 The representation of types is standard, with one constructor for each of the
-forms described in \Cref{sec:types}. We start by defining \emph{pre-types} as an
-indexed data type $\AgdaDatatype{PreType}~n$ where $n$ is the number of bound
-type variables and we use de Bruijn indices for denoting type variables. In this
-way, we make sure that pre-types are well scoped.
+forms described in \Cref{sec:types}. We start by defining an indexed data type
+$\AgdaDatatype{PreType}~n$ to represents (\LCP) types in the scope of $n$
+quantifiers and we use elements of $\AgdaDatatype{Fin}~n$ as de Bruijn indices
+for the quantified type variables. In this way, we make sure that pre-types are
+well scoped.
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -113,8 +114,8 @@ way, we make sure that pre-types are well scoped.
 Note the constructors \AgdaInductiveConstructor{var} and
 \AgdaInductiveConstructor{rav}, which respectively represent type variables and
 their dual, and the quantifiers \AgdaInductiveConstructor{`∀} and
-\AgdaInductiveConstructor{`∃} which increase the number of bound type variables
-in the scoped pre-type.
+\AgdaInductiveConstructor{`∃} which increase the number of quantifiers in the
+scoped pre-type.
 
 The dual of a pre-type is computed by the following function:
 
@@ -377,12 +378,12 @@ It is straightforward to prove that duality is a an involution.
 \AgdaFunction{dual-inv}\<%
 \end{code}
 
-This property is so important in the rest of the formalisation that it is worth
-defining an implicit rewriting rule so that Agda can autonomously apply it
-whenever possible. This is achieved by means of the following pragma
-directive.\footnote{The directive is effective provided that the option
-\texttt{{-}{-}rewriting} is enabled, either globally when invoking Agda or
-within a pragma in the module's source code.}
+This property is important in the rest of the formalisation so we define an
+implicit rewriting rule that Agda can autonomously apply whenever possible. This
+is achieved by means of the following pragma directive.\footnote{The directive
+is effective provided that the option \texttt{{-}{-}rewriting} is enabled,
+either globally when invoking Agda or within a pragma in the module's source
+code.}
 
 \begin{code}%
 \>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
@@ -625,13 +626,13 @@ within a pragma in the module's source code.}
 \end{code}
 
 Next we define the function \AgdaFunction{subst} that simultaneously substitutes
-the type variables of a (pre)type with other (pre)types. Even though in practice
-we will always substitute one variable at a time, it is technically easier to
-substitutes \emph{all} variables of a (pre)type. The definition of
-\AgdaFunction{subst} relies on some auxiliary functions for \emph{renaming} type
-variables and \emph{lifting} substitutions across quantifiers. All such
-definitions are straightforward adaptations of those described by
-\citet{KokkeSiekWadler20}.
+the type variables of a pre-type with other pre-types. In practice we will
+always substitute one variable at a time, but it is technically easier to
+substitute \emph{all} variables of a pre-type, possibly with themselves. The
+definition of \AgdaFunction{subst} relies on some auxiliary functions for
+\emph{renaming} type variables and \emph{lifting} substitutions across
+quantifiers. These functions are straightforward adaptations of those described
+by \citet{KokkeSiekWadler20}.
 
 \begin{code}%
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%
@@ -793,7 +794,7 @@ definitions are straightforward adaptations of those described by
 \end{code}
 
 Among all substitutions, we will use the one that substitutes the 0-indexed type
-variable with a (pre)type. It is convenient to introduce this substitution once
+variable with a pre-type. It is convenient to introduce this substitution once
 and for all, which we do here.
 
 \begin{code}%
@@ -1091,9 +1092,8 @@ again.
 \AgdaSymbol{\#-\}}\<%
 \end{code}
 
-At last we are ready to define the type of closed pre-types, those
-having no free type variables. We call \AgdaDatatype{Type} closed pre-types.
-From now on, we will seldom use pre-types again.
+We call \AgdaDatatype{Type} closed pre-types, those having no free type
+variables. From now on, we will seldom use pre-types again.
 
 \begin{code}%
 \>[0]\AgdaFunction{Type}\AgdaSpace{}%

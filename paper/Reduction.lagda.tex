@@ -38,7 +38,7 @@ contraction un p P = ↭proc (↭concat p) (aux un (↭proc (↭left (↭sym (�
 
 Just like structural precongruence, reduction is formalised as a binary relation
 between processes that are well typed in the very same typing context. Thus, the
-definition of reduction embeds the subject reduction result.
+definition of reduction embeds the subject reduction result (\Cref{thm:red}).
 
 \begin{code}
 data _↝_ {Γ} : Proc Γ → Proc Γ → Set where
@@ -58,7 +58,7 @@ $\Cut[A]\x{\Link\x\y}{P} \red P\subst\y\x$ called \RLink in
 
 The splitting $p$ indicates that $y$ (of type $\dual{A}$) occurs on the left
 sub-process of the cut (that is the link $\Link\x\y$) and the splitting
-$(\AgdaInductiveConstructor{<}~\AgdaInductiveConstructor{>}~\AgdaInductiveConstructor{•})$
+$\AgdaInductiveConstructor{<}~\AgdaInductiveConstructor{>}~\AgdaInductiveConstructor{•}$
 to which \AgdaInductiveConstructor{link} is applied is structured consistently
 with the syntax of the link $\Link\x\y$ being reduced, which is oriented so that
 the restricted channel $x$ occurs on the left. 
@@ -83,7 +83,7 @@ The constructor \AgdaInductiveConstructor{r-close} models \RClose:
 While the \AgdaInductiveConstructor{close} constructor implicitly refers to the
 only free channel occurring in a process of the form $\Close\x$, the
 \AgdaInductiveConstructor{wait} constructor uses a splitting proof of the form
-$(\AgdaInductiveConstructor{<}~q_0)$ to be sure that the referenced channel is
+$\AgdaInductiveConstructor{<}~q_0$ to be sure that the referenced channel is
 also the restricted one, and therefore matches the one of the
 \AgdaInductiveConstructor{close} process.
 

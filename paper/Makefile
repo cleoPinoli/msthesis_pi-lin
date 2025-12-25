@@ -32,7 +32,7 @@ SOURCES = \
 
 TARGETS = $(MODULES:%=%.tex)
 
-all: PadovaniRaffaelli.zip
+all: $(TARGETS)
 
 PadovaniRaffaelli.zip: $(SOURCES)
 	zip $@ $^

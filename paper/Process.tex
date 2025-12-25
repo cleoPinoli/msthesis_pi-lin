@@ -427,7 +427,7 @@ For this process to be well typed in a context $\Context$, it must be the case
 that $\Splitting\Context\ContextD\ContextE$ so that $P$ and $Q$ are well typed
 in the contexts $x : A, \ContextD$ and $x : \dual{A}, \ContextE$ respectively.
 Since $x$ is the most recently introduced channel, the types $A$ and $\dual{A}$
-must be added \emph{at the front} of $\ContextD$ and $\ContextE$, which we do by
+is added \emph{at the front} of $\ContextD$ and $\ContextE$, which we do by
 means of the functions $(A~\AgdaInductiveConstructor{∷\_})$ and
 $(\AgdaFunction{dual}~A~\AgdaInductiveConstructor{∷\_})$ (these are partial
 applications of the constructor $\AgdaInductiveConstructor{\_∷\_}$ for lists to
@@ -518,8 +518,7 @@ variables. Therefore, $X$ cannot occur in $\Context$.
 
 We conclude this module proving that permutations preserve process typing. Since
 list permutations basically correspond to channel renaming, we can read this
-property as the fact that typing is preserved by (injective) name
-substitutions.
+property as the fact that typing is preserved by (bijective) name substitutions.
 
 \begin{code}%
 \>[0]\AgdaFunction{↭proc}\AgdaSpace{}%

@@ -73,10 +73,9 @@ structural precongruence preserves typing by definition.
 \AgdaKeyword{where}\<%
 \end{code}
 
-The datatype for $\pcong$ has one constructor for each of the structural
-precongruence rules in \Cref{tab:semantics}. Since many aspects recur
-repeatedly, we will focus on just a few representative rules starting from
-\SComm.
+The datatype for $\pcong$ has one constructor for each structural pre-congruence
+rule in \Cref{tab:semantics}. Since many aspects recur repeatedly, we illustrate
+the implementation of just a few representative rules starting from \SComm.
 
 \begin{code}%
 \>[0][@{}l@{\AgdaIndent{1}}]%
@@ -308,7 +307,7 @@ The constructor \AgdaInductiveConstructor{s-wait} models the \SWait rule:
 \end{code}
 
 There are two non-trivial aspects worth commenting. The first one concerns the
-proof $(\AgdaInductiveConstructor{>}~q)$ used in the
+proof $\AgdaInductiveConstructor{>}~q$ used in the
 \AgdaInductiveConstructor{wait} process before structural pre-congruence is
 applied. To understand the meaning of this proof, we must recall three key
 elements:
@@ -323,14 +322,14 @@ elements:
     $\Splitting{A~\AgdaInductiveConstructor{∷}~\Context_1}{[\Bot]}{A~\AgdaInductiveConstructor{∷}~\ContextD}$
     for some $\ContextD$.
   \item The \SWait rule is applicable only provided that the channel restricted
-    by the cut (say $x$, of type $A$) is different from the channel (say $y$, of
-    type $\Bot$) consumed by the \AgdaInductiveConstructor{wait} process.
+    by the cut (say $x$, of type $A$) is different from the channel  consumed by
+    the \AgdaInductiveConstructor{wait} process (say $y$, of type $\Bot$).
     %
     We enforce the side condition $x \ne y$ of \SWait (which we left implicit in
     \Cref{tab:semantics}) imposing that the type $A$ in front of
-    $A~\AgdaInductiveConstructor{∷}~\Context_1$ necessarily comes from the right
-    partition of the splitting $[\Bot] + A~\AgdaInductiveConstructor{∷}~\Delta$
-    through the use of \AgdaInductiveConstructor{>}.
+    $A~\AgdaInductiveConstructor{∷}~\Context_1$ goes to the right partition of
+    the splitting $[\Bot] + A~\AgdaInductiveConstructor{∷}~\Delta$ through the
+    use of \AgdaInductiveConstructor{>}.
 \end{enumerate}
 
 The other aspect that is worth commenting concerns the rearrangement of the
@@ -848,15 +847,14 @@ its complex side conditions:
 
 Recall from \Cref{tab:semantics} that we want to apply this rule on a process of
 the form $\Cut[A]\x{\Fork\y\u\v{P}{Q}}{R}$ when $x \in \fn{P}$. We capture this
-condition by means of the splitting $(\AgdaInductiveConstructor{<}~r)$, meaning
+condition by means of the splitting $\AgdaInductiveConstructor{<}~r$, meaning
 that the type $A$ of $x$ ends up in the typing context for $P$ and not in the
 one for $Q$.
 %
 The symmetric rule \SForkR is modeled by another constructor
 \AgdaInductiveConstructor{s-fork-r}, not shown here but similar to
-\AgdaInductiveConstructor{s-fork-l} except that
-$(\AgdaInductiveConstructor{<}~r)$ is replaced by
-$(\AgdaInductiveConstructor{>}~r)$.
+\AgdaInductiveConstructor{s-fork-l} except that $\AgdaInductiveConstructor{<}~r$
+is replaced by $\AgdaInductiveConstructor{>}~r$.
 
 \begin{code}[hide]%
 %

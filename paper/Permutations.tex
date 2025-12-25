@@ -46,12 +46,12 @@
 \subsection{Context Permutations}
 \label{sec:permutations-agda}
 
-According to our nameless representation of channels, it is the \emph{order} of
-channels in a typing context $\Context$ that determines the binding location in
-the structure of a process. When the binding structure of a process changes, \eg
-because a structural pre-congruence rule is applied, or when a channel
-substitution occurs, \cf the right-hand side of the \LinkRule reduction in
-\Cref{tab:semantics}, the typing context must be suitably rearranged. Such
+According to our nameless representation of channels, it is the \emph{position}
+of a type in a typing context $\Context$ that determines the location of its
+binder in the structure of a process. When the binding structure of a process
+changes, \eg because a structural pre-congruence rule is applied, or when a
+channel substitution occurs, \cf the right-hand side of the \LinkRule reduction
+in \Cref{tab:semantics}, the typing context must be suitably rearranged. Such
 rearrangement is in fact a \emph{permutation} of the elements of $\Context$.
 
 We define typing context permutations inductively, as a binary relation
@@ -146,11 +146,11 @@ of permutations.
 The definition of the data type \AgdaDatatype{\_↭\_} is nearly the same found in
 the module \AgdaModule{Data.List.Relation.Binary.Permutation.Propositional} of
 Agda's standard library. We have preferred defining our own notion of
-permutation for improved simplicity and convenience: the
-\AgdaInductiveConstructor{swap} constructor does not need a sub-permutation for
-the tail of the typing context, which can always be performed, if needed,
-combining \AgdaInductiveConstructor{swap} with \AgdaInductiveConstructor{prep}
-and \AgdaInductiveConstructor{trans}. Also, and more importantly, our data type
+permutation for simplicity and convenience: the \AgdaInductiveConstructor{swap}
+constructor does not need a sub-permutation for the tail of the typing context,
+which can always be performed, if needed, combining
+\AgdaInductiveConstructor{swap} with \AgdaInductiveConstructor{prep} and
+\AgdaInductiveConstructor{trans}. Also, and more importantly, our data type
 \AgdaDatatype{\_↭\_} is monomorphic (it does not need to relate arbitrary lists)
 and the arguments $A$ and $B$ of \AgdaInductiveConstructor{swap} and
 \AgdaInductiveConstructor{prep} are implicit, which streamlines the usage of

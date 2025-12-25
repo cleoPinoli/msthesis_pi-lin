@@ -74,9 +74,9 @@
 \AgdaSymbol{(}\AgdaFunction{deadlock-freedom}\AgdaSymbol{)}\<%
 \end{code}
 
-In this section we revisit and expand the sample processes discussed in
-\Cref{ex:booleans,ex:echo} and show their encoding in our formalisation. The
-encoding of $\Bool$ is straightforward.
+In this section we revisit the processes discussed in \Cref{ex:booleans,ex:echo}
+and show their encoding in our formalisation. The encoding of $\Bool$ is
+straightforward.
 
 \begin{code}%
 \>[0]\AgdaFunction{𝔹}\AgdaSpace{}%
@@ -303,8 +303,9 @@ connectives.
 \AgdaBound{B}\AgdaSymbol{))}\<%
 \end{code}
 
-The function \AgdaFunction{\$} is defined in Agda's standard library and denotes
-function application. We use it here as ``separator'' to save a few parentheses.
+The function \AgdaFunction{\$} (defined in Agda's standard library) is just a
+visible function application operator. We use it here as ``separator'' to save a
+few parentheses.
 %
 Note the use of \AgdaInductiveConstructor{cut}s for combining a process that
 produces a boolean value with a process that consumes a boolean value and the

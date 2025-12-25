@@ -15,9 +15,9 @@ In this respect, our work casts some doubts on the actual contribution of
 context splitting to the complexity of a formalisation and hints instead at
 explicit continuations in the underlying model as a simplifying factor.
 %
-It is quite interesting to note that, among the approaches that have been
-proposed to overcome context splitting, the one of \citet{SanoKavanaghPientka23}
-makes use of explicit continuations.
+It is quite striking that, among the approaches that have been proposed to
+overcome context splitting, the one of \citet{SanoKavanaghPientka23} makes use
+of explicit continuations.
 
 We remark that \LCP and the calculus described in the linearity
 challenge~\cite{CarboneEtAl24} are incomparable in terms of expressiveness. On
@@ -35,18 +35,18 @@ alongside with (but not in substitution of) more traditional session calculi.
 
 The simple formalisation of \LCP is a good basis for further investigations. We
 have already extended \LCP with support for infinite types and recursive
-processes (the source code of this extension is publicly available in a sibling
-folder of the one for \LCP). In the future, it would be interesting to formalise
-the strong normalisation property of \LCP as a consequence of cut elimination of
-classical linear logic.
+processes (the source code of this extension is publicly available in the same
+repository as the one that contains the formalisation of \LCP). In the future,
+it would be interesting to formalise the strong normalisation property of \LCP
+as a consequence of cut elimination of classical linear logic.
 
 In this work we have focused on models and theories of \emph{binary sessions}
 (those connecting exactly two processes), but there are also formalisations of
-\emph{multiparty sessions}, notably those of \citet{JacobsBalzerKrebbers22a} and
-\citet{TiroreBengstonCarbone25}, which are significantly more complex than those
-of binary sessions. Just to give an example, the formalisation by
-\citet{TiroreBengstonCarbone25} amounts to more than 1Mb of Coq code.
-Incidentally, multiparty sessions are not supported by a strong connection with
-linear logic and there is no known continuation-passing encoding of multiparty
-sessions. Hence, it is unclear whether the considerations made for this work
-also apply to the multiparty case.
+\emph{multiparty sessions}, notably those by \citet{JacobsBalzerKrebbers22a} and
+\citet{TiroreBengstonCarbone25}, which can be significantly more complex than
+those of binary sessions. The formalisation by \citet{JacobsBalzerKrebbers22a}
+amounts to 173kb and the one by \citet{TiroreBengstonCarbone25} to more than 1Mb
+of Coq code. Also in these cases, the formalisation based on (virtual)
+continuations~\citep{JacobsBalzerKrebbers22a} happens to be substantially
+smaller. Whether this is a coincidence or further evidence of the effectiveness
+of the continuation-based approaches is left for future work.
