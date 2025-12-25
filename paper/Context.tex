@@ -50,9 +50,9 @@ contexts are represented using lists of types, where the (polymorphic)
 \AgdaDatatype{List} type and its constructors \AgdaInductiveConstructor{[]} and
 \AgdaInductiveConstructor{\_∷\_} are defined in the module
 \AgdaModule{Data.List} of Agda's standard library. We will keep using
-$\ContextC$, $\ContextD$ and $\ContextE$ to range over typing contexts as we
-have done in \Cref{sec:typing-rules}, even though in the Agda formalisation they
-are lists instead of finite maps.
+$\ContextC$, $\ContextD$ and $\ContextE$ to range over typing contexts as in
+\Cref{sec:typing-rules}, even though in the Agda formalisation they are lists
+instead of finite maps.
 
 \begin{code}%
 \>[0]\AgdaFunction{Context}\AgdaSpace{}%
@@ -69,10 +69,10 @@ The most important operation concerning typing contexts is \emph{splitting}. The
 splitting of $\ContextC$ into $\ContextD$ and $\ContextE$, which we denote by
 $\Splitting\ContextC\ContextD\ContextE$, represents the fact that $\ContextC$
 contains all the types contained in $\ContextD$ and $\ContextE$, preserving both
-their overall \emph{multiplicity} and also their relative \emph{order} within
-$\ContextD$ and $\ContextE$. A \emph{proof} of
-$\Splitting\ContextC\ContextD\ContextE$ shows how the types in $\ContextC$ are
-distributed in $\ContextD$ and $\ContextE$ from left to right.
+their overall multiplicity and also their relative order within $\ContextD$ and
+$\ContextE$. A \emph{proof} of $\Splitting\ContextC\ContextD\ContextE$ shows how
+the types in $\ContextC$ are distributed in $\ContextD$ and $\ContextE$ from
+left to right.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{infix}%
@@ -216,9 +216,8 @@ D]}{[B]}{[A, C, D]}$.
 \AgdaInductiveConstructor{•}\<%
 \end{code}
 
-Context splitting enjoys a number of expected properties. In particular, it is
-easy to see that splitting is commutative and that the empty context/list is
-both a left and right unit of splitting.
+It is easy to see that splitting is commutative and that the empty context/list
+is both a left and right unit of splitting.
 
 \begin{code}%
 \>[0]\AgdaFunction{+-comm}%
@@ -335,9 +334,9 @@ both a left and right unit of splitting.
 \AgdaFunction{≫}\<%
 \end{code}
 
-Context splitting is also associative in a sense that is made precise below. If
-we write $\ContextD + \ContextE$ for some $\ContextC$ such that $Γ ≃ Δ + Θ$, then
-we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
+Context splitting is also associative. If we write $\ContextD + \ContextE$ for
+some $\ContextC$ such that $Γ ≃ Δ + Θ$, then we can prove that $Γ_1 + (Γ_2 +
+Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 
 \begin{code}%
 \>[0]\AgdaFunction{+-assoc-r}%
@@ -573,12 +572,13 @@ we can prove that $Γ_1 + (Γ_2 + Γ_3) = (Γ_1 + Γ_2) + Γ_3$.
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \end{code}
 
-Note that, when specifying a splitting $\Splitting\ContextC{[A]}\ContextE$, it
-may be convenient to use \AgdaFunction{≫} as a shortcut for a sequence of
-applications of \AgdaInductiveConstructor{>} after the $A$ type has been
-reached. For instance, \AgdaFunction{splitting-example₁} can be written
-equivalently and in a more compact way as shown below. More usages of
-\AgdaFunction{≫} will be provided in \Cref{sec:examples}.
+Note that, when specifying a splitting $\Splitting\ContextC{[A]}\ContextE$ where
+the left partition is a singleton $[A]$, it may be convenient to use
+\AgdaFunction{≫} as a shortcut for a sequence of applications of
+\AgdaInductiveConstructor{>} once the $A$ type has been reached in $\ContextC$.
+For instance, \AgdaFunction{splitting-example₁} can be written equivalently and
+in a more compact way as shown below. More usages of \AgdaFunction{≫} will be
+provided in \Cref{sec:examples}.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -624,6 +624,7 @@ equivalently and in a more compact way as shown below. More usages of
     \hline
     \textbf{Notation} & \textbf{Definition} & \textbf{Meaning} \\
     \hline
+    $\AgdaFunction{Pred}~A~ℓ$ & $A \to \AgdaDatatype{Set}~ℓ$ & predicate over $A$ \\
     $\AgdaFunction{∀[}~P~\AgdaFunction]$ & $\forall\{x\} \to P~x$ & implicit universality \\
     $P~\AgdaFunction{⇒}~Q$ & $\lambda x \to P~x \to Q~x$ & implication \\
     $P~\AgdaFunction{∪}~Q$ & $\lambda x \to P~x~\AgdaDatatype{⊎}~Q~x$ & disjunction \\
@@ -634,18 +635,17 @@ equivalently and in a more compact way as shown below. More usages of
     $\AgdaFunction{⋂[}~X~\AgdaFunction{:}~A~\AgdaFunction]~P$ & $\lambda x \to (X : A) \to P~X~x$ & infinitary conjunction \\
     \hline
   \end{tabular}
-  \caption{\label{tab:predicates} Useful definitions from Agda's \AgdaModule{Relation.Unary} module.}
+  \caption{\label{tab:predicates} Useful definitions in Agda's \AgdaModule{Relation.Unary} module.}
 \end{table}
 
 Hereafter we will make extensive use of predicates over contexts. For this
 reason, it is worth recalling a number of definitions from the
-\AgdaModule{Relation.Unary} module in Agda's standard library in
+\AgdaModule{Relation.Unary} module of Agda's standard library in
 \Cref{tab:predicates}.
 
-Context splitting is going to be pervasive in the subsequent development, to the
-point that it contributes substantially to the complexity of the formalisation.
-For this reason, we invest some effort in defining a few abstractions that allow
-us to hide context splittings and enhance code readability.
+Context splitting is pervasive in the subsequent development. For this reason,
+we define a few abstractions that allow us to hide context splittings and
+enhance code readability, at least in some cases.
 %
 Inspired by separation logic~\cite{OHearnPym99} and
 following~\citet{RouvoetPoulsenKrebbersVisser20}, we define the \emph{separating
@@ -690,17 +690,17 @@ conjunction} $P \sand Q$ of two predicates $P$ and $Q$ over contexts:
 \AgdaBound{Γ}\<%
 \end{code}
 
-The predicate $P \sand Q$ holds for those contexts $\ContextC$ that can be split
-into $\ContextD$ and $\ContextE$ where $P$ holds for $\ContextD$ and $Q$ holds
-for $\ContextE$.
+If $P$ and $Q$ are predicates over contexts, the predicate $P \sand Q$ holds for
+those contexts $\ContextC$ that can be split into $\ContextD$ and $\ContextE$
+such that $P$ holds for $\ContextD$ and $Q$ holds for $\ContextE$.
 %
 The constructor \AgdaInductiveConstructor{\_⟨\_⟩\_} has three explicit arguments
 witnessing the splitting $\Splitting\ContextC\ContextD\ContextE$ along with
-$P~\ContextD$ and $Q~\ContextE$.
+proofs of $P~\ContextD$ and $Q~\ContextE$.
 %
-The use of the metavariables $P$ and $Q$ for denoting predicates over contexts
-is not without reason. As we will see shortly, in our formalisation processes
-are indeed predicates over typing contexts, albeit not the only ones.
+The use of metavariables $P$ and $Q$ for denoting predicates over contexts is
+appropriate: as we will see shortly, in our formalisation processes are indeed
+an example of predicate over typing contexts.
 
 Along with \AgdaDatatype{∗} we define the \emph{separating implication} (also
 known as ``magic wand'')
@@ -777,7 +777,7 @@ and prove that \AgdaFunction{─∗} can be used to curry \AgdaDatatype{∗}:
 \AgdaBound{qx}\AgdaSymbol{)}\<%
 \end{code}
 
-To conclude the modeling of typing contexts, we define a predicate
+To conclude the implementation of typing contexts, we define a predicate
 \AgdaDatatype{Un} that holds for \emph{unrestricted} contexts, namely those
 contexts solely made of types of the form $?A$. We will need this predicate in
 the definition of a server, which must obey the typing rule \ServerRule of

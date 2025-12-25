@@ -32,7 +32,7 @@ data ReductionContext (Δ : Context) : Context → Set where
 Note the presence of two constructors \AgdaInductiveConstructor{cut-l} and
 \AgdaInductiveConstructor{cut-r} which distinguish on whether the hole is found
 in the left (respectively, right) sub-context, as per the grammar of reduction
-contexts in \Cref{sec:properties}.
+contexts given in \Cref{sec:properties}.
 
 Substitution inside a reduction context $\ReductionContext$ is a straightforward
 function $\AgdaFunction{\_⟦\_⟧}$ that operates recursively on the structure of

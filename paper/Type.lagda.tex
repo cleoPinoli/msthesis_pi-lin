@@ -13,7 +13,7 @@ The representation of types is standard, with one constructor for each of the
 forms described in \Cref{sec:types}. We start by defining \emph{pre-types} as an
 indexed data type $\AgdaDatatype{PreType}~n$ where $n$ is the number of bound
 type variables and we use de Bruijn indices for denoting type variables. In this
-way, we make sure that pre-types are well-scoped.
+way, we make sure that pre-types are well scoped.
 
 \begin{code}
 data PreType : ℕ → Set where
@@ -28,9 +28,9 @@ Note the constructors \AgdaInductiveConstructor{var} and
 \AgdaInductiveConstructor{rav}, which respectively represent type variables and
 their dual, and the quantifiers \AgdaInductiveConstructor{`∀} and
 \AgdaInductiveConstructor{`∃} which increase the number of bound type variables
-in the scoped (pre)type.
+in the scoped pre-type.
 
-The dual of a (pre)type is computed by the following function:
+The dual of a pre-type is computed by the following function:
 
 \begin{code}
 dual : ∀{n} → PreType n → PreType n
@@ -76,8 +76,8 @@ This property is so important in the rest of the formalisation that it is worth
 defining an implicit rewriting rule so that Agda can autonomously apply it
 whenever possible. This is achieved by means of the following pragma
 directive.\footnote{The directive is effective provided that the option
-\texttt{{-}{-}rewriting} is enabled, either globally when invoking Agda or in
-the module's preamble.}
+\texttt{{-}{-}rewriting} is enabled, either globally when invoking Agda or
+within a pragma in the module's source code.}
 
 \begin{code}
 {-# REWRITE dual-inv #-}
@@ -173,11 +173,11 @@ Here we are supposed to prove
 $\AgdaFunction{subst}~\sigma~(\AgdaFunction{dual}~(\AgdaInductiveConstructor{rav}~x))
   \equiv
   \AgdaFunction{dual}~(\AgdaFunction{subst}~\sigma~(\AgdaInductiveConstructor{rav}~x))$
-  which is definitionally the same of $\sigma~x \equiv
+  which is definitionally the same as $\sigma~x \equiv
   \AgdaFunction{dual}~(\AgdaFunction{dual}~(\sigma~x))$.
 %
 We could easily prove this equivalence by invoking \AgdaFunction{dual-inv}, but
-thanks to the rewriting rule that we have added just above a use of
+thanks to the rewriting rule that we have added earlier a use of
 \AgdaInductiveConstructor{refl} suffices. In this case the saved effort is
 negligible, but in later results, where it is necessary to use
 \AgdaFunction{dual-inv} for rewriting part of the \emph{index} of some type

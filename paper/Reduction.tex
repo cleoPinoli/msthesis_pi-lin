@@ -372,7 +372,7 @@ and turns into $P\subst\y\x$ after the reduction. The type
 $\AgdaFunction{dual}~A$ of $x$ in $P$ is the first in the typing context,
 indicating that it is the newest channel that $P$ is aware of. However, after
 the reduction, $x$ is replaced by $y$ which is found \emph{somewhere} within
-$\Context$. The exact location of $y$ in $\ContextC$ is found in the splitting
+$\Context$. The exact location of $y$ in $\ContextC$ is encoded in the splitting
 $p$, thus we ``rename'' $x$ into $y$ within $P$ using the permutation
 $\AgdaFunction{↭concat}~p$.
 
@@ -421,12 +421,12 @@ also the restricted one, and therefore matches the one of the
 Note that \AgdaInductiveConstructor{r-close} (and several other reduction
 constructors) quantifies over $p_0$ and $q_0$ which both prove the splitting
 $\Context \simeq \AgdaInductiveConstructor{[]} + \Context$. Since the left
-context is empty, these splittings must be equal and made of a sequence of
+partition is empty, these splittings must be equal and made of a sequence of
 \AgdaInductiveConstructor{>} applications followed by
 \AgdaInductiveConstructor{•}. In general, Agda will not be able to ``see'' that
 they are definitionally equal, hence it is easier to quantify them separately so
-that we do not have to worry about proving their equality whenever we wish to
-apply this reduction.
+that we do not have to prove their equality whenever we wish to apply this
+reduction.
 
 The constructor \AgdaInductiveConstructor{r-select-l} models \RSelect when the
 selected tag is $\InTag_1$:
@@ -921,8 +921,8 @@ channel referred to by \AgdaInductiveConstructor{select} and
 \end{code}
 
 The remaining constructors that describe the base reductions follow a similar
-pattern, noting that the implementation of \RWeaken and \RContract makes use of
-auxiliary functions that respectively weaken and contract the typing context of
+pattern, except for the implementation of \RWeaken and \RContract which require
+auxiliary functions to respectively weaken and contract the typing context of
 the resulting process as shown in \Cref{tab:semantics}. It is worth glancing at
 the implementation of \RExists since it involves a non-trivial rewriting of
 types:
@@ -1001,14 +1001,14 @@ Recalling the definitions of \AgdaInductiveConstructor{ex} and
 \AgdaInductiveConstructor{all} from \Cref{sec:process-agda}, we note that $P$
 has type
 $\AgdaDatatype{Proc}~(\AgdaFunction{subst}~[~B~/]~A~\AgdaInductiveConstructor{∷}~\Context_1)$
-and $(F~B)$ is a process of type
+and $F~B$ is a process of type
 $\AgdaDatatype{Proc}~(\AgdaFunction{subst}~[~B~/]~(\AgdaFunction{dual}~A)~\AgdaInductiveConstructor{∷}~\Context_2)$.
-In order for these two process to be composable in a cut, it must be the case
+In order for these two processes to be composable in a cut, it must be the case
 that $\AgdaFunction{subst}~[~B~/]~(\AgdaFunction{dual}~A) \equiv
 \AgdaFunction{dual}~(\AgdaFunction{subst}~[~B~/]~A)$, which was proved in
 \Cref{sec:type-agda} under the name \AgdaFunction{dual-subst}. Thanks to the
 implicit rewriting rule, we do not have to rewrite the index in the type of
-$(F~B)$, which is silently accepted as is.
+$F~B$, which is silently accepted as is.
 
 Reduction is closed under cuts and by structural pre-congruence as per \RCut and
 \RCong. The corresponding constructors that model these features are shown

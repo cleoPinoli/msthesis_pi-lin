@@ -4,11 +4,10 @@
 As we have seen in \Cref{sec:calculus}, the deadlock freedom result
 (\Cref{thm:df}) rests on some notions and predicates about processes which we
 now formalise in Agda. First of all we need to define the notion of
-\emph{thread}, that is any process other than a cut. As it turns out, it is
-convenient to provide a more fine-grained classification of threads,
-distinguishing between links, input/output actions, and sometimes also whether
-such actions operate on free or bound channels. We define predicates for each of
-these process classes:
+\emph{thread}, that is any process other than a cut. It is convenient to provide
+a more fine-grained classification of threads, distinguishing between links,
+input/output actions, and sometimes also whether such actions operate on free or
+bound channels. We define predicates for each of these process classes:
 
 \begin{code}[hide]%
 \>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
@@ -1970,12 +1969,12 @@ A \emph{canonical cut} $\Cut[A]\x{P}{Q}$ has one of these forms:
   (\AgdaInductiveConstructor{cc-redex}), or
 \item $P$ operates on a channel other than $x$ and is not a server
 (\AgdaInductiveConstructor{cc-delayed}), or
-\item $P$ and $Q$ are servers and $P$ operates on a channel other than $x$
+\item both $P$ and $Q$ are servers and $P$ operates on a channel other than $x$
 (\AgdaInductiveConstructor{cc-servers}).
 \end{itemize}
 
-Note that we have to distinguish servers from the other input operations because
-the structural pre-congruence rule \SServer can only be applied when the two
+We have to distinguish servers from the other input operations because the
+structural pre-congruence rule \SServer can only be applied when the two
 sub-processes of a cut are both servers.
 
 \begin{code}[hide]%

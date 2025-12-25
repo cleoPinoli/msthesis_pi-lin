@@ -18,10 +18,10 @@ formalisation of a session-based calculus for which we were able to retrieve the
 source code (the work of \citet{Gay01} predates this one, but its source code is
 not publicly available any more).
 
-\citet{Thiemann19} formalises a subset of \GV~\citep{GayVasconcelos10}, a
-functional language extended with session communication primitives, along with
-an interpreter. \citet{CicconePadovani20} have taken inspiration from Thiemann's
-work to formalise a variant of the linear
+\citet{Thiemann19} formalises a subset of \GV~\citep{GayVasconcelos10,Wadler14},
+a functional language extended with session communication primitives, along with
+an interpreter. \citet{CicconePadovani20} have taken inspiration from this work
+to formalise a variant of the linear
 $\pi$-calculus~\cite{KobayashiPierceTurner99} that supports dependent types, so
 as to enable the description of communication protocols whose structure depends
 on the content of messages.
@@ -33,12 +33,12 @@ version of it that is more amenable to be formalised using a locally nameless
 representation of channels.
 
 \citet{RouvoetPoulsenKrebbersVisser20} present a library of abstractions
-inspired to separation logic aiding the formalisation of interpreters for
-computing models supported by linear type systems. One of the presented case
-studies is the formalisation of a fragment of \GV~\citep{Wadler14}. The
-separating conjunction we have introduced in \Cref{sec:context-agda} and the
-typing of the constructors for the representation of processes in
-\Cref{sec:process-agda} have been heavily inspired by this work. 
+inspired to separation logic aiding the formalisation of interpreters for models
+supported by linear type systems. One of the presented case studies is the
+formalisation of a fragment of \GV~\citep{GayVasconcelos10,Wadler14}. The
+separating conjunction introduced in \Cref{sec:context-agda} and the typing of
+the constructors for the representation of processes in \Cref{sec:process-agda}
+have been heavily inspired by this work. 
 
 % as case study for their approach based on separation logic, which we have
 % partially taken inspiration from for the representation of processes
@@ -46,6 +46,11 @@ typing of the constructors for the representation of processes in
 % intrinsically-typed representation of processes with nameless channels as our
 % own, but their formalisation focuses on the implementation of an interpreter (no
 % small-step semantics is defined) and subject reduction is 
+
+\citet{JacobsBalzerKrebbers22} formalise a library of \emph{connectivity graphs}
+for reasoning and enforcing deadlock freedom in a variant of
+\GV~\citep{GayVasconcelos10,Wadler14}. This is the first formalisation of
+deadlock freedom for a calculus of sessions.
 
 All the formalisations mentioned so far make use of context splitting. In
 contrast, \citet{ZalakainDardha21} formalise a generalisation of the linear
@@ -58,36 +63,31 @@ which describes the overall available channels, and an \emph{output context},
 which describes the residual channels not consumed by the process. In this way,
 it is possible to ``concatenate'' typing judgments instead of splitting typing
 contexts beforehand. As \citet{ZalakainDardha21} nicely summarise, ``context
-splits contain usage information that is already present'' in processes, and
-therefore can be omitted. This is true, but only provided that channels are
-given a \emph{name} in processes (\citet{ZalakainDardha21} use de Bruijn indices
-to this aim). In fact, the co-de Bruijn representation of
-processes~\cite{McBride18}, whereby channels are nameless and context splitting
-is performed eagerly, can be seen as the ``dual approach'' of leftover typing:
-channel names provide information that is already present in their (singleton)
-typing context, hence they can be omitted from contexts and processes.
-
-Another work based on context splitting is the one by
-\citet{JacobsBalzerKrebbers22}, who formalise a library of \emph{connectivity
-graphs} for reasoning and enforcing deadlock freedom in a variant of
-\GV~\citep{GayVasconcelos10,Wadler14}. This is the first formalisation of
-deadlock freedom for a calculus of sessions.
+splits contain usage information that is already present in processes,'' and
+therefore can be omitted. This is true provided that channels are named
+(\citet{ZalakainDardha21} use de Bruijn indices to this aim). In fact, the co-de
+Bruijn representation of processes~\cite{McBride18}, whereby channels are
+nameless and context splitting is performed eagerly, can be seen as the ``dual
+approach'' of leftover typing: channel names provide information that is already
+present in their (singleton) typing context, hence they can be omitted from
+contexts and processes.
 
 Motivated by the technical difficulties arising from context splits,
-\citet{SanoKavanaghPientka23} model a structural version of \CP using an
+\citet{SanoKavanaghPientka23} define a structural version of \CP using an
 alternative approach based on \emph{linearity predicates}. The key idea is to
-treat typing contexts structurally and to enforce the linear usage of sessions
-by checking the syntactical occurrence of channels within processes.
-Interestingly, the approach relies on the \emph{explicit naming of
-continuations} so as to precisely account for the number of times a channel is
-actually used.
+treat typing contexts structurally and to enforce the linear usage of channels
+by checking their syntactical occurrence in processes. Interestingly, the
+approach relies on the \emph{explicit naming of continuations} so as to
+precisely account for the number of times a channel is actually used.
 
 \citet{ZackonEtAl25} describe yet another approach to the handling of typing
 contexts whereby channels are associated not just with a type but also with a
-\emph{tag} (or \emph{multiplicity}) from a given resource algebra for describing
-their availability. This approach streamlines context splitting in the sense
-that contexts can be treated in an essentially structural way, except for tags
-which are conveninently combined using operations from the resource algebra.
+\emph{tag} (or \emph{multiplicity}) from a given resource algebra. The tag
+summarises the number of allowed usages of a particular channel, including the
+possibility that the channel is not available. This approach streamlines context
+splitting since contexts can be treated in an essentially structural way, except
+for tags which are conveninently combined using operations from the resource
+algebra.
 
 \newcommand{\YES}{$+$}
 \newcommand{\NO}{$-$}
@@ -276,9 +276,9 @@ which are conveninently combined using operations from the resource algebra.
     \end{minipage}
 \end{table}
 
-\Cref{tab:comparison} summarises the comparison of our formalisation with the
-aforementioned ones. The three leftmost colums list the reference papers (sorted
-by publication date), the proof assistant and the formalised calculus.
+\Cref{tab:comparison} reports a summary of the aforementioned formalisations and
+our own. The three leftmost colums list the reference papers (sorted by
+publication date), the proof assistant and the formalised calculus.
 %
 For simplicity, we have grouped the calculi into classes identified by an
 acronym. Some acronyms, like \CP~\cite{Wadler14} and
@@ -315,10 +315,10 @@ operation acting on a channel $s$ returns the result of the operation (if any)
 virtually indistinguishable from one making use of explicit continuation
 channels.
 
-The rightmost columns of \Cref{tab:comparison} report the \emph{size} (in
-kilobytes) of the formalisations as rough (and possibly questionable) estimates
-of their complexity. Instead of counting line numbers, which may be affected by
-code indentation styles and syntactical constraints of the proof assistant being
+The rightmost columns of \Cref{tab:comparison} report the size (in kilobytes) of
+the formalisations as rough (and possibly questionable) estimates of their
+complexity. Instead of counting line numbers, which may be affected by code
+indentation styles and syntactical constraints of the proof assistant being
 used, we have counted the number of characters after comments have been removed
 and spaces have been squeezed.\footnote{Sequences of two or more consecutive
 space-like characters are collapsed into a single space. The squeezing is
@@ -352,10 +352,11 @@ Based on the available data, we can make the following observations.
 The use of context splitting, which is very well represented, does not seem to
 be a good indicator of the complexity of the formalisation, since it spans the
 whole range of sizes. Our formalisation is based on context splitting and it is
-the only one that covers \CP in full, yet it is by far the smallest one.
+the only one that supports all the featurs of \CP, yet it is also the smallest
+one.
 
 The largest formalisations~\cite{GotoEtAl16,CastroFerreiraYoshida20} are also
-the ones that adopt a locally nameless representation of channels. In this
+the ones that adopt a locally nameless representation of channels. In these
 formalisations channels are represented in two different ways, depending on
 whether they are free or bound. This necessarily entails some duplication of
 effort as well as some transformation machinery between the two representations

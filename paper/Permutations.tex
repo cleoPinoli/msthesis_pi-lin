@@ -143,18 +143,18 @@ that swaps the first two elements of a typing context;
 typing context; \AgdaInductiveConstructor{trans} for the sequential composition
 of permutations.
 
-The definition of \AgdaDatatype{\_↭\_} data type is nearly the same found in the
-module \AgdaModule{Data.List.Relation.Binary.Permutation.Propositional} of
+The definition of the data type \AgdaDatatype{\_↭\_} is nearly the same found in
+the module \AgdaModule{Data.List.Relation.Binary.Permutation.Propositional} of
 Agda's standard library. We have preferred defining our own notion of
 permutation for improved simplicity and convenience: the
 \AgdaInductiveConstructor{swap} constructor does not need a sub-permutation for
-the tail of the typing context, which can always be performed, if needed, using
-\AgdaInductiveConstructor{prep} and \AgdaInductiveConstructor{trans}. Also, and
-more importantly, the data type is \emph{monomorphic} (it does not need to
-relate lists of arbitrary type) and the quantified arguments $A$ and $B$ of
-\AgdaInductiveConstructor{swap} and \AgdaInductiveConstructor{prep} can be made
-implicit, which streamlines the usage of these constructors in the rest of the
-code.
+the tail of the typing context, which can always be performed, if needed,
+combining \AgdaInductiveConstructor{swap} with \AgdaInductiveConstructor{prep}
+and \AgdaInductiveConstructor{trans}. Also, and more importantly, our data type
+\AgdaDatatype{\_↭\_} is monomorphic (it does not need to relate arbitrary lists)
+and the arguments $A$ and $B$ of \AgdaInductiveConstructor{swap} and
+\AgdaInductiveConstructor{prep} are implicit, which streamlines the usage of
+these constructors in the rest of the code.
 
 \begin{code}[hide]%
 \>[0]\AgdaFunction{↭sym}\AgdaSpace{}%
@@ -279,9 +279,9 @@ code.
 \end{code}
 
 Just like permutations in Agda's standard library, also \AgdaDatatype{\_↭\_}
-enjoys a number of expected properties, such as symmetry. Among them, in the
-following we will make use of a specific property that relates context
-splitting, list concatenation and permutations: if
+enjoys a number of expected properties, such as symmetry. In the following we
+will make use of a specific property that relates context splitting, list
+concatenation \AgdaFunction{\_++\_} and permutations: if
 $\Splitting\ContextC\ContextD\ContextE$, then $\ContextC$ is a permutation of
 the concatenation of $\ContextD$ and $\ContextE$.
 

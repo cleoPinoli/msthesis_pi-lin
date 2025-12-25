@@ -26,7 +26,7 @@ least three reasons:
 \item we conflate processes and typing rules in the same datatype, thus reducing
   the overall number of datatypes defined in the formalisation;
 \item the typing preservation results are embedded in the very definition of the
-  operational semantics of processes and need not require separate proofs
+  operational semantics of processes and do not require separate proofs
   (\Cref{sec:congruence-agda,sec:reduction-agda}).
 \end{itemize}
 
@@ -37,12 +37,7 @@ context associated with a term (a process, a channel) only contains the types of
 the channels that actually occur within the term. For this reason, typing
 contexts are split eagerly, according to the structure of processes, to make
 sure that channels are appropriately (and above all linearly) distributed among
-sub-processes, so that each channel occurs (and is used) exactly
-once.\footnote{Strictly speaking, the typing context of a
-\AgdaInductiveConstructor{fail} process may contain channels that do not occur
-(and therefore are not used) by the process, but we consider this case as an
-exception that does not alter in a substantial way the provided intuition
-underlying the use of co-de Bruijn representation.}
+sub-processes, so that each channel is used exactly once.
 %
 Concretely, a channel of type $A$ is a predicate that holds for the singleton
 context $\AgdaFunction[~A~\AgdaFunction]$:
@@ -111,8 +106,8 @@ the predicate
 $\AgdaDatatype{Ch}~\AgdaInductiveConstructor{⊤}~\AgdaDatatype{∗}~\AgdaFunction{U}$,
 meaning that $\Context$ must contain an entry \AgdaInductiveConstructor{⊤}
 (\AgdaFunction{U} is the universal predicate that holds for every context, \cf
-\Cref{tab:predicates}). That form of $\Context$ matches the one in the
-conclusion of \FailRule.
+\Cref{tab:predicates}). That form of $\Context$ matches the typing context in
+the conclusion of the rule \FailRule.
 
 The constructor \AgdaInductiveConstructor{wait} corresponds to a process of the
 form $\Wait\x.P$ and requires $\Context$ to (separately) satisfy
@@ -127,7 +122,7 @@ $[\One]$.
 
 Let us move on to the processes that produce a continuation channel. For
 example, the constructor \AgdaInductiveConstructor{case} corresponds to a
-process of the form $\Case\x\y{P}{Q}$, where both $P$ and $Q$ may use the
+process of the form $\Case\x\y{P}{Q}$, where both $P$ and $Q$ use the
 continuation channel $y$. In this case $\Context$ must satisfy the predicate
 \[
   \AgdaDatatype{Ch}~(A~\AgdaInductiveConstructor{\&}~B)~\AgdaDatatype{∗}~((A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}~\AgdaFunction{∩}~(B~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc})
@@ -174,19 +169,15 @@ applied to $\Context$. Note that the side condition $X \not\in \fv\Context$ of
 \ForallRule is enforced \emph{by definition}:
 %
 $A$ has type $\AgdaDatatype{PreType}~\AgdaInductiveConstructor{1}$, that is a
-pre-type with \emph{at most one} free type variable ($X$), whereas $\Context$ is
-a typing context, that is a list of $\AgdaDatatype{Type} =
+pre-type with \emph{at most one} free type variable $X$, whereas $\Context$ is a
+typing context, that is a list of $\AgdaDatatype{Type} =
 \AgdaDatatype{PreType}~\AgdaInductiveConstructor{0}$ without free type
 variables. Therefore, $X$ cannot occur in $\Context$.
 
 We conclude this module proving that permutations preserve process typing. Since
 list permutations basically correspond to channel renaming, we can read this
 property as the fact that typing is preserved by (injective) name
-substitutions.\Luca{Da qualche parte mettere un remark per far notare che l'uso
-della separating conjunction introduce rumore, ma avere i costruttori
-currificati ne complica un po' l'interpretazione dei tipi. Forse è meglio fare
-questo rilievo nella prossima sezione quando è evidente il pattern matching che
-serve per esprimere le regole.}
+substitutions.
 
 \begin{code}
 ↭proc : ∀{Γ Δ} → Γ ↭ Δ → Proc Γ → Proc Δ

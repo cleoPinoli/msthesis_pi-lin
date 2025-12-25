@@ -3,7 +3,7 @@
 
 We have presented a formalisation of \LCP, a variant of the linear
 $\pi$-calculus~\cite{KobayashiPierceTurner99} supported by the same type system
-of \CP~\cite{Wadler14}. Binary sessions can be modeled in \LCP using the
+of \CP~\cite{Wadler14}. Binary sessions are modeled in \LCP using the
 continuation-passing encoding described by \citet[extended
 version]{Kobayashi02b} and \citet{DardhaGiachinoSangiorgi17}.
 %
@@ -20,13 +20,14 @@ proposed to overcome context splitting, the one of \citet{SanoKavanaghPientka23}
 makes use of explicit continuations.
 
 We remark that \LCP and the calculus described in the linearity
-challenge~\cite{CarboneEtAl24} are fundamentally incomparable. On the one hand,
-the challenge only considers a minimal calculus of first-order, monomorphic
-sessions while \LCP is a fully-fledged calculus that supports linear, shared,
-higher-order, polymorphic channels. On the other hand, the logical foundations
-of \LCP prevent the modeling of deadlocks and of sequential processes that own
-both endpoints of a session, both of which can be modeled in the calculus of the
-challenge.
+challenge~\cite{CarboneEtAl24} are incomparable in terms of expressiveness. On
+the one hand, the challenge only considers a minimal calculus of first-order,
+monomorphic sessions while \LCP is a fully-fledged calculus that supports
+linear, shared, higher-order, polymorphic channels. On the other hand, the
+logical foundations of \LCP prevent the modeling of deadlocked processes and of
+sequential processes that own both endpoints of a session. These processes can
+be modeled in the calculus of the challenge, where parallel composition and name
+restriction are distinct constructs as in the $\pi$-calculus.
 %
 Because of its logical foundations, we like to think of \LCP as a ``canonical''
 calculus that deserves its own space in the context of the linearity challenge
@@ -34,10 +35,10 @@ alongside with (but not in substitution of) more traditional session calculi.
 
 The simple formalisation of \LCP is a good basis for further investigations. We
 have already extended \LCP with support for infinite types and recursive
-processes (the formalisation of this extension is publicly available in a
-sibling folder of the one for \LCP). In the future, it would be interesting to
-formalise the strong normalisation property of \LCP as a consequence of cut
-elimination of classical linear logic.
+processes (the source code of this extension is publicly available in a sibling
+folder of the one for \LCP). In the future, it would be interesting to formalise
+the strong normalisation property of \LCP as a consequence of cut elimination of
+classical linear logic.
 
 In this work we have focused on models and theories of \emph{binary sessions}
 (those connecting exactly two processes), but there are also formalisations of

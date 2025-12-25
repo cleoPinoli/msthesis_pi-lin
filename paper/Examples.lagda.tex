@@ -106,10 +106,10 @@ $\AgdaInductiveConstructor{select}~(\AgdaInductiveConstructor{ch~⟨~<~•~⟩~i
 that is the definition of \AgdaFunction{False}, as expected.
 
 For the encoding of the echo server (\Cref{ex:echo}), recall that the server is
-polymorphic in the sense that the type of the value it receives and sends back
-is arbitrary and denoted by a type variable $X$. The notation
-$\AgdaFunction{\#}~n$ is defined in Agda's standard library and creates an
-element of \AgdaDatatype{Fin} from the natural number $n$.
+polymorphic in the sense that the type $X$ of the value it receives is
+arbitrary. The notation $\AgdaFunction{\#}~n$ is defined in Agda's standard
+library and creates an element of \AgdaDatatype{Fin} from the natural number
+$n$.
 
 \begin{code}
 Echo : let X = var (# 0) in
