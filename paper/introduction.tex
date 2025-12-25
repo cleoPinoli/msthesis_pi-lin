@@ -31,9 +31,9 @@ session endpoints are meant to be used in complementary ways so as to guarantee
 the absence of communication errors and, to some extent, progress of the
 interaction.
 %
-The linearity challenge is motivated by the observation that the proper handling
-of linear resources in a formalisation often requires a large number of
-auxiliary definitions and technical results that divert from the main problem
+The linearity challenge is motivated by the observation that the proper
+management of linear resources in a formalisation often requires a large number
+of auxiliary definitions and technical results that divert from the main problem
 under study~\cite{CarboneEtAl24}. One of the alleged culprits of such complexity
 is \emph{context splitting}, namely the operation that partitions a typing
 context in such a way that the linear resources described therein end up in only
@@ -42,7 +42,7 @@ alternative techniques including leftover typing~\cite{ZalakainDardha21}, the
 use of linearity predicates~\cite{SanoKavanaghPientka23} and tagged
 contexts~\cite{ZackonEtAl25}.
 
-In this paper we attack the linearity challenge from a different angle:
+In this paper we approach the linearity challenge from a different angle:
 \emph{instead of proposing new techniques that make it easy to formalise the
 calculus in the challenge, we propose a (relatively) new calculus that is easy
 to formalise with the existing techniques}.
@@ -51,13 +51,13 @@ More specifically, we describe a calculus called \LCP whose type system
 coincides with the proof system of classical linear logic and that features
 \emph{linear channels} instead of sessions. Linear channels are meant to be used
 for a \emph{single} communication. Structured communications involving the
-exchange of several messages within the same session can be modeled in \LCP
-using \emph{explicit continuations} according to the well-known encoding of
-(binary) sessions into the linear
+exchange of several messages within the same session is modeled in \LCP using
+\emph{explicit continuations} according to the well-known encoding of (binary)
+sessions into the linear
 $\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
 %
 Overall, \LCP is a linear version of \CP~\cite{Wadler14} in which sessions are
-encodable instead of being featured natively.
+encoded instead of being featured natively.
 
 The logical foundations of \LCP and the use of explicit continuations play an
 important role in taming the complexity of the formalisation.
@@ -80,8 +80,8 @@ has been used it is effectively consumed, therefore its type can be
 \emph{removed} from the typing context and the type of the continuation channel
 is \emph{added} back to the typing context. As is turns out, removing and adding
 types is easier than updating them. Even more so considering that the type of
-continuation channels can be conveniently added \emph{at the beginning} of a
-typing context, since such channels are fresh by definition.
+continuation channels must be added \emph{at the beginning} of a typing context,
+since such channels are fresh by definition.
 
 The formalisation of \LCP that we obtain is both the most complete (in terms of
 features supported by the calculus) and the most streamlined (in terms of code
@@ -102,9 +102,6 @@ with particular emphasis on the representation of channels and of typing
 contexts. We assume that the reader is somewhat familiar about Agda but we
 recall the lesser known definitions from Agda's standard library.
 %
-% \Cref{sec:examples} illustrates some examples of \LCP processes as they are
-% represented in Agda and shows how to use Agda as an interpreter for \LCP.
-%
 \Cref{sec:related} discusses related work more in detail by providing a
 qualitative and quantitative comparison between the known formalisations of
 session/linear calculi.
@@ -112,6 +109,6 @@ session/linear calculi.
 \Cref{sec:conclusion} summarises our contributions and discusses ongoing and
 future work.
 
-The formalisation has been checked with Agda 2.8.0 and the source code is on
+The formalisation has been checked with Agda 2.8.0 and the code is available on
 GitHub at \url{https://github.com/boystrange/LinearityChallenge/tree/main/lcp}.
 
