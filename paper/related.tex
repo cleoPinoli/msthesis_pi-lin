@@ -72,25 +72,24 @@ approach'' of leftover typing: channel names provide information that is already
 present in their (singleton) typing context, hence they can be omitted from
 contexts and processes.
 
-Motivated by the technical difficulties arising from context splits,
+Motivated by the technical difficulties arising from context splittings,
 \citet{SanoKavanaghPientka23} define a structural version of \CP using an
-alternative approach based on \emph{linearity predicates}. The key idea is to
-treat typing contexts structurally and to enforce the linear usage of channels
-by checking their syntactical occurrence in processes. Interestingly, the
-approach relies on the \emph{explicit naming of continuations} so as to
-precisely account for the number of times a channel is actually used.
-\citet{SanoKavanaghPientka23} do not connect their technique with the
-continuation-passing encoding of binary sessions, but \emph{a posteriori} the
-analogies between the two approaches are evident.
+approach based on \emph{linearity predicates}. The key idea is to treat typing
+contexts structurally and to enforce the linear usage of channels by checking
+their syntactical occurrence in processes. Interestingly, this approach relies
+on the \emph{explicit naming of continuations} so as to precisely account for
+the number of times a channel is actually used. \citet{SanoKavanaghPientka23} do
+not connect their technique with the continuation-passing encoding of binary
+sessions, but the analogies are evident even though the role of continuations
+differs.
 
-\citet{ZackonEtAl25} describe yet another approach to the handling of typing
-contexts whereby channels are associated not just with a type but also with a
-\emph{tag} (or \emph{multiplicity}) from a given resource algebra. The tag
-summarises the number of allowed usages of a particular channel, including the
-possibility that the channel is not available. This approach streamlines context
-splitting since contexts can be treated in an essentially structural way, except
-for tags which are conveninently combined using operations from the resource
-algebra.
+\citet{ZackonEtAl25} describe yet another approach for managing typing contexts
+whereby channels are associated not just with a type but also with a \emph{tag}
+(or \emph{multiplicity}) from a given resource algebra. The tag summarises the
+number of allowed usages of a particular channel, including the possibility that
+the channel is not available. This approach streamlines context splitting since
+contexts can be treated in an essentially structural way, except for tags which
+are conveninently combined using operations from the resource algebra.
 
 \newcommand{\YES}{$+$}
 \newcommand{\NO}{$-$}
@@ -280,23 +279,23 @@ algebra.
 \end{table}
 
 \Cref{tab:comparison} reports a summary of the aforementioned formalisations and
-also our own. The three leftmost colums list the reference papers (sorted by
-publication date), the proof assistant and the formalised calculus.
+also our own. The three leftmost columns list the reference papers (sorted by
+publication date), the used proof assistant and the formalised calculus.
 %
 For simplicity, we have grouped the calculi into classes identified by an
-acronym. Some acronyms, like \CP~\cite{Wadler14} and
-\GV~\cite{GayVasconcelos10,Wadler14} are well known in the literature on session
-types. It should be noted that the actual calculus being formalised usually
-differs from (typically, is a strict subset of) the one identified by the
-acronym, but it retains at least some of its key features. We use \SessionPI to
-denote (variants of) the session-based $\pi$-calculus presented by
-\citet{HondaVasconcelosKubo98} and \LinearPI to denote (variants of) the linear
-$\pi$-calculus~\cite{KobayashiPierceTurner99}, into which binary sessions can be
-encoded using explicit continuation channels as described by \citet[extended
-version]{Kobayashi02b} and \citet{DardhaGiachinoSangiorgi17}. Finally, we use
-\SCP for the structural version of \CP introduced by
-\citet{SanoKavanaghPientka23} and \Calculus for our calculus, a linear version
-of \CP with explicit continuations.
+acronym. The acronyms \CP~\cite{Wadler14} and
+\GV~\cite{GayVasconcelos10,Wadler14} refer to well-known calculi in the
+literature on session types. It should be noted that the actual calculus being
+formalised usually differs from (typically, is a strict subset of) the one
+identified by the acronym, but it retains at least some of its key features.
+%
+The acronym \SessionPI refers to (variants of) the session-based $\pi$-calculus
+presented by \citet{HondaVasconcelosKubo98} while \LinearPI refers to (variants
+of) the linear $\pi$-calculus~\cite{KobayashiPierceTurner99}, into which binary
+sessions can be encoded using explicit continuation channels as described by
+\citet[extended version]{Kobayashi02b} and \citet{DardhaGiachinoSangiorgi17}.
+Finally, \SCP is the structural version of \CP introduced by
+\citet{SanoKavanaghPientka23} and \Calculus is our calculus.
 
 The four middle columns of \Cref{tab:comparison} report the relevant qualitative
 aspects of the formalisations, namely the technique used to enforce the linear
@@ -331,9 +330,9 @@ The reported sizes account for the source code of the formalisation excluding
 examples and any safety result, if present. We have noticed that the
 interpretation of ``safety'' varies widely among the formalisations and, except
 for our own, they all differ from the one stated in the linearity
-challenge~\citep{CarboneEtAl24} when available.
+challenge~\citep{CarboneEtAl24}.
 %
-Some formalisation define \emph{libraries} which could be reused in different
+Some formalisations define \emph{libraries} which could be reused in different
 contexts. In these cases, the size of the library is reported separately next to
 the size of the part of the development that uses it.
 
@@ -355,7 +354,7 @@ The adoption of context splitting, which is very well represented, does not seem
 to be a good indicator of the complexity of the formalisation. Indeed, the
 formalisations based on context splitting span the whole range of sizes, from
 the largest by \citet{GotoEtAl16} (543kb) to our own (21kb, without the proof of
-deadlock freedom) which is also the only one supporting all the featurs of \CP.
+deadlock freedom) which is also the only one supporting all the features of \CP.
 
 The two largest formalisations~\cite{GotoEtAl16,CastroFerreiraYoshida20} are the
 ones that adopt a locally nameless representation of channels. In these
@@ -372,9 +371,9 @@ We found no strong evidence that the intrinsically typed representation of
 processes reduces the size of the formalisation. As observed in
 \Cref{sec:process-agda}, this choice may help reducing the overall number of
 datatypes to be defined, but the definitions are also more involved because they
-incorporate invariants and the proofs of typing preservation. In the end, it
-seems plausible to speculate that the effort for representing processes, types
-and typing rules is not substantially different overall.
+incorporate invariants and the proofs of typing preservation. It seems plausible
+to speculate that the effort for representing processes, types and typing rules
+is not substantially different overall.
 
 Finally, it seems that the use of (explicit) continuations affects the
 complexity of the formalisation more than anything else. Indeed, the six
