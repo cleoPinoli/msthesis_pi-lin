@@ -29,10 +29,13 @@ data ReductionContext (Δ : Context) : Context → Set where
                       ReductionContext Δ ]
 \end{code}
 
-Note the presence of two constructors \AgdaInductiveConstructor{cut-l} and
-\AgdaInductiveConstructor{cut-r} which distinguish on whether the hole is found
-in the left (respectively, right) sub-context, as per the grammar of reduction
-contexts given in \Cref{sec:properties}.
+The constructor \AgdaInductiveConstructor{hole} builds a hole, as the name
+implies.
+%
+The constructors \AgdaInductiveConstructor{cut-l} and
+\AgdaInductiveConstructor{cut-r} build reduction contexts where the hole is
+found in the left (respectively, right) sub-term of a cut, as per the grammar of
+reduction contexts given in \Cref{sec:properties}.
 
 Substitution inside a reduction context $\ReductionContext$ is a straightforward
 function $\AgdaFunction{\_⟦\_⟧}$ that operates recursively on the structure of
@@ -44,6 +47,9 @@ hole               ⟦ P ⟧ = P
 cut-l (𝒞 ⟨ p ⟩ Q)  ⟦ P ⟧ = cut ((𝒞 ⟦ P ⟧) ⟨ p ⟩ Q)
 cut-r (Q ⟨ p ⟩ 𝒞)  ⟦ P ⟧ = cut (Q ⟨ p ⟩ (𝒞 ⟦ P ⟧))
 \end{code}
+
+This notion of process substitution preserves typing by construction thanks to
+the fact that both processes and reduction contexts are intrinsically typed.
 
 A process $P$ is well formed if every unguarded sub-process $Q$ in it is alive.
 
