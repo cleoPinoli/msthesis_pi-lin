@@ -16,7 +16,7 @@
 %%% NOTATION %%%
 %%%%%%%%%%%%%%%%
 
-\newcommand{\Calculus}{\texorpdfstring\LCP{LCP}}
+\newcommand{\Calculus}{\texorpdfstring\LCC{LCC}}
 
 \newcommand{\eg}{e.g.\xspace}
 \newcommand{\ie}{i.e.\xspace}
@@ -75,6 +75,7 @@
 \newcommand{\GV}{\textsf{GV}\xspace}
 \newcommand{\SCP}{\textsf{SCP}\xspace}
 \newcommand{\LCP}{\textsf{LCP}\xspace}
+\newcommand{\LCC}{\textsf{LCC}\xspace}
 \newcommand{\SessionPI}{$\textsf{S}\pi$\xspace}
 \newcommand{\LinearPI}{\textsf{L}$\pi$\xspace}
 \newcommand{\GradedPI}{\textsf{G}$\pi$}
@@ -162,6 +163,7 @@
       \end{array}
     \right\}
 }
+\newcommand{\Send}[3]{#1\angles{#2}\ifblank{#3}{}{\bracks{#3}}}
 \newcommand{\Fork}[5]{#1\bracks{#2\ifblank{#3}{}{,#3}}.\parens{#4 \parop #5}}
 \renewcommand{\Join}[3]{#1\parens{#2\ifblank{#3}{}{,#3}}}
 \newcommand{\Client}[2]{{?}#1\bracks{#2}}

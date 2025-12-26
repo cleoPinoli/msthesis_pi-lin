@@ -20,15 +20,16 @@ languages.
 One of the challenges in the benchmark, henceforth called \emph{linearity
 challenge}, concerns the formalisation of a \emph{minimal calculus of sessions}.
 %
-Sessions and session types~\citep{Honda93,HondaVasconcelosKubo98,HuttelEtAl16}
-are established abstractions for the static analysis of distributed programs
-based on peer-to-peer communication channels. Every session type system revolves
-around three key ideas: (1) session endpoints are \emph{linear resources} that
-cannot be discarded or duplicated without compromising some safety and liveness
-properties of a program; (2) the type of a session endpoint is \emph{updated}
-after each use to reflect the state of the protocol it describes; (3) peer
-session endpoints are meant to be used in complementary ways so as to guarantee
-the absence of communication errors and, to some extent, progress of the
+Sessions and session
+types~\citep{Honda93,HondaVasconcelosKubo98,HuttelEtAl16,GayVasconcelos25} are
+established abstractions for the static analysis of distributed programs based
+on peer-to-peer communications. Every session type system revolves around three
+key ideas: (1) session endpoints are \emph{linear resources} that cannot be
+discarded or duplicated without compromising some safety and liveness properties
+of a program; (2) the type of a session endpoint is \emph{updated} after each
+use to reflect the state of the protocol it describes; (3) peer session
+endpoints are meant to be used in complementary ways so as to guarantee the
+absence of communication errors and, to some extent, progress of the
 interaction.
 %
 The linearity challenge is motivated by the observation that the proper
@@ -47,19 +48,22 @@ In this paper we approach the linearity challenge from a different angle:
 calculus in the challenge, we propose a (relatively) new calculus that is easy
 to formalise with the existing techniques}.
 %
-More specifically, we describe a calculus called \LCP whose type system
-coincides with the proof system of classical linear logic and that features
-\emph{linear channels} instead of sessions. Linear channels are meant to be used
-for a \emph{single} communication. Structured communications involving the
-exchange of several messages within the same session are modeled in \LCP using
-\emph{explicit continuations} according to the well-known encoding of (binary)
-sessions into the linear
-$\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}.
+More specifically, we describe the Linear Calculus of Continuations (\LCC) whose
+type system coincides with the proof system of classical linear logic and that
+features \emph{linear channels} instead of sessions. Linear channels are meant
+to be used for a \emph{single} communication. Structured conversations can be
+modeled in \LCC using \emph{explicit continuations} as in the well-known
+encoding of (binary) sessions into the linear
+$\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}:
+each message exchanged on a linear channel may include one or two fresh channels
+-- the \emph{continuations} -- on which the rest of the conversation takes
+place.
 %
-Overall, \LCP is a linear version of \CP~\cite{Wadler14} in which sessions are
-encoded instead of being featured natively.
+Overall, \LCC is nothing but a lower-level, linear version of
+\CP~\cite{Wadler14}, Wadler's calculus of sessions based on classical linear
+logic, such that sessions are encoded instead of being featured natively.
 
-The logical foundations of \LCP and the use of explicit continuations play an
+The logical foundations of \LCC and the use of explicit continuations play an
 important role in taming the complexity of the formalisation.
 %
 Using a calculus based on linear logic prevents \emph{by construction} the same
