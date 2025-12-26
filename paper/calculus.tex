@@ -366,8 +366,6 @@ $\Contract{z_1}{z_1'}{z_1''}\dots\Contract{z_n}{z_n'}{z_n''}.R$.
 The rule~\RCut propagates reductions through cuts and the rule \RCong enables
 reduction up to structural pre-congruence.
 
-\newcommand\MonoEchoS{\mathit{Server}}
-\newcommand\MonoEchoC{\mathit{Client}}
 \begin{example}
     \label{ex:neg}
     %
@@ -382,7 +380,7 @@ reduction up to structural pre-congruence.
     another boolean value (say $v$, of type $\Bool$) and finally sends an empty
     message. We can model the server and a possible client thus:
     \begin{align*}
-        \MonoEchoS(x) & \eqdef
+        \ServerP(x) & \eqdef
         \Server\x\y.
         \Join\y\u{y'}.
         \Fork{y'}\v{y''}{
@@ -390,7 +388,7 @@ reduction up to structural pre-congruence.
         }{
             \Close{y''}
         } \\
-        \MonoEchoC(x,z) & \eqdef
+        \ClientP(x,z) & \eqdef
         \Client\x\y.
         \Fork\y\u{y'}{
             \TrueP(u)
@@ -408,7 +406,7 @@ reduction up to structural pre-congruence.
     $z$, which represents the result of the interaction.
     %
     If we write $\reds$ for the reflexive, transitive closure of $\red$ it is
-    easy to verify that $\Cut\x{\MonoEchoC(x)}{\MonoEchoS(x)} \red^* \TrueP(z)$,
+    easy to verify that $\Cut\x{\ClientP(x)}{\ServerP(x)} \red^* \TrueP(z)$,
     as expected.
     %
     \eoe
@@ -423,9 +421,9 @@ Typing contexts are finite maps from channels to types written as $x_1 : A_1,
 $\ContextC, \ContextD$ for the union of $\ContextC$ and $\ContextD$ when they
 have disjoint domains. We write $\WhyNot\Context$ for some context $\Context =
 x_1 : \WhyNot A_1, \dots, x_n : \WhyNot A_n$ where all the types in its range
-are prefixed by the $\WhyNot$ modality. We call these types \emph{unrestricted},
-since they are used to denote shared channels that can be (explicitly) discarded
-and duplicated at will.
+are prefixed by the modality~$\WhyNot$. We call these types \emph{unrestricted}
+because they are used to denote shared channels that can be (explicitly)
+discarded and duplicated.
 
 \begin{table}[t]
     \caption{Typing rules of \Calculus.}
@@ -506,13 +504,13 @@ and duplicated at will.
             \inferrule[\WeakenRule]{
                 \wtp{P}\Context
             }{
-                \wtp{P}{x : \WhyNot A, \Context}
+                \wtp{\Weaken\x.P}{x : \WhyNot A, \Context}
             }
             \and
             \inferrule[\ContractRule]{
                 \wtp{P}{y : \WhyNot A, z : \WhyNot A, \Context}
             }{
-                \wtp{P}{x : \WhyNot A, \Context}
+                \wtp{\Contract\x\y\z.P}{x : \WhyNot A, \Context}
             }
             \and
             \inferrule[\CutRule]{
@@ -528,14 +526,19 @@ and duplicated at will.
 
 Typing judgments have the form $\wtp{P}\Context$ meaning that the process $P$ is
 well typed in the context $\Context$. Equivalently, the judgment indicates that
-the sequent $\wtp{}\Context$ is derivable and $P$ is a \emph{proof term}
-corresponding to the derivation for $\wtp{}\Context$.
+the sequent $\wtp{}\Context$ is derivable and $P$ is a proof term corresponding
+to the derivation for $\wtp{}\Context$.
 %
-The typing rules are shown in \Cref{tab:typing-rules}. Since they are in
-one-to-one correspondence with -- and have exactly the same structure of -- the
-proof rules of classical linear logic, the reader may refer to the standard
-literature on propositions as sessions~\citep{Wadler14} for their
-interpretation.
+The typing rules are shown in \Cref{tab:typing-rules}. They are in one-to-one
+correspondence with -- and have exactly the same structure of -- the proof rules
+of classical linear logic.
+%
+The reader may refer to the standard literature on propositions as
+sessions~\citep{Wadler14,LindleyMorris15,GayVasconcelos25} for the
+interpretation of the rules. The only relevant difference with the typing rules
+in these papers is that the premises mentioning the continuation channel $z$
+actually refer to the same channel $x$ on which the process in the conclusion is
+acting.
 
 % \begin{example}
 %     \label{ex:typing-booleans}
@@ -614,23 +617,25 @@ interpretation.
 
 \begin{example}
     \label{ex:echo}
-    In this example we define a polymorphic echo server:
+    Looking at \Cref{ex:echo} we notice that the server does not make any
+    assumption on the type of the values it receives and sends. Therefore, we
+    can define a polymorphic version of the echo server that works for every
+    message type and not just for the booleans.
+    %
+    The polymorphic version of the echo server is defined below:
     \[
-        \EchoP(x) \eqdef
+        \ServerP(x) \eqdef
         \Server\x\y.
         \Forall\y\X{y'}.
         \Join{y'}\u{y''}.
         \Fork{y''}\v{y'''}{\Link\u\v}{\Close{y'''}}
     \]
 
-    The server accepts requests on the shared channel $x$. Each request creates
-    a new session, initially represented by the channel $y$. The session
-    consists in receiving the type $X$ of the value being echoed followed by the
-    value itself $u$. The value is then sent back unchanged and the session is
-    terminated. Note the succession of different (linear) channels $y, y', y'',
-    y'''$ that chain the session together.
-
-    We establish that $\EchoP(x)$ is well typed with the following derivation
+    The only difference with respect to the server in \Cref{ex:echo} is that now
+    the process receives the type $X$ of the messages to be processed and then
+    continues as before.
+    %
+    We establish that $\ServerP(x)$ is well typed with the following derivation
     \[
         \begin{prooftree}
             \[
@@ -641,8 +646,8 @@ interpretation.
                             \wtp{
                                 \Link\u\v
                             }{
-                                u : X,
-                                v : \dual\X
+                                u : \dual\X,
+                                v : X
                             }
                             \using\LinkRule
                         \]
@@ -659,8 +664,8 @@ interpretation.
                         \wtp{
                             \Fork{y''}\v{y'''}{\Link\u\v}{\Close{y'''}}
                         }{
-                            u : X,
-                            y'' : \dual\X \Ten \One
+                            u : \dual\X,
+                            y'' : X \Ten \One
                         }
                         \using\ForkRule
                     \]
@@ -669,7 +674,7 @@ interpretation.
                         \Join{y'}\u{y''}.
                         \Fork{y''}\v{y'''}{\Link\u\v}{\Close{y'''}}
                     }{
-                        y' : X \Par (\dual\X \Ten \One)
+                        y' : \dual\X \Par (X \Ten \One)
                     }
                     \using\JoinRule
                 \]
@@ -679,15 +684,15 @@ interpretation.
                     \Join{y'}\u{y''}.
                     \Fork{y''}\v{y'''}{\Link\u\v}{\Close{y'''}}
                 }{
-                    y : \forall\X.X \Par (\dual\X \Ten \One)
+                    y : \forall\X.\dual\X \Par (X \Ten \One)
                 }
                 \using\ForallRule
             \]
             \justifies
             \wtp{
-                \EchoP(x)
+                \ServerP(x)
             }{
-                x : \OfCourse(\forall\X.X \Par (\dual\X \Ten \One))
+                x : \OfCourse(\forall\X.\dual\X \Par (X \Ten \One))
             }
             \using\ServerRule
         \end{prooftree}
