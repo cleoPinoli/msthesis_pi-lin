@@ -5,7 +5,7 @@
 {-# OPTIONS --rewriting #-}
 open import Function using (_$_)
 open import Data.Sum using (inj₁; inj₂)
-open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
+open import Data.Product using (_×_; _,_; ∃; ∃-syntax; curry)
 open import Data.Fin using (zero; suc; #_)
 open import Data.List.Base using ([]; _∷_; [_])
 open import Relation.Unary
@@ -17,16 +17,15 @@ open import Process
 open import DeadlockFreedom using (deadlock-freedom)
 \end{code}
 
-In this section we revisit the processes discussed in \Cref{ex:booleans,ex:echo}
-and show their encoding in our formalisation. The encoding of $\Bool$ is
-straightforward.
+In this section we revisit and expand the processes discussed in
+\Cref{ex:booleans,ex:echo} and show their encoding in our formalisation. The
+encoding of $\Bool$ is straightforward
 
 \begin{code}
 𝔹 : Type
 𝔹 = 𝟙 ⊕ 𝟙
 \end{code}
-
-The boolean constants are encoded thus:
+and the boolean constants are encoded thus:
 \begin{code}
 True : Proc [ 𝔹 ]
 True = select (ch ⟨ < ≫ ⟩ inj₁ (close ch))
@@ -35,8 +34,8 @@ False : Proc [ 𝔹 ]
 False = select (ch ⟨ < ≫ ⟩ inj₂ (close ch))
 \end{code}
 
-We can take advantage of the host language for programming higher-order
-processes. For example, we can define a conditional process thus:
+We take advantage of the host language for programming higher-order processes.
+For example, we can define a conditional process thus:
 
 \begin{code}
 If_Else : ∀[ Proc ⇒ Proc ⇒ (dual 𝔹 ∷_) ⊢ Proc ]
@@ -75,17 +74,11 @@ A || B   = !! ((!! A) && (!! B))
 \end{code}
 
 The function \AgdaFunction{\$} (defined in Agda's standard library) is just a
-visible function application operator. We use it here as ``separator'' to save a
-few parentheses.
+visible function application operator. We use it as a ``separator'' so that we
+can flatten deeply nested expressions and save a bunch of parentheses.
 %
-Note the use of \AgdaInductiveConstructor{cut}s for combining a process that
-produces a boolean value with a process that consumes a boolean value and the
-use of \AgdaInductiveConstructor{link} for copying a boolean value from one
-channel to another. 
-%
-Here we have chosen to define the disjunction \AgdaFunction{||} from the
-conjunction \AgdaFunction{\&\&} and negation \AgdaFunction{!!} using De Morgan's
-laws.
+We have chosen to define the disjunction \AgdaFunction{||} from the conjunction
+\AgdaFunction{\&\&} and negation \AgdaFunction{!!} using De Morgan's laws.
 
 If we wish to test our definitions, we can implement a simple evaluator using
 the deadlock freedom property. We have not proved a termination result, but
@@ -106,46 +99,44 @@ we obtain
 $\AgdaInductiveConstructor{select}~(\AgdaInductiveConstructor{ch~⟨~<~•~⟩~inj₂}~(\AgdaInductiveConstructor{close~ch}))$,
 that is the definition of \AgdaFunction{False}, as expected.
 
-For the encoding of the echo server (\Cref{ex:echo}), recall that the server is
-polymorphic in the sense that the type $X$ of the value it receives is
-arbitrary. The notation $\AgdaFunction{\#}~n$ is defined in Agda's standard
-library and creates an element of \AgdaDatatype{Fin} from the natural number
-$n$.
+For the encoding of the polymorphic echo server (\Cref{ex:echo}), we start by
+encoding its type $\OfCourse(\forall\X.\dual\X \Par (X \Ten \One))$:
 
 \begin{code}
-Echo : let X = var (# 0) in
-       Proc [ `! (`∀ (X ⅋ (dual X ⊗ 𝟙))) ]
-Echo = curry∗ server ch (< ≫)
-             ( un-[]
-             , curry∗ all ch (< ≫) λ X →
-               curry∗ join ch (< ≫) $
-               curry∗ (curry∗ fork ch (< ≫)) (curry∗ link ch (< > •) ch) (< ≫) $
-               close ch )
+EchoServerT : Type
+EchoServerT = `! (`∀ (rav (# 0) ⅋ (var (# 0) ⊗ 𝟙)))
 \end{code}
 
-We can test the server by connecting it with a \AgdaInductiveConstructor{client}
-that sends true to it.
-
-\begin{code}
-Echo-True : Proc [ 𝔹 ]
-Echo-True = curry∗ cut Echo ≫ $
-            curry∗ client ch (< ≫) $
-            curry∗ (ex {_} {dual 𝔹}) ch (< ≫) $
-            curry∗ (curry∗ fork ch (< ≫)) True ≫ $
-            curry∗ join ch (< ≫) $
-            curry∗ wait ch (< ≫) $
-            curry∗ link ch (< > •) ch
-\end{code}
-
-If we ask Agda to evaluate this process we obtain \AgdaFunction{True}, as
-expected.
-
-From these examples it should be clear that writing \Calculus processes in Agda
-is not entirely straightforward and requires a little effort. The lack of names
-(for channels) clearly obfuscates the code, but the context splittings that must
-be provided are usually small and fairly easy to understand. Most importantly,
-the use of \AgdaFunction{≫} helps truncating context splittings as soon as the
-seeked channel has been reached.
+The notation $\AgdaFunction{\#}~n$ is defined in Agda's standard library and
+creates an element of \AgdaDatatype{Fin} from the natural number $n$. In
+\AgdaFunction{EchoServer}, we use it to represent the de Bruijn index of the
+type variable $X$.
 %
-Either way, the formalisation is meant to study the meta-theory of \Calculus
-rather than implementing a user-friendly DSL for it.
+We now encode the server
+\begin{code}
+Server : Proc [ EchoServerT ]
+Server = curry (curry∗ server ch (< ≫)) un-[] $
+         curry∗ all ch (< ≫) λ X →
+         curry∗ join ch (< ≫) $
+         curry∗ (curry∗ fork ch (< ≫)) (curry∗ link ch (< > •) ch) (< ≫) $
+         close ch
+\end{code}
+and the client that sends true to it
+\begin{code}
+Client : Proc (dual EchoServerT ∷ 𝔹 ∷ [])
+Client = curry∗ client ch (< ≫) $
+         curry∗ (ex {_} {𝔹}) ch (< ≫) $
+         curry∗ (curry∗ fork ch (< ≫)) True ≫ $
+         curry∗ join ch (< ≫) $
+         curry∗ wait ch (< ≫) $
+         curry∗ link ch (< > •) ch
+\end{code}
+
+To test these definitions, we define a main process that connects server and
+client
+\begin{code}
+Main : Proc [ 𝔹 ]
+Main = curry∗ cut Client (< •) Server
+\end{code}
+and then ask Agda to normalize \AgdaFunction{Main}, which yields
+\AgdaFunction{True} as expected.
