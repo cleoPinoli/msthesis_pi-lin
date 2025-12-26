@@ -292,9 +292,9 @@
 \AgdaBound{P₃}\<%
 \end{code}
 
-Just like structural precongruence, reduction is formalised as a binary relation
-between processes that are well typed in the very same typing context. Thus, the
-definition of reduction embeds the subject reduction result (\Cref{thm:red}).
+Just like structural pre-congruence, reduction is formalised as a binary
+relation between processes that are well typed in the same typing context. Thus,
+the definition of reduction embeds subject reduction (\Cref{thm:red}).
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -364,10 +364,10 @@ sub-process of the cut (that is the link $\Link\x\y$) and the splitting
 $\AgdaInductiveConstructor{<}~\AgdaInductiveConstructor{>}~\AgdaInductiveConstructor{•}$
 to which \AgdaInductiveConstructor{link} is applied is structured consistently
 with the syntax of the link $\Link\x\y$ being reduced, which is oriented so that
-the restricted channel $x$ occurs on the left. 
+the restricted channel $x$ is on the left. 
 %
 The process $P$ has type
-$\AgdaDatatype{Proc}~(\AgdaFunction{dual}~A~\AgdaInductiveConstructor{∷}~\ContextD)$,
+$\AgdaDatatype{Proc}~(\AgdaFunction{dual}~A~\AgdaInductiveConstructor{∷}~\ContextD)$
 and turns into $P\subst\y\x$ after the reduction. The type
 $\AgdaFunction{dual}~A$ of $x$ in $P$ is the first in the typing context,
 indicating that it is the newest channel that $P$ is aware of. However, after
@@ -411,10 +411,10 @@ The constructor \AgdaInductiveConstructor{r-close} models \RClose:
 \AgdaBound{P}\<%
 \end{code}
 
-While the \AgdaInductiveConstructor{close} constructor implicitly refers to the
-only free channel occurring in a process of the form $\Close\x$, the
-\AgdaInductiveConstructor{wait} constructor uses a splitting proof of the form
-$\AgdaInductiveConstructor{<}~q_0$ to be sure that the referenced channel is
+While the constructor \AgdaInductiveConstructor{close} implicitly refers to the
+only free channel occurring in a process of the form $\Close\x$, the constructor
+\AgdaInductiveConstructor{wait} uses a splitting proof of the form
+$\AgdaInductiveConstructor{<}~q_0$ to make sure that the referenced channel is
 also the restricted one, and therefore matches the one of the
 \AgdaInductiveConstructor{close} process.
 

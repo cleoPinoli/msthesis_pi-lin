@@ -1,13 +1,13 @@
 \subsection{Deadlock Freedom}
 \label{sec:deadlock-freedom-agda}
 
-As we have seen in \Cref{sec:calculus}, the deadlock freedom result
-(\Cref{thm:df}) rests on some notions and predicates about processes which we
-now formalise in Agda. First of all we need to define the notion of
-\emph{thread}, that is any process other than a cut. It is convenient to provide
-a more fine-grained classification of threads, distinguishing between links,
-input/output actions, and sometimes also whether such actions operate on free or
-bound channels. We define predicates for each of these process classes:
+As we have seen in \Cref{sec:calculus}, the deadlock freedom property and
+\Cref{thm:df} rest on some notions and predicates about processes which must be
+formalised in Agda. First of all we need to define the notion of \emph{thread},
+that is any process other than a cut. It is convenient to provide a more
+fine-grained classification of threads, distinguishing between links and
+input/output actions and sometimes also on whether such actions operate on free
+or bound channels. We define predicates for each of these classes:
 
 \begin{code}[hide]
 {-# OPTIONS --rewriting #-}
@@ -35,16 +35,17 @@ data Server         : ∀{Γ} → Proc Γ → Set
 data DelayedServer  : ∀{Γ} → Proc Γ → Set
 \end{code}
 
-These predicates are relatively uninteresting since they are essentially
-isomorphic to the relevant fragments of the \AgdaDatatype{Proc} datatype. The
-only aspect that is worth pointing out here is that in \AgdaDatatype{Input},
-\AgdaDatatype{Output} and \AgdaDatatype{Server} the channel being acted upon by
-the thread is the \emph{first} in $\Context$, hence it is the \emph{most
-recently introduced} channel, whereas in \AgdaDatatype{Delayed} and
-\AgdaDatatype{DelayedServer} the channel is older. This allows us to distinguish
-those threads that, in the context of a cut, operate on the channel bound by the
-cut or on a free channel. To clarify this aspect, consider the
-\AgdaInductiveConstructor{wait} constructor in \AgdaDatatype{Input} and in
+The implementation of these predicates is not interesting since it is
+essentially isomorphic to the relevant fragments of the \AgdaDatatype{Proc}
+datatype. The only aspect that is worth pointing out here is that in
+\AgdaDatatype{Input}, \AgdaDatatype{Output} and \AgdaDatatype{Server} the
+channel being acted upon by the thread is the \emph{first} in $\Context$, hence
+it is the \emph{most recently introduced} channel, whereas in
+\AgdaDatatype{Delayed} and \AgdaDatatype{DelayedServer} the channel is not the
+first. This allows us to distinguish those threads that, in the context of a
+cut, operate on the channel bound by the cut or on a free channel. To clarify
+this aspect, we show the implementation of the constructor
+\AgdaInductiveConstructor{wait} in \AgdaDatatype{Input} and in
 \AgdaDatatype{Delayed}. In the former predicate we have
 
 \begin{AgdaAlign}
@@ -59,7 +60,7 @@ data Input where
 \begin{code}
   wait : ∀{Γ Δ P} (p : Γ ≃ [] + Δ) → Input (wait (ch ⟨ < p ⟩ P))
 \end{code}
-where the use of the \AgdaInductiveConstructor{<} constructor indicates that the
+where the use of the constructor \AgdaInductiveConstructor{<} indicates that the
 thread operates on the most recent channel. In the latter predicate we have
 
 \begin{code}[hide]
@@ -84,7 +85,7 @@ data Delayed where
 \begin{code}
   wait     : ∀{C Γ Δ P} (p : Γ ≃ [ ⊥ ] + Δ) → Delayed (wait (ch ⟨ >_ {C} p ⟩ P))
 \end{code}
-where the use of the \AgdaInductiveConstructor{>} constructor indicates that the
+where the use of the constructor \AgdaInductiveConstructor{>} indicates that the
 thread operates on a channel other than the most recent one. Note that here we
 have to specify the type $C$ in front of $\Context$ or else Agda is unable to
 automatically resolve some metavariables.
@@ -113,7 +114,7 @@ data DelayedServer where
 \end{code}
 \end{AgdaAlign}
 
-Now the \AgdaDatatype{Thread} predicate is simply the disjoint union of all the
+The predicate \AgdaDatatype{Thread} is simply the disjoint union of all the
 previous ones.
 
 \begin{code}
@@ -126,7 +127,7 @@ data Thread {Γ} (P : Proc Γ) : Set where
   dserver  : DelayedServer P → Thread P
 \end{code}
 
-We define observability, reducibility and aliveness in the expected way:
+Observability, reducibility and aliveness are defined in the expected way:
 
 \begin{code}
 Observable : ∀{Γ} → Proc Γ → Set
@@ -195,10 +196,10 @@ contract→thread (> p) = delayed (contract p)
 \end{code}
 
 In order to prove that every (well-typed) process is alive, it is convenient to
-also define a ``canonical'' form for cuts, that is a form that matches at least
-one of the left-hand-sides of the rules for structural pre-congruence or
-reduction (\Cref{tab:semantics}). This is the notion where the fine-grained
-classification of threads introduced earlier comes into play.
+define a ``canonical'' form for cuts, that is a form that matches at least one
+of the l.h.s of one of the rules for structural pre-congruence or reduction in
+\Cref{tab:semantics}. This is the notion where the fine-grained classification
+of threads introduced earlier comes into play.
 
 \begin{code}
 data CanonicalCut {Γ} : Proc Γ → Set where

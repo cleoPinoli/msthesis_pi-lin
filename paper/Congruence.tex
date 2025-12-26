@@ -616,13 +616,13 @@ Unlike \AgdaInductiveConstructor{wait}, which consumes the channel it operates
 on, the continuation process $P$ uses a fresh continuation channel $z : B$.
 Therefore, $P$ is required to be well typed in the context
 $B~\AgdaInductiveConstructor{∷}~A~\AgdaInductiveConstructor{∷}~\ContextD$, where
-the type of the continuation $z$ comes before the type of the restricted channel
-$x$.
+the type $B$ of the continuation $z$ comes \emph{before} the type $A$ of the
+restricted channel $x$.
 %
-After structural precongruence is applied, however, the type $B$ of the
+After structural pre-congruence is applied, however, the type of the
 continuation channel $z$ ends up behind that of the restricted channel $x$,
-because now the two channels are introduced in the opposite order. Therefore, we
-need to rename the channels in $P$ so that it is well typed in the context
+because now $z$ and $x$ are introduced in the opposite order. Therefore, we need
+to rename the channels in $P$ so that it is well typed in the context
 $A~\AgdaInductiveConstructor{∷}~B~\AgdaInductiveConstructor{∷}~\ContextD$. Such
 renaming is achieved applying the function \AgdaFunction{↭proc} to the
 \AgdaInductiveConstructor{swap} permutation and to the process $P$.
@@ -847,12 +847,12 @@ its complex side conditions:
 
 Recall from \Cref{tab:semantics} that we want to apply this rule on a process of
 the form $\Cut[A]\x{\Fork\y\u\v{P}{Q}}{R}$ when $x \in \fn{P}$. We capture this
-condition by means of the splitting $\AgdaInductiveConstructor{<}~r$, meaning
+condition by means of the splitting $\AgdaInductiveConstructor{<}~r$, implying
 that the type $A$ of $x$ ends up in the typing context for $P$ and not in the
 one for $Q$.
 %
 The symmetric rule \SForkR is modeled by another constructor
-\AgdaInductiveConstructor{s-fork-r}, not shown here but similar to
+\AgdaInductiveConstructor{s-fork-r}, which is similar to
 \AgdaInductiveConstructor{s-fork-l} except that $\AgdaInductiveConstructor{<}~r$
 is replaced by $\AgdaInductiveConstructor{>}~r$.
 
