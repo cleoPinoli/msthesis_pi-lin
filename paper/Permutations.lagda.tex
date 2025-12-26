@@ -16,8 +16,9 @@ of a type in a typing context $\Context$ that determines the location of its
 binder in the structure of a process. When the binding structure of a process
 changes, \eg because a structural pre-congruence rule is applied, or when a
 channel substitution occurs, \cf the right-hand side of the \LinkRule reduction
-in \Cref{tab:semantics}, the typing context must be suitably rearranged. Such
-rearrangement is in fact a \emph{permutation} of the elements of $\Context$.
+in \Cref{tab:semantics}, $\Context$ must be suitably rearranged to agree with
+the updated binding structure. Such rearrangement is in fact a
+\emph{permutation} of the elements of $\Context$.
 
 We define typing context permutations inductively, as a binary relation
 \AgdaDatatype{\_↭\_}:
@@ -68,10 +69,9 @@ these constructors in the rest of the code.
 ↭solo-inv (trans π π′) rewrite ↭solo-inv π | ↭solo-inv π′ = refl
 \end{code}
 
-Just like permutations in Agda's standard library, also \AgdaDatatype{\_↭\_}
-enjoys a number of expected properties, such as symmetry. In the following we
-will make use of a specific property that relates context splitting, list
-concatenation \AgdaFunction{\_++\_} and permutations: if
+It is easy to see that \AgdaDatatype{\_↭\_} is an equivalence relation. In the
+following we also use another specific property of permutations related to
+context splitting and list concatenation \AgdaFunction{\_++\_}: if
 $\Splitting\ContextC\ContextD\ContextE$, then $\ContextC$ is a permutation of
 the concatenation of $\ContextD$ and $\ContextE$.
 

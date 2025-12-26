@@ -241,7 +241,7 @@ The dual of a pre-type is computed by the following function:
 \AgdaBound{A}\AgdaSymbol{)}\<%
 \end{code}
 
-It is straightforward to prove that duality is a an involution.
+It is straightforward to prove that duality is an involution.
 
 \begin{code}%
 \>[0]\AgdaFunction{dual-inv}\AgdaSpace{}%
@@ -382,8 +382,8 @@ This property is important in the rest of the formalisation so we define an
 implicit rewriting rule that Agda can autonomously apply whenever possible. This
 is achieved by means of the following pragma directive.\footnote{The directive
 is effective provided that the option \texttt{{-}{-}rewriting} is enabled,
-either globally when invoking Agda or within a pragma in the module's source
-code.}
+either globally when invoking Agda or within an \AgdaPragma{OPTIONS} pragma
+directive in the module's source code.}
 
 \begin{code}%
 \>[0]\AgdaSymbol{\{-\#}\AgdaSpace{}%
@@ -627,12 +627,12 @@ code.}
 
 Next we define the function \AgdaFunction{subst} that simultaneously substitutes
 the type variables of a pre-type with other pre-types. In practice we will
-always substitute one variable at a time, but it is technically easier to
-substitute \emph{all} variables of a pre-type, possibly with themselves. The
-definition of \AgdaFunction{subst} relies on some auxiliary functions for
-\emph{renaming} type variables and \emph{lifting} substitutions across
-quantifiers. These functions are straightforward adaptations of those described
-by \citet{KokkeSiekWadler20}.
+always substitute one variable at a time, but it is technically easier to define
+\AgdaFunction{subst} so that it accepts a function substituting \emph{all}
+variables of a pre-type, possibly with themselves. The definition of
+\AgdaFunction{subst} relies on some auxiliary functions for \emph{renaming} type
+variables and \emph{lifting} substitutions across quantifiers. These functions
+are straightforward adaptations of those described by \citet{KokkeSiekWadler20}.
 
 \begin{code}%
 \>[0]\AgdaFunction{subst}\AgdaSpace{}%

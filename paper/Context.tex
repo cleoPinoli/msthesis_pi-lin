@@ -46,8 +46,8 @@
 \label{sec:context-agda}
 
 We are going to adopt a nameless representation of channels. Hence, typing
-contexts are represented as lists of types, where the (polymorphic)
-\AgdaDatatype{List} type and its constructors \AgdaInductiveConstructor{[]} and
+contexts are represented as lists of types, where the (polymorphic) type
+\AgdaDatatype{List} and its constructors \AgdaInductiveConstructor{[]} and
 \AgdaInductiveConstructor{\_∷\_} are defined in the module
 \AgdaModule{Data.List} of Agda's standard library. We will keep using
 $\ContextC$, $\ContextD$ and $\ContextE$ to range over typing contexts, even
@@ -572,13 +572,13 @@ some $\ContextC$ such that $Γ ≃ Δ + Θ$, then we can prove that $Γ_1 + (Γ_
 \AgdaBound{p}\AgdaSymbol{)}\<%
 \end{code}
 
-Note that, when specifying a splitting $\Splitting\ContextC{[A]}\ContextE$ where
-the left partition is a singleton $[A]$, it may be convenient to use
-\AgdaFunction{≫} as a shortcut for a sequence of applications of
-\AgdaInductiveConstructor{>} once the $A$ type has been reached in $\ContextC$.
-For instance, \AgdaFunction{splitting-example₁} can be written equivalently and
-in a more compact way as shown below. More usages of \AgdaFunction{≫} will be
-provided in \Cref{sec:examples}.
+When proving a splitting $\Splitting\ContextC{[A]}\ContextE$ where the left
+partition is a singleton $[A]$, it may be convenient to use \AgdaFunction{≫} as
+a shortcut for a sequence of applications of \AgdaInductiveConstructor{>} once
+the $A$ type has been reached in $\ContextC$. For instance,
+\AgdaFunction{splitting-example₁} can be written equivalently and in a more
+compact way as shown below. More usages of \AgdaFunction{≫} will be provided in
+\Cref{sec:examples}.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -638,17 +638,15 @@ provided in \Cref{sec:examples}.
   \caption{\label{tab:predicates} Useful definitions in Agda's \AgdaModule{Relation.Unary} module.}
 \end{table}
 
-Hereafter we will make extensive use of predicates over contexts. For this
-reason, it is worth recalling a number of definitions from the
-\AgdaModule{Relation.Unary} module of Agda's standard library in
-\Cref{tab:predicates}.
-
-Context splitting is pervasive in the subsequent development. For this reason,
-we define a few abstractions that allow us to hide context splittings and
-enhance code readability, at least in some cases.
+From now on we will make extensive use of predicates over contexts. For this
+reason, it is worth recalling in \Cref{tab:predicates} a number of definitions
+from the module \AgdaModule{Relation.Unary} of Agda's standard library.
 %
-Inspired by separation logic~\cite{OHearnPym99} and
-following~\citet{RouvoetPoulsenKrebbersVisser20}, we define the \emph{separating
+We begin using these definitions for building a few abstractions inspired to
+separation logic~\cite{OHearnPym99} that allow us to hide context splittings, at
+least in some cases.
+%
+Following~\citet{RouvoetPoulsenKrebbersVisser20}, we define the \emph{separating
 conjunction} $P \sand Q$ of two predicates $P$ and $Q$ over contexts:
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -813,8 +811,8 @@ which must comply with the typing rule \ServerRule in \Cref{tab:typing-rules}.
 \AgdaFunction{]}\<%
 \end{code}
 
-It is easy to prove that $\Splitting\ContextC\ContextD\ContextE$ is unrestricted
-if so are $\ContextD$ and $\ContextE$:
+It is easy to prove that $\ContextC$ is unrestricted if so are $\ContextD$ and
+$\ContextE$ when $\Splitting\ContextC\ContextD\ContextE$:
 
 \begin{code}%
 \>[0]\AgdaFunction{∗-un}\AgdaSpace{}%
