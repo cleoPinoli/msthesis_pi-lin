@@ -103,18 +103,16 @@ For the encoding of the polymorphic echo server (\Cref{ex:echo}), we start by
 encoding its type $\OfCourse(\forall\X.\dual\X \Par (X \Ten \One))$:
 
 \begin{code}
-EchoServerT : Type
-EchoServerT = `! (`∀ (rav (# 0) ⅋ (var (# 0) ⊗ 𝟙)))
+ServerT : Type
+ServerT = `! (`∀ (rav (# 0) ⅋ (var (# 0) ⊗ 𝟙)))
 \end{code}
 
 The notation $\AgdaFunction{\#}~n$ is defined in Agda's standard library and
-creates an element of \AgdaDatatype{Fin} from the natural number $n$. In
-\AgdaFunction{EchoServer}, we use it to represent the de Bruijn index of the
-type variable $X$.
+creates an element of \AgdaDatatype{Fin} from the natural number $n$.
 %
 We now encode the server
 \begin{code}
-Server : Proc [ EchoServerT ]
+Server : Proc [ ServerT ]
 Server = curry (curry∗ server ch (< ≫)) un-[] $
          curry∗ all ch (< ≫) λ X →
          curry∗ join ch (< ≫) $
@@ -123,7 +121,7 @@ Server = curry (curry∗ server ch (< ≫)) un-[] $
 \end{code}
 and the client that sends true to it
 \begin{code}
-Client : Proc (dual EchoServerT ∷ 𝔹 ∷ [])
+Client : Proc (dual ServerT ∷ 𝔹 ∷ [])
 Client = curry∗ client ch (< ≫) $
          curry∗ (ex {_} {𝔹}) ch (< ≫) $
          curry∗ (curry∗ fork ch (< ≫)) True ≫ $
@@ -132,8 +130,7 @@ Client = curry∗ client ch (< ≫) $
          curry∗ link ch (< > •) ch
 \end{code}
 
-To test these definitions, we define a main process that connects server and
-client
+We define a main process that connects server and client
 \begin{code}
 Main : Proc [ 𝔹 ]
 Main = curry∗ cut Client (< •) Server

@@ -366,11 +366,11 @@ For the encoding of the polymorphic echo server (\Cref{ex:echo}), we start by
 encoding its type $\OfCourse(\forall\X.\dual\X \Par (X \Ten \One))$:
 
 \begin{code}%
-\>[0]\AgdaFunction{EchoServerT}\AgdaSpace{}%
+\>[0]\AgdaFunction{ServerT}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Type}\<%
 \\
-\>[0]\AgdaFunction{EchoServerT}\AgdaSpace{}%
+\>[0]\AgdaFunction{ServerT}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{`!}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{`∀}\AgdaSpace{}%
@@ -386,9 +386,7 @@ encoding its type $\OfCourse(\forall\X.\dual\X \Par (X \Ten \One))$:
 \end{code}
 
 The notation $\AgdaFunction{\#}~n$ is defined in Agda's standard library and
-creates an element of \AgdaDatatype{Fin} from the natural number $n$. In
-\AgdaFunction{EchoServer}, we use it to represent the de Bruijn index of the
-type variable $X$.
+creates an element of \AgdaDatatype{Fin} from the natural number $n$.
 %
 We now encode the server
 \begin{code}%
@@ -396,7 +394,7 @@ We now encode the server
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Proc}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{[}}\AgdaSpace{}%
-\AgdaFunction{EchoServerT}\AgdaSpace{}%
+\AgdaFunction{ServerT}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{]}}\<%
 \\
 \>[0]\AgdaFunction{Server}\AgdaSpace{}%
@@ -456,7 +454,7 @@ and the client that sends true to it
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Proc}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{dual}\AgdaSpace{}%
-\AgdaFunction{EchoServerT}\AgdaSpace{}%
+\AgdaFunction{ServerT}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaFunction{𝔹}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
@@ -518,8 +516,7 @@ and the client that sends true to it
 \AgdaInductiveConstructor{ch}\<%
 \end{code}
 
-To test these definitions, we define a main process that connects server and
-client
+We define a main process that connects server and client
 \begin{code}%
 \>[0]\AgdaFunction{Main}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
