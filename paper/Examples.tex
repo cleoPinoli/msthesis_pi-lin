@@ -386,7 +386,8 @@ encoding its type $\OfCourse(\forall\X.\dual\X \Par (X \Ten \One))$:
 \end{code}
 
 The notation $\AgdaFunction{\#}~n$ is defined in Agda's standard library and
-creates an element of \AgdaDatatype{Fin} from the natural number $n$.
+creates an element of \AgdaDatatype{Fin} from the natural number $n$. Here it is
+used to create the de Bruijn index of the type variable $X$.
 %
 We now encode the server
 \begin{code}%
@@ -516,7 +517,7 @@ and the client that sends true to it
 \AgdaInductiveConstructor{ch}\<%
 \end{code}
 
-We define a main process that connects server and client
+To test our definitions we compose client and server in parallel
 \begin{code}%
 \>[0]\AgdaFunction{Main}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
