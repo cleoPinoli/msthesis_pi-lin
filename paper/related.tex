@@ -58,11 +58,13 @@ $\pi$-calculus which is parametric in a \emph{usage algebra} (to account for
 channel sharing/linearity) and that is based on \emph{leftover
 typing}~\cite{Allais17}. 
 %
-With leftover typing a process is typed with respect to an \emph{input context},
-which describes the overall available channels, and an \emph{output context},
-which describes the residual channels not consumed by the process. In this way,
-it is possible to ``concatenate'' typing judgments instead of splitting typing
-contexts beforehand. As \citet{ZalakainDardha21} nicely summarise, ``context
+With leftover typing the judgments have the form $\wtl{P}\ContextC\ContextD$
+where a process $P$ is typed with respect to an input context $\ContextC$, which
+describes the overall available channels, and a context of leftovers
+$\ContextD$, which describes the residual channels not consumed by the process.
+In this way, it is possible to ``concatenate'' typing judgments by matching the
+leftovers in one judgment with the input context of the subsequent one, with no
+need for splitting. As \citet{ZalakainDardha21} nicely summarise, ``context
 splits contain usage information that is already present in processes,'' and
 therefore can be omitted. This is true provided that channels are named
 (\citet{ZalakainDardha21} use de Bruijn indices to this aim). In fact, the co-de
@@ -80,8 +82,8 @@ their syntactical occurrence in processes. Interestingly, this approach relies
 on the \emph{explicit naming of continuations} so as to precisely account for
 the number of times a channel is actually used. \citet{SanoKavanaghPientka23} do
 not connect their technique with the continuation-passing encoding of binary
-sessions, but the analogies are evident even though the role of continuations
-differs.
+sessions~\cite{Kobayashi02b,DardhaGiachinoSangiorgi17}, but the analogies are
+evident even though the role of continuations differs.
 
 \citet{ZackonEtAl25} describe yet another approach for managing typing contexts
 whereby channels are associated not just with a type but also with a \emph{tag}
@@ -332,9 +334,11 @@ interpretation of ``safety'' varies widely among the formalisations and, except
 for our own, they all differ from the one stated in the linearity
 challenge~\citep{CarboneEtAl24}.
 %
-Some formalisations define \emph{libraries} which could be reused in different
-contexts. In these cases, the size of the library is reported separately next to
-the size of the part of the development that uses it.
+Some
+formalisations~\cite{RouvoetPoulsenKrebbersVisser20,ZalakainDardha21,JacobsBalzerKrebbers22,ZackonEtAl25}
+define \emph{libraries} which can be reused in different contexts. In these
+cases, the size of the library is reported separately next to the size of the
+part of the development that uses it.
 
 In general, it is difficult to draw firm conclusions on the effectiveness of the
 various approaches in addressing the linearity challenge because the
@@ -369,22 +373,25 @@ the two aspects are not completely independent.
 
 We found no strong evidence that the intrinsically typed representation of
 processes reduces the size of the formalisation. As observed in
-\Cref{sec:process-agda}, this choice may help reducing the overall number of
-datatypes to be defined, but the definitions are also more involved because they
-incorporate invariants and the proofs of typing preservation. It seems plausible
-to speculate that the effort for representing processes, types and typing rules
-is not substantially different overall.
+\Cref{sec:process-agda}, this choice helps reducing the overall number of
+datatypes to be defined and makes some results trivial (\eg
+\Cref{thm:type-safety} formalised by \AgdaFunction{type-safety}), but the
+definitions are also more involved because they incorporate invariants and the
+proofs of typing preservation. It is plausible to speculate that the effort for
+representing processes, types and typing rules is not substantially different
+overall.
 
 Finally, it seems that the use of (explicit) continuations affects the
 complexity of the formalisation more than anything else. Indeed, the six
 smallest formalisations (excluding the deadlock freedom results) -- with an
-average size of around 62kb -- are all based on continuations, whether they are
-explicit (\LinearPI, \SCP, \LCC) or ``virtual'' (\GV), while the remaining ones
-are 263kb on average. This observation is in agreement with the considerations
-we made earlier in this paper concerning the difference between \emph{updating}
-bindings versus \emph{removing and adding} bindings in a typing context. The
-adoption of continuations enables a clean linear management of channels and
-avoids the need for strong updates on the typing context.
+average size of around 62kb -- are all based on continuations, no matter if they
+are explicit (\LinearPI, \SCP, \LCC) or ``virtual'' (\GV), while the remaining
+ones are 263kb on average. This observation is in agreement with the
+considerations we made earlier in this paper concerning the difference between
+\emph{updating} bindings versus \emph{removing and adding} bindings in a typing
+context. The use of continuations enables a cleaner management of typing
+contexts since channels become true ``use-once'' resources and there is no need
+for strong updates.
 
 % It is also interesting to note that whereby \SCP, which the
 % authors~\citet{SanoKavanaghPientka23} do not relate directly to the linear

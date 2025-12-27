@@ -155,8 +155,8 @@ explicit continuation channels.
 The interpretation of the remaining constructors is analogous, so we only
 comment \AgdaInductiveConstructor{all}, which builds a process
 $\Forall\x\X\y.P$. This constructor models the continuation $P$ using
-higher-order abstract syntax: proving that a context $\Context$ satisfies the
-predicate
+higher-order abstract syntax (HOAS): proving that a context $\Context$ satisfies
+the predicate
 \[
   \AgdaFunction{⋂[}~X~\AgdaFunction{∶}~\AgdaDatatype{Type}~\AgdaFunction]~((\AgdaFunction{subst~[}~X~\AgdaFunction{/]}~A~\AgdaInductiveConstructor{∷\_})~\AgdaFunction{⊢}~\AgdaDatatype{Proc}
 \]

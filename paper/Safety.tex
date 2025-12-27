@@ -237,8 +237,9 @@ A process $P$ is well formed if every unguarded sub-process $Q$ in it is alive.
 \end{code}
 
 The proof of type safety ends up being a trivial application of
-\AgdaFunction{deadlock-freedom}, since the process $Q$ in the hole of a
-reduction context is well typed by construction.
+\AgdaFunction{deadlock-freedom}. No work is needed to deduce that the process
+$Q$ in the hole of a reduction context is well typed because structural
+pre-congruence preserves typing by definition.
 
 \begin{code}%
 \>[0]\AgdaFunction{type-safety}\AgdaSpace{}%
