@@ -23,8 +23,8 @@ functional language extended with session communication primitives, along with
 an interpreter. \citet{CicconePadovani20} have taken inspiration from this work
 to formalise a variant of the linear
 $\pi$-calculus~\cite{KobayashiPierceTurner99} that supports dependent types, so
-as to enable the description of communication protocols whose structure depends
-on the content of messages.
+as to enable the description of communication protocols whose structure may
+depend on the content of messages.
 
 \citet{CastroFerreiraYoshida20} describe EMTST, a library for the formalisation
 of session type systems that includes as case studies the session calculus of
@@ -33,12 +33,12 @@ version of it that is more amenable to be formalised using a locally nameless
 representation of channels.
 
 \citet{RouvoetPoulsenKrebbersVisser20} present a library of abstractions
-inspired to separation logic aiding the formalisation of interpreters for models
-supported by linear type systems. One of the presented case studies is the
+inspired to separation logic aiding the formalisation of interpreters for
+languages with linear resources. One of the presented case studies is the
 formalisation of a fragment of \GV~\citep{GayVasconcelos10,Wadler14}. The
 separating conjunction introduced in \Cref{sec:context-agda} and the typing of
 the constructors for the representation of processes in \Cref{sec:process-agda}
-have been heavily inspired by this work. 
+have been adapted from this work. 
 
 % as case study for their approach based on separation logic, which we have
 % partially taken inspiration from for the representation of processes
@@ -58,21 +58,20 @@ $\pi$-calculus which is parametric in a \emph{usage algebra} (to account for
 channel sharing/linearity) and that is based on \emph{leftover
 typing}~\cite{Allais17}. 
 %
-With leftover typing the judgments have the form $\wtl{P}\ContextC\ContextD$
-where a process $P$ is typed with respect to an input context $\ContextC$, which
-describes the overall available channels, and a context of leftovers
-$\ContextD$, which describes the residual channels not consumed by the process.
-In this way, it is possible to ``concatenate'' typing judgments by matching the
-leftovers in one judgment with the input context of the subsequent one, with no
-need for splitting. As \citet{ZalakainDardha21} nicely summarise, ``context
-splits contain usage information that is already present in processes,'' and
-therefore can be omitted. This is true provided that channels are named
-(\citet{ZalakainDardha21} use de Bruijn indices to this aim). In fact, the co-de
-Bruijn representation of processes~\cite{McBride18}, whereby channels are
-nameless and context splitting is performed eagerly, can be seen as the ``dual
-approach'' of leftover typing: channel names provide information that is already
-present in their (singleton) typing context, hence they can be omitted from
-contexts and processes.
+Typing judgments have the form $\wtl{P}\ContextC\ContextD$ so that a process $P$
+is typed with respect to an input context $\ContextC$, which describes all the
+available channels, and a context of leftovers $\ContextD$, which describes the
+residual channels not consumed by the process. In this way, it is possible to
+``concatenate'' typing judgments by matching the leftovers in one judgment with
+the input context of the subsequent one, with no need for splitting. As
+\citet{ZalakainDardha21} nicely summarise, context splittings are not necessary
+because they ``contain usage information that is already present in processes.''
+This is true provided that channels are named (\citet{ZalakainDardha21} use de
+Bruijn indices to this aim). In fact, the co-de Bruijn representation of
+processes~\cite{McBride18}, whereby channels are nameless and context splitting
+is performed eagerly, can be seen as the ``dual approach'' of leftover typing:
+channel names provide information that is already present in their (singleton)
+typing context, hence they can be omitted from contexts and processes.
 
 Motivated by the technical difficulties arising from context splittings,
 \citet{SanoKavanaghPientka23} define a structural version of \CP using an
@@ -103,15 +102,15 @@ are conveninently combined using operations from the resource algebra.
     \caption{\label{tab:comparison} A summary of different formalisations of
     binary session calculi (sizes in kb).}
     \begin{minipage}{.95\textwidth}
-    \begin{tabular}{@{}r@{\T}c@{\T}c@{\T}c@{\T}|@{\T}c@{\T}c@{\T}c@{\T}c@{\T}|@{\T}r@{\T}r@{\T}r@{\T}r@{\T}r@{\,}l@{}}
-        \textbf{Formalisation} &
-        \textlabel{Proof assistant} &
+    \begin{tabular}{@{}l@{\T}c@{\T}c@{\T}c@{\T}c@{\T}|c@{\T}c@{\T}c@{\T}|@{\T}r@{\T}r@{\T}r@{\T}r@{\T}r@{\,}l@{}}
+        \text{Reference paper} &
+        \text{Prover} &
         \textlabel{Calculus} &
-        \textlabel{Cut} &
-        \textlabel{Channel linearity} &
-        \textlabel{Channel names} &
-        \textlabel{Intrinsically typed} &
+        \textlabel{Cuts} &
         \textlabel{Continuations} &
+        \text{Linearity} &
+        \text{Channels} &
+        \textlabel{Intrinsically typed} &
         % \textlabel{Shared channels} &
         % \textlabel{Polymorphism} &
         \textlabel{Subject reduction} &
@@ -125,9 +124,9 @@ are conveninently combined using operations from the resource algebra.
         Coq &
         \SessionPI &
         \NO &
+        \NO &
         splits &
         loc. nameless &
-        \NO &
         \NO &
         % \YES &
         % \YES &
@@ -142,10 +141,10 @@ are conveninently combined using operations from the resource algebra.
         Agda &
         \GV &
         \NO &
+        \MAYBE &
         splits &
         co-de Bruijn &
         \YES &
-        \MAYBE &
         % \YES &
         % \NO &
         177 &
@@ -159,10 +158,10 @@ are conveninently combined using operations from the resource algebra.
         Agda &
         \GV &
         \NO &
+        \MAYBE &
         splits &
         co-de Bruijn &
         \YES &
-        \MAYBE &
         % \NO &
         % \NO &
         27 &
@@ -176,9 +175,9 @@ are conveninently combined using operations from the resource algebra.
         Coq &
         \SessionPI &
         \NO &
+        \NO &
         splits &
         loc. nameless &
-        \NO &
         \NO &
         % \YES &
         % \NO &
@@ -193,9 +192,9 @@ are conveninently combined using operations from the resource algebra.
         Agda &
         \LinearPI & 
         \NO &
+        \YES &
         splits &
         co-de Bruijn &
-        \YES &
         \YES &
         % \YES &
         % \NO &
@@ -210,10 +209,10 @@ are conveninently combined using operations from the resource algebra.
         Agda &
         \LinearPI &
         \NO &
+        \YES &
         leftovers &
         de Bruijn &
         \NO &
-        \YES &
         % \YES &
         % \NO &
         82 &
@@ -227,10 +226,10 @@ are conveninently combined using operations from the resource algebra.
         Coq &
         \GV &
         \YES &
+        \MAYBE &
         splits &
         named &
         \NO &
-        \MAYBE &
         % \NO &
         % \NO &
         68 &
@@ -244,10 +243,10 @@ are conveninently combined using operations from the resource algebra.
         Beluga &
         \SCP &
         \YES &
+        \MAYBE &
         predicates &
         HOAS &
         \NO &
-        \MAYBE &
         % \NO &
         % \NO &
         35 &
@@ -260,9 +259,9 @@ are conveninently combined using operations from the resource algebra.
         Beluga &
         \CP &
         \YES &
+        \NO &
         tags &
         HOAS &
-        \NO &
         \NO &
         % \NO &
         % \NO &
@@ -273,13 +272,13 @@ are conveninently combined using operations from the resource algebra.
         \textbf{129} &
         \footnote{Excluded correspondence between \CP and \SCP.}
         \\
-        this work &
+        this &
         Agda &
         \Calculus &
         \YES &
+        \YES &
         splits &
         co-de Bruijn &
-        \YES &
         \YES &
         % \YES &
         % \YES &
@@ -293,62 +292,61 @@ are conveninently combined using operations from the resource algebra.
     \end{minipage}
 \end{table}
 
-\Cref{tab:comparison} reports a summary of the aforementioned formalisations and
-also our own. The four leftmost columns list the reference papers (sorted by
-publication date), the used proof assistant, the formalised calculus, and
-whether the calculus features a cut in the style of linear logic, as opposed to
-separate restriction and parallel composition.
+\Cref{tab:comparison} reports a summary of the aforementioned formalisations
+(sorted by publication date) and also our own. The first five columns identify
+the calculus being formalised specifying its reference paper, the used proof
+assistant and an acronym that gives an idea of the overall flavour of the
+calculus.
 %
-For simplicity, we have grouped the calculi into classes identified by an
-acronym. The acronyms \CP~\cite{Wadler14} and
-\GV~\cite{GayVasconcelos10,Wadler14} refer to well-known calculi in the
-literature on session types. The acronym \SessionPI refers to (variants of) the
-session-based $\pi$-calculus presented by \citet{HondaVasconcelosKubo98} while
-\LinearPI refers to (variants of) the linear
+The acronyms \CP~\cite{Wadler14,GayVasconcelos25} and
+\GV~\cite{GayVasconcelos10,Wadler14} are well-known in the literature on session
+types. The acronym \SessionPI refers to (variants of) the session-based
+$\pi$-calculus presented by \citet{HondaVasconcelosKubo98} while \LinearPI
+refers to (variants of) the linear
 $\pi$-calculus~\cite{KobayashiPierceTurner99}. Finally, \SCP is the structural
 version of \CP introduced by \citet{SanoKavanaghPientka23} and \Calculus is our
 calculus.
 %
-It should be noted that the actual calculus being formalised usually differs
-from (typically, is a strict subset of) the one identified by the acronym and
-that the same acronym may identify different calculi. For example, the first
-version of \GV described by \citet{GayVasconcelos10} is not based on linear
-logic, whereas later versions~\cite{Wadler14} used \eg by
-\citet{JacobsBalzerKrebbers22} are.
+We emphasize that the actual calculus being formalised usually differs from
+(typically, is a strict subset of) the one identified by the acronym and that
+the same acronym may refer to different versions of the same calculus.
 %
-In any case, the acronym is meant to give an idea of the overall flavour of the
-calculus.
+We also indicate whether the calculus features \emph{cuts} (that is, the
+combination of restriction and parallel composition in correspondence with the
+cut of linear logic) and continuations.
 
-The four middle columns of \Cref{tab:comparison} report the relevant qualitative
-aspects of the formalisations, namely the technique for the management of typing
-contexts, the representation of channels, whether the formalisation is
-intrinsically or extrinsically typed, and whether the calculus makes use of
-continuation channels. Concerning the use of continuations, the approaches based
-directly on the linear $\pi$-calculus (into which sessions can be encoded) are
-marked with {\YES} and those based on a calculus with native sessions are marked
-with {\NO}. The calculus \SCP is marked with {\MAYBE} because, while not
-directly inspired to the linear $\pi$-calculus, it makes use of explicit
-continuations for defining the predicates that check the linear usage of
-channels. Finally, all the approaches based on \GV are also marked with \MAYBE.
-In principle, \emph{none} of these calculi makes use of continuations. However,
-\GV is designed in such a way that each operation acting on a channel $s$ is a
-function that returns the result of the operation (if any) \emph{along with the
-same channel $s$}. In this way, the type of $s$ can be conveniently ``updated''
-to take into account the effect of the operation. As observed by
-\citet{Padovani17}, this semantics of the communication primitives is virtually
-indistinguishable from one making use of explicit continuation channels.
+Concerning the use of continuations, the approaches based directly on the linear
+$\pi$-calculus (into which sessions can be encoded) are marked with {\YES} and
+those based on a calculus with native sessions are marked with {\NO}. The
+calculus \SCP is marked with {\MAYBE} because, while not directly inspired to
+the linear $\pi$-calculus, it makes use of explicit continuations for defining
+the predicates that check the linear usage of channels. Finally, all the
+approaches based on \GV are also marked with \MAYBE. In principle, \emph{none}
+of these calculi makes use of continuations. However, \GV is designed in such a
+way that each operation acting on a channel $s$ is a function that returns the
+result of the operation (if any) \emph{along with the same channel $s$}. In this
+way, the type of $s$ can be conveniently ``updated'' to take into account the
+effect of the operation. As observed by \citet{Padovani17}, this semantics of
+the communication primitives is virtually indistinguishable from one making use
+of explicit continuation channels.
 
-The rightmost columns of \Cref{tab:comparison} report the size (in kilobytes) of
-the formalisations as rough (and possibly questionable) estimates of their
-complexity. Instead of counting line numbers, which may be affected by code
-indentation styles and syntactical constraints of the proof assistant being
-used, we have counted the number of characters after comments have been removed
-and spaces have been squeezed.\footnote{Sequences of two or more consecutive
-space-like characters are collapsed into a single space. The squeezing is
-obtained by running the command \texttt{tr -s [:space:] file} on Unix-like
-systems.}
+The three middle columns of \Cref{tab:comparison} report the relevant
+qualitative aspects of the formalisations, namely the management of typing
+contexts, the representation of channels and whether the formalisation is
+intrinsically or extrinsically typed.
+
+The rightmost columns report the size (in kilobytes) of the formalisations as
+rough (and possibly questionable) estimates of their complexity. Papers
+describing formalisations typically use ``lines of code'' as a measure of
+development effort, but the number of lines may be affected by code indentation
+styles and syntactical constraints of the proof assistant being used. For this
+reason, we have preferred to count the total number of characters after comments
+have been removed and spaces have been squeezed.\footnote{Sequences of two or
+more consecutive space-like characters are collapsed into a single space. The
+squeezing is obtained by running the command \texttt{tr -s [:space:] file} on
+Unix-like systems.}
 %
-The reported sizes account for the source code of the formalisation excluding
+The reported sizes account for the source code of the formalisations excluding
 examples and any safety result, if present. We have noticed that the
 interpretation of ``safety'' varies widely among the formalisations and, except
 for our own, they all differ from the one stated in the linearity
@@ -370,7 +368,7 @@ them~\cite{RouvoetPoulsenKrebbersVisser20,ZalakainDardha21,SanoKavanaghPientka23
 are explicitly motivated by the complexity arising from the linear usage of
 resources/channels and from context splitting in particular.
 
-Based on the available data, we can make the following observations.
+Looking on the available data, we can make the following observations.
 %
 The adoption of context splitting, which is very well represented, does not seem
 to be a good indicator of the complexity of the formalisation. Indeed, the
@@ -389,41 +387,28 @@ Other channel representations are not strong complexity indicators. Note that
 the adoption of co-de Bruijn syntax implies the use of context splitting, hence
 the two aspects are not completely independent.
 
-We found no strong evidence that the intrinsically typed representation of
+There is no strong evidence that the intrinsically typed representation of
 processes reduces the size of the formalisation. As observed in
 \Cref{sec:process-agda}, this choice helps reducing the overall number of
 datatypes to be defined and makes some results trivial (\eg
 \Cref{thm:type-safety} formalised by \AgdaFunction{type-safety}), but the
 definitions are also more involved because they incorporate invariants and the
-proofs of typing preservation. It is plausible to speculate that the effort for
-representing processes, types and typing rules is not substantially different
-overall.
+proofs of typing preservation. We speculate that the effort for representing
+processes, types and typing rules is not substantially impacted overall.
 
 Using the cut in the style of linear logic instead of separate restriction and
 parallel composition simplifies the representation of channels (or session
 endpoints). All the formalisations of calculi that adopt the cut tend to be
 small (if we exclude the libraries), but this is not a general rule.
 
-Finally, it seems that the use of (explicit) continuations affects the
+Finally, it appears that the use of (explicit) continuations is related to the
 complexity of the formalisation more than anything else. Indeed, the six
 smallest formalisations (excluding the deadlock freedom results) -- with an
 average size of around 62kb -- are all based on continuations, no matter if they
 are explicit (\LinearPI, \SCP, \LCC) or ``virtual'' (\GV), while the remaining
-ones are 263kb on average. This observation is in agreement with the
-considerations we made earlier in this paper concerning the difference between
-\emph{updating} bindings versus \emph{removing and adding} bindings in a typing
-context. The use of continuations enables a cleaner management of typing
-contexts since linear channels become true ``use-once'' resources and there is
-no need for strong updates of their type.
-
-% It is also interesting to note that whereby \SCP, which the
-% authors~\citet{SanoKavanaghPientka23} do not relate directly to the linear
-% $\pi$-calculus, relies on explicit continuations to tame the complexity of
-% resource management. Our comparison suggests that this aspect, more than the
-% structural treatment of contexts, 
-
-% \citet{SanoKavanaghPientka23} do not relate it directly to the linear
-% $\pi$-calculus.
-
-% più che il trattamento strutturale dei contesti (ed evitare lo splitting) è
-% l'uso delle continuazione a fare la differenza
+ones are 263kb on average. This observation agrees with the considerations made
+earlier in this paper concerning the difference between \emph{updating} bindings
+versus \emph{removing and adding} bindings in a typing context. The use of
+continuations enables a cleaner management of typing contexts since linear
+channels are true ``use-once'' resources and there is no need to update their
+type.
