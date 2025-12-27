@@ -18,8 +18,8 @@ formalisation of a session-based calculus for which we were able to retrieve the
 source code (the work of \citet{Gay01} predates this one, but its source code is
 not publicly available any more).
 
-\citet{Thiemann19} formalises a subset of \GV~\citep{GayVasconcelos10,Wadler14},
-a functional language extended with session communication primitives, along with
+\citet{Thiemann19} formalises a subset of \GV~\citep{GayVasconcelos10}, a
+functional language extended with session communication primitives, along with
 an interpreter. \citet{CicconePadovani20} have taken inspiration from this work
 to formalise a variant of the linear
 $\pi$-calculus~\cite{KobayashiPierceTurner99} that supports dependent types, so
@@ -98,13 +98,16 @@ are conveninently combined using operations from the resource algebra.
 \newcommand{\MAYBE}{$\pm$}
 
 \begin{table}[t]
+    \newcommand\T{\hspace{1.25ex}}
     \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
-    \caption{\label{tab:comparison} A summary of different formalisations of binary session calculi. All sizes are in kb.}
-    \begin{minipage}{.9\textwidth}
-    \begin{tabular}{@{}r@{~}@{~}c@{~~}c@{~}|@{~}c@{~~}c@{~~}c@{~~}c@{~}|@{~}r@{~~}r@{~~}r@{~~}r@{~~}r@{~}l@{}}
+    \caption{\label{tab:comparison} A summary of different formalisations of
+    binary session calculi (sizes in kb).}
+    \begin{minipage}{.95\textwidth}
+    \begin{tabular}{@{}r@{\T}c@{\T}c@{\T}c@{\T}|@{\T}c@{\T}c@{\T}c@{\T}c@{\T}|@{\T}r@{\T}r@{\T}r@{\T}r@{\T}r@{\,}l@{}}
         \textbf{Formalisation} &
         \textlabel{Proof assistant} &
         \textlabel{Calculus} &
+        \textlabel{Cut} &
         \textlabel{Channel linearity} &
         \textlabel{Channel names} &
         \textlabel{Intrinsically typed} &
@@ -121,6 +124,7 @@ are conveninently combined using operations from the resource algebra.
         \citet{GotoEtAl16} &
         Coq &
         \SessionPI &
+        \NO &
         splits &
         loc. nameless &
         \NO &
@@ -137,6 +141,7 @@ are conveninently combined using operations from the resource algebra.
         \citet{Thiemann19} &
         Agda &
         \GV &
+        \NO &
         splits &
         co-de Bruijn &
         \YES &
@@ -153,6 +158,7 @@ are conveninently combined using operations from the resource algebra.
         \citet{RouvoetPoulsenKrebbersVisser20} &
         Agda &
         \GV &
+        \NO &
         splits &
         co-de Bruijn &
         \YES &
@@ -169,6 +175,7 @@ are conveninently combined using operations from the resource algebra.
         \citet{CastroFerreiraYoshida20} &
         Coq &
         \SessionPI &
+        \NO &
         splits &
         loc. nameless &
         \NO &
@@ -185,6 +192,7 @@ are conveninently combined using operations from the resource algebra.
         \citet{CicconePadovani20} &
         Agda &
         \LinearPI & 
+        \NO &
         splits &
         co-de Bruijn &
         \YES &
@@ -201,6 +209,7 @@ are conveninently combined using operations from the resource algebra.
         \citet{ZalakainDardha21} &
         Agda &
         \LinearPI &
+        \NO &
         leftovers &
         de Bruijn &
         \NO &
@@ -212,11 +221,12 @@ are conveninently combined using operations from the resource algebra.
         \NO &
         \NO &
         \textbf{90} &
-        \footnote{Includes shared channels and the library for algebra of types.}
+        \footnote{Includes shared channels and the library for the algebra of types.}
         \\
         \citet{JacobsBalzerKrebbers22} &
         Coq &
         \GV &
+        \YES &
         splits &
         named &
         \NO &
@@ -233,6 +243,7 @@ are conveninently combined using operations from the resource algebra.
         \citet{SanoKavanaghPientka23} &
         Beluga &
         \SCP &
+        \YES &
         predicates &
         HOAS &
         \NO &
@@ -248,6 +259,7 @@ are conveninently combined using operations from the resource algebra.
         \citet{ZackonEtAl25} &
         Beluga &
         \CP &
+        \YES &
         tags &
         HOAS &
         \NO &
@@ -264,6 +276,7 @@ are conveninently combined using operations from the resource algebra.
         this work &
         Agda &
         \Calculus &
+        \YES &
         splits &
         co-de Bruijn &
         \YES &
@@ -281,40 +294,47 @@ are conveninently combined using operations from the resource algebra.
 \end{table}
 
 \Cref{tab:comparison} reports a summary of the aforementioned formalisations and
-also our own. The three leftmost columns list the reference papers (sorted by
-publication date), the used proof assistant and the formalised calculus.
+also our own. The four leftmost columns list the reference papers (sorted by
+publication date), the used proof assistant, the formalised calculus, and
+whether the calculus features a cut in the style of linear logic, as opposed to
+separate restriction and parallel composition.
 %
 For simplicity, we have grouped the calculi into classes identified by an
 acronym. The acronyms \CP~\cite{Wadler14} and
 \GV~\cite{GayVasconcelos10,Wadler14} refer to well-known calculi in the
-literature on session types. It should be noted that the actual calculus being
-formalised usually differs from (typically, is a strict subset of) the one
-identified by the acronym, but it retains at least some of its key features.
+literature on session types. The acronym \SessionPI refers to (variants of) the
+session-based $\pi$-calculus presented by \citet{HondaVasconcelosKubo98} while
+\LinearPI refers to (variants of) the linear
+$\pi$-calculus~\cite{KobayashiPierceTurner99}. Finally, \SCP is the structural
+version of \CP introduced by \citet{SanoKavanaghPientka23} and \Calculus is our
+calculus.
 %
-The acronym \SessionPI refers to (variants of) the session-based $\pi$-calculus
-presented by \citet{HondaVasconcelosKubo98} while \LinearPI refers to (variants
-of) the linear $\pi$-calculus~\cite{KobayashiPierceTurner99}, into which binary
-sessions can be encoded using explicit continuation channels as described by
-\citet[extended version]{Kobayashi02b} and \citet{DardhaGiachinoSangiorgi17}.
-Finally, \SCP is the structural version of \CP introduced by
-\citet{SanoKavanaghPientka23} and \Calculus is our calculus.
+It should be noted that the actual calculus being formalised usually differs
+from (typically, is a strict subset of) the one identified by the acronym and
+that the same acronym may identify different calculi. For example, the first
+version of \GV described by \citet{GayVasconcelos10} is not based on linear
+logic, whereas later versions~\cite{Wadler14} used \eg by
+\citet{JacobsBalzerKrebbers22} are.
+%
+In any case, the acronym is meant to give an idea of the overall flavour of the
+calculus.
 
 The four middle columns of \Cref{tab:comparison} report the relevant qualitative
-aspects of the formalisations, namely the technique used to enforce the linear
-usage of channels, the technique used to encode channels, whether the
-formalisation is intrinsically or extrinsically typed, and whether the calculus
-makes use of continuation channels. Concerning the use of continuations, the
-approaches based directly on the linear $\pi$-calculus (into which sessions can
-be encoded) are marked with {\YES} and those based on a calculus with native
-sessions are marked with {\NO}. The calculus \SCP is marked with {\MAYBE}
-because, while not being strictly based on the linear $\pi$-calculus, it makes
-use of explicit continuations for defining the predicates that check the linear
-usage of channels. Finally, all the approaches based on \GV are also marked with
-\MAYBE. In principle, \emph{none} of these calculi makes use of continuations.
-However, \GV is designed in such a way that each operation acting on a channel
-$s$ is a function that returns the result of the operation (if any) \emph{along
-with the same channel $s$}. In this way, the type of $s$ can be conveniently
-``updated'' to take into account the effect of the operation. As observed by
+aspects of the formalisations, namely the technique for the management of typing
+contexts, the representation of channels, whether the formalisation is
+intrinsically or extrinsically typed, and whether the calculus makes use of
+continuation channels. Concerning the use of continuations, the approaches based
+directly on the linear $\pi$-calculus (into which sessions can be encoded) are
+marked with {\YES} and those based on a calculus with native sessions are marked
+with {\NO}. The calculus \SCP is marked with {\MAYBE} because, while not
+directly inspired to the linear $\pi$-calculus, it makes use of explicit
+continuations for defining the predicates that check the linear usage of
+channels. Finally, all the approaches based on \GV are also marked with \MAYBE.
+In principle, \emph{none} of these calculi makes use of continuations. However,
+\GV is designed in such a way that each operation acting on a channel $s$ is a
+function that returns the result of the operation (if any) \emph{along with the
+same channel $s$}. In this way, the type of $s$ can be conveniently ``updated''
+to take into account the effect of the operation. As observed by
 \citet{Padovani17}, this semantics of the communication primitives is virtually
 indistinguishable from one making use of explicit continuation channels.
 
@@ -342,9 +362,7 @@ part of the development that uses it.
 
 In general, it is difficult to draw firm conclusions on the effectiveness of the
 various approaches in addressing the linearity challenge because the
-formalisations differ widely for a variety of entangled factors including the
-features of calculus, the used proof assistant, the representation of
-processes/expressions/channels, the handling of linearity. Also, most
+formalisations differ widely for a variety of entangled factors. Also, most
 formalisations predate the publication of the linearity
 challenge~\cite{CarboneEtAl24}, hence they are not necessarily targeted to
 solving that particular problem. However, some of
@@ -381,6 +399,11 @@ proofs of typing preservation. It is plausible to speculate that the effort for
 representing processes, types and typing rules is not substantially different
 overall.
 
+Using the cut in the style of linear logic instead of separate restriction and
+parallel composition simplifies the representation of channels (or session
+endpoints). All the formalisations of calculi that adopt the cut tend to be
+small (if we exclude the libraries), but this is not a general rule.
+
 Finally, it seems that the use of (explicit) continuations affects the
 complexity of the formalisation more than anything else. Indeed, the six
 smallest formalisations (excluding the deadlock freedom results) -- with an
@@ -390,8 +413,8 @@ ones are 263kb on average. This observation is in agreement with the
 considerations we made earlier in this paper concerning the difference between
 \emph{updating} bindings versus \emph{removing and adding} bindings in a typing
 context. The use of continuations enables a cleaner management of typing
-contexts since channels become true ``use-once'' resources and there is no need
-for strong updates.
+contexts since linear channels become true ``use-once'' resources and there is
+no need for strong updates of their type.
 
 % It is also interesting to note that whereby \SCP, which the
 % authors~\citet{SanoKavanaghPientka23} do not relate directly to the linear
