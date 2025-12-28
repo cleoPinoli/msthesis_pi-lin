@@ -367,15 +367,16 @@ part of the development that uses it.
 
 In general, it is difficult to draw firm conclusions on the effectiveness of the
 various approaches in addressing the linearity challenge because the
-formalisations differ widely for a variety of entangled factors. Also, most
-formalisations predate the publication of the linearity
-challenge~\cite{CarboneEtAl24}, hence they are not necessarily targeted to
-solving that particular problem. However, some of
-them~\cite{RouvoetPoulsenKrebbersVisser20,ZalakainDardha21,SanoKavanaghPientka23,ZackonEtAl25}
-are explicitly motivated by the complexity arising from the linear usage of
-resources/channels and from context splitting in particular.
-
-Looking on the available data, we can make the following observations.
+formalisations differ widely for a variety of entangled factors.
+%
+% Also, most formalisations predate the publication of the linearity
+% challenge~\cite{CarboneEtAl24}, hence they are not necessarily targeted to
+% solving that particular problem. However, some of
+% them~\cite{RouvoetPoulsenKrebbersVisser20,ZalakainDardha21,SanoKavanaghPientka23,ZackonEtAl25}
+% are explicitly motivated by the complexity arising from the linear usage of
+% resources/channels and from context splitting in particular.
+%
+Looking at the available data, we can make the following observations.
 %
 The adoption of context splitting, which is very well represented, does not seem
 to be a good indicator of the complexity of the formalisation. Indeed, the
@@ -383,12 +384,11 @@ formalisations based on context splitting span the whole range of sizes, from
 the largest by \citet{GotoEtAl16} (543kb) to our own (21kb, without the proof of
 deadlock freedom) which is also the only one supporting all the features of \CP.
 
-The two largest formalisations~\cite{GotoEtAl16,CastroFerreiraYoshida20} are the
-ones that adopt a locally nameless representation of channels. In these
+The two largest formalisations~\cite{GotoEtAl16,CastroFerreiraYoshida20} are
+also the ones that adopt a locally nameless representation of channels. In these
 formalisations channels are represented in two different ways, depending on
-whether they are free or bound. This necessarily entails some duplication of
-effort as well as some transformation machinery between the two representations
-that contribute to the complexity of the formalisation.
+whether they are free or bound. This entails some duplication of effort as well
+as some transformation machinery between the two representations.
 %
 Other channel representations are not strong complexity indicators. Note that
 the adoption of co-de Bruijn syntax implies the use of context splitting, hence

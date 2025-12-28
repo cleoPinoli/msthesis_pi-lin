@@ -63,27 +63,28 @@ Using these higher-order forms, it is easy to define the usual boolean
 connectives.
 
 \begin{code}
-!!_ : Proc [ 𝔹 ] → Proc [ 𝔹 ]
-!!_ B = curry∗ cut B ≫ (If False Else True)
+!! : Proc [ 𝔹 ] → Proc [ 𝔹 ]
+!! B = curry∗ cut B ≫ (If False Else True)
 
 _&&_ _||_  : Proc [ 𝔹 ] → Proc [ 𝔹 ] → Proc [ 𝔹 ]
 A && B   =  curry∗ cut A ≫ $
             curry∗ cut B ≫ $
-            If (curry∗ link ch (< ≫) ch) Else (Drop False)
-A || B   = !! ((!! A) && (!! B))
+            If curry∗ link ch (< ≫) ch Else (Drop False)
+A || B   =  !! (!! A && !! B)
 \end{code}
 
 The function \AgdaFunction{\$} (defined in Agda's standard library) is just a
-visible function application operator. We use it as a ``separator'' so that we
-can flatten deeply nested expressions and save a bunch of parentheses.
+low-precedence, visible function application operator. We use it as a separator
+to flatten deeply nested expressions and save a bunch of parentheses.
 %
-We have chosen to define the disjunction \AgdaFunction{||} from the conjunction
-\AgdaFunction{\&\&} and negation \AgdaFunction{!!} using De Morgan's laws.
+For the sake of illustration, we have chosen to define the disjunction
+\AgdaFunction{||} from the conjunction \AgdaFunction{\&\&} and negation
+\AgdaFunction{!!} using De Morgan's laws.
 
-If we wish to test our definitions, we can implement a simple evaluator using
-the deadlock freedom property. We have not proved a termination result, but
-since linear logic enjoys cut elimination we can safely annotate the evaluator
-as terminating.
+To test our definitions we implement a simple evaluator using the deadlock
+freedom property. We have not proved a termination result, but since linear
+logic enjoys cut elimination we can safely annotate the evaluator as
+terminating.
 
 \begin{code}
 {-# TERMINATING #-}
@@ -107,9 +108,9 @@ ServerT : Type
 ServerT = `! (`∀ (rav (# 0) ⅋ (var (# 0) ⊗ 𝟙)))
 \end{code}
 
-The notation $\AgdaFunction{\#}~n$ is defined in Agda's standard library and
-creates an element of \AgdaDatatype{Fin} from the natural number $n$. Here it is
-used to create the de Bruijn index of the type variable $X$.
+The notation $\AgdaFunction{\#}~n$ (defined in Agda's standard library) creates
+an element of \AgdaDatatype{Fin} from the natural number $n$. Here it is used to
+create the de Bruijn index of the type variable $X$.
 %
 We now encode the server
 \begin{code}
@@ -138,3 +139,47 @@ Main = curry∗ cut Client (< •) Server
 \end{code}
 and then ask Agda to normalize \AgdaFunction{Main}, which yields
 \AgdaFunction{True} as expected.
+
+\begin{remark}
+    Writing processes in Agda would be easier if we could avoid using
+    \AgdaFunction{curry∗}, namely if the constructors of the data type
+    \AgdaDatatype{Proc} were naturally curried.
+    %
+    This is possible, but only if we are willing to sacrifice some clarity. To
+    illustrate the problem with an example, below is the fully curried
+    constructor \AgdaInductiveConstructor{fork} of a hypothetical data type
+    \AgdaDatatype{Proc'}, obtained by expanding the definition of separating
+    conjunction:
+\begin{code}[hide]
+data Proc' : Context → Set where
+\end{code}
+\begin{code}
+  fork : ∀{A B Γ Δ Θ Θ₁ Θ₂} → Ch (A ⊗ B) Δ → Γ ≃ Δ + Θ →
+         Proc' (A ∷ Θ₁) → Θ ≃ Θ₁ + Θ₂ → Proc' (B ∷ Θ₂) → Proc' (A ⊗ B ∷ Γ)
+\end{code}
+
+    This version of \AgdaInductiveConstructor{fork} is way less readable than
+    the one we gave in \Cref{sec:process-agda} because of the (now visible)
+    context splittings. We can recover some clarity and still obtain a curried
+    version of \AgdaInductiveConstructor{fork} using the magic wand instead of
+    Agda's native arrow:
+\begin{code}[hide]
+data Proc'' : Context → Set where
+\end{code}
+\begin{code}
+  fork : ∀{A B} →
+         ∀[ Ch (A ⊗ B) ⇒ (A ∷_) ⊢ Proc'' ─∗ (B ∷_) ⊢ Proc'' ─∗ Proc'' ]
+\end{code}
+
+    However, now in each constructor we have to make a distinction between the
+    first arrow \AgdaFunction{⇒} and the following magic wands \AgdaFunction{─∗}
+    to account for the appropriate amount of context splittings. We found this
+    formulation of the constructors harder to explain and motivate in
+    \Cref{sec:process-agda}.
+    %
+    In the end, none of the alternative definitions of the data type
+    \AgdaDatatype{Proc} was fully satisfactory and we preferred the cleanest and
+    most readable version at the expense of additional clutter in this section.
+    %
+    \eoe
+\end{remark}
