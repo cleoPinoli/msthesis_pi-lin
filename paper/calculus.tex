@@ -109,8 +109,8 @@ The process $\Fail\x$ can be used to denote a failure concerning the channel
 $x$.
 %
 The process $\Case\x\z{Q_1}{Q_2}$ offers a choice on channel $x$ and continues
-as either $Q_1$ or $Q_2$ with $z$ bound to the received continuation depending
-on which branch is selected.
+as either $Q_1$ or $Q_2$ with $z$ bound to the received continuation channel
+depending on which branch is selected.
 %
 The process $\Select\x{\InTag_i}\z.P$ performs a choice (represented by a label
 $\InTag_i$ with $i=1,2$) and sends a fresh continuation $z$ on the channel $x$.
@@ -139,10 +139,9 @@ $P$ and type $\dual{A}$ in $Q$. Henceforth we write $\Cut\x{P}{Q}$ omitting the
 type annotation $A$ when it is irrelevant or clear from the context.
 
 The notions of free and bound channels are fairly standard, bearing in mind that
-output prefixes bind continuation channels in (some) continuation processes. In
-particular, $\Select\x{\InTag_i}\z.P$ binds $z$ in $P$, while
-$\Fork\x\y\z{P}{Q}$ binds $y$ in $P$ but not in $Q$ and $z$ in $Q$ but not in
-$P$.
+output prefixes bind continuation channels in (some) continuation processes. For
+instance, $\Select\x{\InTag_i}\z.P$ binds $z$ in $P$, while $\Fork\x\y\z{P}{Q}$
+binds $y$ in $P$ but not in $Q$ and $z$ in $Q$ but not in $P$.
 %
 We write $\fn{P}$ for the set of channels occurring free in $P$ and we identify
 processes up to renaming of bound channels.
@@ -346,11 +345,11 @@ The reduction rules \RLink, \RClose, \RSelect, \RFork, \RExists and \RConnect
 are in one-to-one correspondence with the well-known reductions of session
 calculi and the principal cut reductions of linear logic. These reductions erase
 the topmost cut and replace it with zero, one or two new cuts, depending on the
-number of continuations that are exchanged. Note that \RLink eliminates a link
-$\Link\x\y$ by substituting $y$ for $x$ in the scope of $x$ and \RClose models
-the communication of an empty message (without continuations), hence no new cut
-is present in the reduct. \RSelect, \RFork and \RConnect are standard and
-\RExists models the instantiation of a polymorphic variable $X$ as the
+number of continuation channels that are exchanged. Note that \RLink eliminates
+a link $\Link\x\y$ by substituting $y$ for $x$ in the scope of $x$ and \RClose
+models the communication of an empty message (without continuations), hence no
+new cut is present in the reduct. \RSelect, \RFork and \RConnect are standard
+and \RExists models the instantiation of a polymorphic variable $X$ as the
 communication of a type $A$. We write $Q\subst{A}\X$ for the process obtained by
 replacing every free occurrence of the type variable $X$ with $A$.
 %

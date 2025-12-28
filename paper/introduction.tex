@@ -50,11 +50,11 @@ to formalise with the existing techniques}.
 %
 More specifically, we describe the Linear Calculus of Continuations (\LCC) whose
 type system coincides with the proof system of classical linear logic and that
-features \emph{linear channels} instead of sessions. Unlike session endpoints,
-which can be used multiple times albeit sequentially, linear channels are meant
-to be used \emph{once}. \LCC retains the expressiveness of modeling structured
-conversations using \emph{explicit continuations}, just like in the well-known
-encoding of (binary) sessions into the linear
+features \emph{linear channels} instead of sessions. While a session endpoint
+can be used \emph{multiple times} (sequentially), linear channels must be used
+\emph{exactly once}. \LCC retains the expressiveness of other session calculi
+using \emph{explicit continuations}, as in the well-known encoding of (binary)
+sessions into the linear
 $\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}:
 each message exchanged on a linear channel may include one or two fresh channels
 -- the \emph{continuations} -- on which the rest of the conversation takes
@@ -62,7 +62,7 @@ place.
 %
 Overall, \LCC is nothing but a low-level version of \CP~\cite{Wadler14} --
 Wadler's calculus of sessions based on classical linear logic -- such that
-sessions are encoded instead of being featured natively.
+sessions can be encoded instead of being featured natively.
 
 The logical foundations of \LCC and the use of explicit continuations play an
 important role in taming the complexity of the formalisation.
