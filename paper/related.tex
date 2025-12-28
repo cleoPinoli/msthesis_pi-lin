@@ -1,16 +1,9 @@
 \section{Related Work}
 \label{sec:related}
 
-We have compared our formalisation with others that have appeared in the
-literature and for which we were able to retrieve the source code. We have
-looked at those formalisations that include the following features:
-\begin{itemize}
-\item reduction/evaluation semantics for a calculus with support for binary
-    sessions, either natively or through their encoding in terms of linear
-    channels~\cite{KobayashiPierceTurner99,Kobayashi02b};
-\item a type system along with the usual typing preservation results;
-\item optionally, a proof of global progress/deadlock freedom.
-\end{itemize}
+We have compared our formalisation with others of typed calculi that support
+binary sessions either natively or through their encoding using
+continuations~\cite{KobayashiPierceTurner99,Kobayashi02b}.
 
 \citet{GotoEtAl16} describe the formalisation of a session-based variant of the
 $\pi$-calculus which supports channel polymorphism. This is the oldest
@@ -92,13 +85,13 @@ not connect their technique with the continuation-passing encoding of binary
 sessions~\cite{Kobayashi02b,DardhaGiachinoSangiorgi17}, but the analogies are
 evident even though the role of continuations differs.
 
-\citet{ZackonEtAl25} describe yet another approach for managing typing contexts
-whereby channels are associated not just with a type but also with a \emph{tag}
-(or \emph{multiplicity}) from a given resource algebra. The tag summarises the
-number of allowed usages of a particular channel, including the possibility that
-the channel is not available. This approach streamlines context splitting since
-contexts can be treated in an essentially structural way, except for tags which
-are conveninently combined using operations from the resource algebra.
+\citet{ZackonEtAl25} describe a typing context management technique where
+channels are associated not just with a type but also with an element -- called
+\emph{tag} -- of a given resource algebra that summarises the number of allowed
+usages of a particular channel, including the possibility that the channel is
+not available. This approach streamlines context splitting since contexts can be
+treated in an essentially structural way, except for tags which are
+conveninently combined using operations from the resource algebra.
 
 \newcommand{\YES}{$+$}
 \newcommand{\NO}{$-$}
@@ -302,11 +295,11 @@ are conveninently combined using operations from the resource algebra.
 
 \Cref{tab:comparison} shows an overview of the aforementioned formalisations
 (sorted by publication date) including our own. The first five columns identify
-the calculus being formalised. We provide its reference paper, the language in
+the calculus being formalised. We provide its reference paper, the prover in
 which it is formalised and an acronym that gives an idea of the flavour of the
 calculus. We also specify whether the calculus features \emph{cuts} (that is,
-the combination of restriction and parallel composition that corresponds with
-the cut of linear logic) and continuations.
+the combination of restriction and parallel composition corresponding with the
+cut of linear logic) and continuations.
 %
 \CP~\cite{Wadler14,GayVasconcelos25} and \GV~\cite{GayVasconcelos10,Wadler14}
 are well-known acronyms in the literature on session types. \SessionPI refers to
@@ -318,8 +311,8 @@ structural version of \CP introduced by \citet{SanoKavanaghPientka23} and
 %
 We emphasize that the actual calculus being formalised usually differs from
 (typically, is a strict subset of) the one identified by the acronym and that
-the same acronym may refer to different versions of the same calculus. In
-particular, \GV in a logical setting is described by \citet{Wadler14} but its
+the same acronym may sometimes refer to different versions of the same calculus.
+In particular, \GV in a logical setting is described by \citet{Wadler14} but its
 first (non-logical) version is due to \citet{GayVasconcelos10}.
 
 Concerning the use of continuations, the approaches based directly on the linear
@@ -339,8 +332,8 @@ use of explicit continuation channels.
 
 The three middle columns of \Cref{tab:comparison} report the relevant
 qualitative aspects of the formalisations, namely the management of typing
-contexts, the representation of channels and whether the formalisation is
-intrinsically or extrinsically typed.
+contexts, the representation of channels and whether processes are intrinsically
+or extrinsically typed.
 
 The rightmost columns report the size (in kilobytes) of the formalisations as
 rough (and possibly questionable) estimates of their complexity. Papers
