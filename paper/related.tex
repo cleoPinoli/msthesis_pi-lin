@@ -107,7 +107,7 @@ are conveninently combined using operations from the resource algebra.
 \begin{table}[t]
     \newcommand\T{\hspace{1.25ex}}
     \newcommand{\textlabel}[1]{\rotatebox{90}{#1}}
-    \caption{\label{tab:comparison} A summary of different formalisations of
+    \caption{\label{tab:comparison} Overview of different formalisations of
     binary session calculi (sizes in kb).}
     \begin{minipage}{.95\textwidth}
     \begin{tabular}{@{}l@{\T}c@{\T}c@{\T}c@{\T}c@{\T}|c@{\T}c@{\T}c@{\T}|@{\T}r@{\T}r@{\T}r@{\T}r@{\T}r@{\,}l@{}}
@@ -300,28 +300,27 @@ are conveninently combined using operations from the resource algebra.
     \end{minipage}
 \end{table}
 
-\Cref{tab:comparison} reports a summary of the aforementioned formalisations
-(sorted by publication date) and also our own. The first five columns identify
-the calculus being formalised specifying its reference paper, the used proof
-assistant and an acronym that gives an idea of the overall flavour of the
-calculus.
+\Cref{tab:comparison} shows an overview of the aforementioned formalisations
+(sorted by publication date) including our own. The first five columns identify
+the calculus being formalised. We provide its reference paper, the language in
+which it is formalised and an acronym that gives an idea of the flavour of the
+calculus. We also specify whether the calculus features \emph{cuts} (that is,
+the combination of restriction and parallel composition that corresponds with
+the cut of linear logic) and continuations.
 %
-The acronyms \CP~\cite{Wadler14,GayVasconcelos25} and
-\GV~\cite{GayVasconcelos10,Wadler14} are well-known in the literature on session
-types. The acronym \SessionPI refers to (variants of) the session-based
-$\pi$-calculus presented by \citet{HondaVasconcelosKubo98} while \LinearPI
-refers to (variants of) the linear
-$\pi$-calculus~\cite{KobayashiPierceTurner99}. Finally, \SCP is the structural
-version of \CP introduced by \citet{SanoKavanaghPientka23} and \Calculus is our
-calculus.
+\CP~\cite{Wadler14,GayVasconcelos25} and \GV~\cite{GayVasconcelos10,Wadler14}
+are well-known acronyms in the literature on session types. \SessionPI refers to
+(variants of) the session-based $\pi$-calculus presented by
+\citet{HondaVasconcelosKubo98} while \LinearPI refers to (variants of) the
+linear $\pi$-calculus~\cite{KobayashiPierceTurner99}. Finally, \SCP is the
+structural version of \CP introduced by \citet{SanoKavanaghPientka23} and
+\Calculus is our calculus.
 %
 We emphasize that the actual calculus being formalised usually differs from
 (typically, is a strict subset of) the one identified by the acronym and that
-the same acronym may refer to different versions of the same calculus.
-%
-We also indicate whether the calculus features \emph{cuts} (that is, the
-combination of restriction and parallel composition in correspondence with the
-cut of linear logic) and continuations.
+the same acronym may refer to different versions of the same calculus. In
+particular, \GV in a logical setting is described by \citet{Wadler14} but its
+first (non-logical) version is due to \citet{GayVasconcelos10}.
 
 Concerning the use of continuations, the approaches based directly on the linear
 $\pi$-calculus (into which sessions can be encoded) are marked with {\YES} and
@@ -332,11 +331,11 @@ the predicates that check the linear usage of channels. Finally, all the
 approaches based on \GV are also marked with \MAYBE. In principle, \emph{none}
 of these calculi makes use of continuations. However, \GV is designed in such a
 way that each operation acting on a channel $s$ is a function that returns the
-result of the operation (if any) \emph{along with the same channel $s$}. In this
-way, the type of $s$ can be conveniently ``updated'' to take into account the
-effect of the operation. As observed by \citet{Padovani17}, this semantics of
-the communication primitives is virtually indistinguishable from one making use
-of explicit continuation channels.
+result of the operation (if present) \emph{along with the same channel $s$}. In
+this way, the type of $s$ can be conveniently ``updated'' to take into account
+the effect of the operation. As observed by \citet{Padovani17}, this semantics
+of the communication primitives is virtually indistinguishable from one making
+use of explicit continuation channels.
 
 The three middle columns of \Cref{tab:comparison} report the relevant
 qualitative aspects of the formalisations, namely the management of typing
