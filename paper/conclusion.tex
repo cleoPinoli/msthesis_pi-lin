@@ -11,36 +11,34 @@ The linear calculus of continuations and the calculus described in the linearity
 challenge~\cite{CarboneEtAl24} are incomparable in terms of expressiveness. The
 challenge only considers a minimal calculus of first-order, monomorphic sessions
 while \LCC supports linear, shared, higher-order, polymorphic channels. At the
-same time, the logical foundations of \LCC prevent the modeling of deadlocked
-processes, of sequential processes that own both endpoints of a session and in
-general of cyclic network topologies. Such processes can be modeled in the
-calculus of the challenge, where parallel composition and name restriction are
-distinct constructs as in the $\pi$-calculus.
+same time, the calculus of the challenge allows the modeling of sequential
+processes owning both endpoints of a session and in general of cyclic network
+topologies, none of which can be modeled in \LCC because of its tight
+correspondence with linear logic.
 %
-Because of its logical foundations, we think that \LCC deserves its own space in
-the context of the linearity challenge alongside with (but not in substitution
-of) more traditional session calculi.
+We think that \LCC deserves its own space in the context of the linearity
+challenge alongside with (but not in substitution of) more traditional session
+calculi.
 
 Considering the richness of \LCC in terms of features and proved properties, the
-small (and possibly simple) formalisation of \LCC casts some doubts on the
-actual role of context splitting as a source of unnecessary complexity. We
-perceive far greater benefits from the adoption of a model with explicit
-continuations and we find hints of this also beyond our work.
+simple formalisation of \LCC casts some doubts on the actual role of context
+splitting as a source of complexity. We perceive more tangible benefits from the
+adoption of a calculus with explicit continuations where channels are linear in
+a literal sense.
 %
-Among the alternative approaches that have been proposed to overcome the
-difficulties of context splitting, the one of \citet{SanoKavanaghPientka23}
-makes use of explicit continuations.
-%
-In a different setting, the continuation-based encoding of binary sessions has
-greatly simplified the problem of session type reconstruction~\cite{Padovani17}.
+In this respect, we find it intriguing that, among the alternative approaches
+that have been proposed to overcome the difficulties of context splitting, the
+one by \citet{SanoKavanaghPientka23} makes key use of explicit continuations and
+also that, in a different setting, the continuation-based encoding of binary
+sessions has greatly simplified the problem of session type
+reconstruction~\cite{Padovani17}.
 
 The compact formalisation of \LCC is a good starting point for further
 developments. We have already extended \LCC with support for coinductive (\ie
-possibly infinite) types and recursive processes (the source code of this
-extension is publicly available in the same repository of
-\LCC~\cite{PadovaniRaffaelli25}). In the future, it would be interesting to
-formalise the strong normalisation property of \LCC as a consequence of cut
-elimination of classical linear logic.
+possibly infinite) types and recursive processes (this extension is in \LCC's
+public repository~\cite{PadovaniRaffaelli25}). In the future, it would be
+interesting to formalise the strong normalisation property of \LCC as a
+consequence of cut elimination of classical linear logic.
 
 In this work we have focused on models of \emph{binary sessions} (those
 connecting exactly two processes), but there are also formalisations of
@@ -51,4 +49,4 @@ amounts to 173kb and the one by \citet{TiroreBengstonCarbone25} to more than 1Mb
 of Coq code. Also in these cases, the formalisation based on (virtual)
 continuations~\citep{JacobsBalzerKrebbers22a} happens to be substantially
 smaller. Whether this is a coincidence or further evidence of the effectiveness
-of the continuation-based approaches is left as future work.
+of the continuation-based approaches is left for future investigations.
