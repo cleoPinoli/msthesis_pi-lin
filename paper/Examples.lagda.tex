@@ -171,15 +171,14 @@ data Proc'' : Context → Set where
          ∀[ Ch (A ⊗ B) ⇒ (A ∷_) ⊢ Proc'' ─∗ (B ∷_) ⊢ Proc'' ─∗ Proc'' ]
 \end{code}
 
-    However, now in each constructor we have to make a distinction between the
-    first arrow \AgdaFunction{⇒} and the following magic wands \AgdaFunction{─∗}
-    to account for the appropriate amount of context splittings. We found this
-    formulation of the constructors harder to explain and motivate in
-    \Cref{sec:process-agda}.
+    However, now we have to make a distinction between the first arrow
+    \AgdaFunction{⇒} and the following magic wands to account for the
+    appropriate amount of context splittings. We found this formulation of the
+    constructors harder to explain and motivate in \Cref{sec:process-agda}.
     %
-    In the end, none of the alternative definitions of the data type
-    \AgdaDatatype{Proc} was fully satisfactory and we preferred the cleanest and
-    most readable version at the expense of additional clutter in this section.
+    Since none of the alternative definitions of \AgdaDatatype{Proc} was fully
+    satisfactory, we preferred the cleanest and most readable version of the
+    data type at the expense of additional clutter in this section.
     %
     \eoe
 \end{remark}
