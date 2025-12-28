@@ -35,10 +35,18 @@ representation of channels.
 \citet{RouvoetPoulsenKrebbersVisser20} present a library of abstractions
 inspired to separation logic aiding the formalisation of interpreters for
 languages with linear resources. One of the presented case studies is the
-formalisation of a fragment of \GV~\citep{GayVasconcelos10,Wadler14}. The
-separating conjunction introduced in \Cref{sec:context-agda} and the typing of
-the constructors for the representation of processes in \Cref{sec:process-agda}
-have been adapted from this work. 
+formalisation of a fragment of \GV~\citep{GayVasconcelos10,Wadler14}. 
+%
+Unlike the other formalisations we are discussing,
+\citet{RouvoetPoulsenKrebbersVisser20} do not define a small-step semantics for
+\GV which explains (in part) the small size of their development. However, since
+their formalisation of \GV is intrinsically typed, the interpreter preserves
+typing and therefore proves a form of subject reduction property.
+%
+The separating conjunction introduced in \Cref{sec:context-agda} and the typing
+of the constructors for the representation of processes in
+\Cref{sec:process-agda} have been adapted from this work of
+\citet{RouvoetPoulsenKrebbersVisser20}.
 
 % as case study for their approach based on separation logic, which we have
 % partially taken inspiration from for the representation of processes
