@@ -32,14 +32,12 @@ formalisation of a fragment of \GV~\citep{GayVasconcelos10,Wadler14}.
 %
 Unlike the other formalisations we are discussing,
 \citet{RouvoetPoulsenKrebbersVisser20} do not define a small-step semantics for
-\GV which explains (in part) the small size of their development. However, since
-their formalisation of \GV is intrinsically typed, the interpreter preserves
-typing and therefore proves a form of subject reduction property.
+\GV but their formalisation is intrinsically typed, hence the interpreter
+preserves proves a form of subject reduction property.
 %
-The separating conjunction introduced in \Cref{sec:context-agda} and the typing
-of the constructors for the representation of processes in
-\Cref{sec:process-agda} have been adapted from this work of
-\citet{RouvoetPoulsenKrebbersVisser20}.
+The separating conjunction defined in \Cref{sec:context-agda} and the typing of
+the constructors for the representation of processes in \Cref{sec:process-agda}
+have been adapted from this work of \citet{RouvoetPoulsenKrebbersVisser20}.
 
 % as case study for their approach based on separation logic, which we have
 % partially taken inspiration from for the representation of processes
@@ -86,8 +84,8 @@ sessions~\cite{Kobayashi02b,DardhaGiachinoSangiorgi17}, but the analogies are
 evident even though the role of continuations differs.
 
 \citet{ZackonEtAl25} describe a typing context management technique where
-channels are associated not just with a type but also with an element -- called
-\emph{tag} -- of a given resource algebra that summarises the number of allowed
+channels are associated not just with a type but also with a \emph{tag}, that is
+an element of a given resource algebra that summarises the number of allowed
 usages of a particular channel, including the possibility that the channel is
 not available. This approach streamlines context splitting since contexts can be
 treated in an essentially structural way, except for tags which are
@@ -298,8 +296,8 @@ conveninently combined using operations from the resource algebra.
 the calculus being formalised. We provide its reference paper, the prover in
 which it is formalised and an acronym that gives an idea of the flavour of the
 calculus. We also specify whether the calculus features \emph{cuts} (that is,
-the combination of restriction and parallel composition corresponding with the
-cut of linear logic) and continuations.
+the combination of restriction and parallel composition corresponding to the cut
+of linear logic) and continuations.
 %
 \CP~\cite{Wadler14,GayVasconcelos25} and \GV~\cite{GayVasconcelos10,Wadler14}
 are well-known acronyms in the literature on session types. \SessionPI refers to
@@ -321,9 +319,9 @@ those based on a calculus with native sessions are marked with {\NO}. The
 calculus \SCP is marked with {\MAYBE} because, while not directly inspired to
 the linear $\pi$-calculus, it makes use of explicit continuations for defining
 the predicates that check the linear usage of channels. Finally, all the
-approaches based on \GV are also marked with \MAYBE. In principle, \emph{none}
-of these calculi makes use of continuations. However, \GV is designed in such a
-way that each operation acting on a channel $s$ is a function that returns the
+approaches based on \GV are also marked with \MAYBE. Officially, \emph{none} of
+these calculi makes use of continuations. However, \GV is designed in such a way
+that each operation acting on a channel $s$ is a function that returns the
 result of the operation (if present) \emph{along with the same channel $s$}. In
 this way, the type of $s$ can be conveniently ``updated'' to take into account
 the effect of the operation. As observed by \citet{Padovani17}, this semantics
@@ -337,7 +335,7 @@ or extrinsically typed.
 
 The rightmost columns report the size (in kilobytes) of the formalisations as
 rough (and possibly questionable) estimates of their complexity. Papers
-describing formalisations typically use ``lines of code'' as a measure of
+describing formalisations typically report the ``lines of code'' as a measure of
 development effort, but the number of lines may be affected by code indentation
 styles and syntactical constraints of the proof assistant being used. For this
 reason, we have preferred to count the total number of characters after comments
@@ -347,9 +345,9 @@ squeezing is obtained by running the command \texttt{tr -s [:space:] file} on
 Unix-like systems.}
 %
 The reported sizes account for the source code of the formalisations excluding
-examples and any safety result, if present. We have noticed that the
-interpretation of ``safety'' varies widely among the formalisations and, except
-for our own, they all differ from the one stated in the linearity
+examples and any safety result, if present. We have excluded safety results
+because their meaning varies widely across the formalisations and, except for
+our own, they all differ from the one stated in the linearity
 challenge~\citep{CarboneEtAl24}.
 %
 Some
@@ -407,9 +405,6 @@ complexity of the formalisation more than anything else. Indeed, the six
 smallest formalisations (excluding the deadlock freedom results) -- with an
 average size of around 62kb -- are all based on continuations, no matter if they
 are explicit (\LinearPI, \SCP, \LCC) or ``virtual'' (\GV), while the remaining
-ones are 263kb on average. This observation agrees with the considerations made
-earlier in this paper concerning the difference between \emph{updating} bindings
-versus \emph{removing and adding} bindings in a typing context. The use of
-continuations enables a cleaner management of typing contexts since linear
-channels are true ``use-once'' resources and there is no need to update their
-type.
+ones are 263kb on average. At the very least, the use of continuations enables a
+cleaner management of typing contexts since linear channels are true
+``use-once'' resources and there is no need to update their type.
