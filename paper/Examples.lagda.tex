@@ -39,8 +39,8 @@ For example, we can define a conditional process thus:
 
 \begin{code}
 If_Else : ∀[ Proc ⇒ Proc ⇒ (dual 𝔹 ∷_) ⊢ Proc ]
-If P Else Q = curry∗ case ch (< ≫) ( wait (ch ⟨ < ≫ ⟩ P)
-                                   , wait (ch ⟨ < ≫ ⟩ Q))
+If P Else Q = curry∗ case ch (< ≫) (  wait (ch ⟨ < ≫ ⟩ P)
+                                   ,  wait (ch ⟨ < ≫ ⟩ Q))
 \end{code}
 
 A term $\AgdaFunction{If}~P~\AgdaFunction{Else}~Q$ is a process that waits for a

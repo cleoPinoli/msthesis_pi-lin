@@ -308,9 +308,8 @@ The constructor \AgdaInductiveConstructor{s-wait} models the \SWait rule:
 
 There are two non-trivial aspects worth commenting. The first one concerns the
 proof $\AgdaInductiveConstructor{>}~q$ used in the
-\AgdaInductiveConstructor{wait} process before structural pre-congruence is
-applied. To understand the meaning of this proof, we must recall three key
-elements:
+\AgdaInductiveConstructor{wait} process. To understand the meaning of this
+proof, we must recall three key elements:
 \begin{enumerate}
   \item
     $(\AgdaInductiveConstructor{wait}~(\AgdaInductiveConstructor{ch~⟨~>}~q~\AgdaInductiveConstructor{⟩}~P)$
@@ -610,14 +609,13 @@ Here the process
 $(\AgdaInductiveConstructor{select}~(\AgdaInductiveConstructor{ch ⟨
 >}~q~\AgdaInductiveConstructor{⟩})~\AgdaInductiveConstructor{inj₁}~P)$, that is
 $\Select\y\LeftTag\z.P$, is found under a cut for $x : A$ and is using some
-channel $y : B \Plus C$ to send the tag $\InTag_1$.
+channel $y : B \Plus C$ to select $\InTag_1$.
 %
-Unlike \AgdaInductiveConstructor{wait}, which consumes the channel it operates
-on, the continuation process $P$ uses a fresh continuation channel $z : B$.
+The continuation process $P$ uses a fresh continuation channel $z : B$.
 Therefore, $P$ is required to be well typed in the context
 $B~\AgdaInductiveConstructor{∷}~A~\AgdaInductiveConstructor{∷}~\ContextD$, where
-the type $B$ of the continuation $z$ comes \emph{before} the type $A$ of the
-restricted channel $x$.
+the type $B$ of $z$ comes \emph{before} the type $A$ of $x$ since $z$ is
+introduced later than $x$.
 %
 After structural pre-congruence is applied, however, the type of the
 continuation channel $z$ ends up behind that of the restricted channel $x$,
@@ -845,11 +843,11 @@ its complex side conditions:
 \AgdaBound{Q}\AgdaSymbol{))}\<%
 \end{code}
 
-Recall from \Cref{tab:semantics} that we want to apply this rule on a process of
-the form $\Cut[A]\x{\Fork\y\u\v{P}{Q}}{R}$ when $x \in \fn{P}$. We capture this
-condition by means of the splitting $\AgdaInductiveConstructor{<}~r$, implying
-that the type $A$ of $x$ ends up in the typing context for $P$ and not in the
-one for $Q$.
+Recall from \Cref{tab:semantics} that we allow using this rule on a process of
+the form $\Cut[A]\x{\Fork\y\u\v{P}{Q}}{R}$ when $x \in \fn{P}$. We capture the
+condition $x\in\fn{P}$ by means of the splitting
+$\AgdaInductiveConstructor{<}~r$, implying that the type $A$ of $x$ ends up in
+the typing context for $P$ and not in the one for $Q$.
 %
 The symmetric rule \SForkR is modeled by another constructor
 \AgdaInductiveConstructor{s-fork-r}, which is similar to
@@ -1572,6 +1570,5 @@ not discussed here) can be difficult to decipher. In part, this is due to the
 fact that splitting proofs are manifest and no longer hidden by separating
 conjunctions (as in \Cref{sec:process-agda}) because we need them to enforce the
 side conditions of the rules in \Cref{tab:semantics}. We should also bear in
-mind that, using an intrinsically-typed representation of processes,
-pre-congruence and reduction rules (which we describe next) incorporate the
-proof that they preserve typing.
+mind that, using an intrinsically-typed representation of processes, we have
+already taken care of the proof that structural pre-congruence preserves typing.

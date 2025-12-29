@@ -44,7 +44,7 @@ it is the \emph{most recently introduced} channel, whereas in
 \AgdaDatatype{Delayed} and \AgdaDatatype{DelayedServer} the channel is not the
 first. This allows us to distinguish those threads that, in the context of a
 cut, operate on the channel bound by the cut or on a free channel. To clarify
-this aspect, we show the implementation of the constructor
+this aspect, let us look at the implementation of the constructor
 \AgdaInductiveConstructor{wait} in \AgdaDatatype{Input} and in
 \AgdaDatatype{Delayed}. In the former predicate we have
 
