@@ -161,7 +161,9 @@ left to right.
 When splitting a context $\Context$ into $\ContextD + \ContextE$, for each type
 in $\Context$ we use one of the prefix operators \AgdaInductiveConstructor{<}
 and \AgdaInductiveConstructor{>} to indicate whether the type is meant to be
-placed in $\ContextD$ or in $\ContextE$.
+placed in $\ContextD$ or in $\ContextE$. Once we reach the end of the typing
+context, we use the constructor \AgdaInductiveConstructor{•} to build the
+trivial splitting of the empty context into two empty partitions.
 %
 For example, below is a proof of the splitting $\Splitting{[A, B, C,
 D]}{[B]}{[A, C, D]}$.
@@ -529,17 +531,6 @@ some $\ContextC$ such that $Γ ≃ Δ + Θ$, then we can prove that $Γ_1 + (Γ_
 \AgdaBound{p′}\<%
 \end{code}
 
-% It is often the case that the context $\ContextD$ in a splitting
-% $\Splitting\ContextC\ContextD\ContextE$ is a singleton list $[A]$. We use this
-% particular splitting to describe the presence of a channel of type $A$ in
-% $\ContextC$ and giving a name $\ContextE$ to the residual context. For this
-% particular case, we introduce the dedicated notation
-% $\SimpleSplitting\ContextC{A}\ContextE$ which we find clearer.
-
-% \begin{code}
-% _∋_⊳_ : Context → Type → Context → Set
-% Γ ∋ A ⊳ Δ = Γ ≃ [ A ] + Δ
-% \end{code}
 \begin{code}[hide]%
 \>[0]\AgdaFunction{+-empty-l}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -811,6 +802,10 @@ which must comply with the typing rule \ServerRule in \Cref{tab:typing-rules}.
 \AgdaFunction{]}\<%
 \end{code}
 
+The empty context is trivially unrestricted. A non-empty context is unrestricted
+if its head has the form $\WhyNot A$ for some $A$ and provided that its tail is
+unrestricted as well.
+%
 It is easy to prove that $\ContextC$ is unrestricted if so are $\ContextD$ and
 $\ContextE$ when $\Splitting\ContextC\ContextD\ContextE$:
 

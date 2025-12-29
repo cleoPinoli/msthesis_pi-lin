@@ -29,9 +29,8 @@
 \subsection{Type Representation}
 \label{sec:type-agda}
 
-The representation of types is standard, with one constructor for each of the
-forms described in \Cref{sec:types}. We start by defining an indexed data type
-$\AgdaDatatype{PreType}~n$ to represents (\LCC) types in the scope of $n$
+The representation of types is standard. We start by defining an indexed data
+type $\AgdaDatatype{PreType}~n$ to represents (\LCC) types in the scope of $n$
 quantifiers and we use elements of $\AgdaDatatype{Fin}~n$ as de Bruijn indices
 for the quantified type variables. In this way, we make sure that pre-types are
 well scoped.
@@ -921,7 +920,7 @@ Here we are supposed to prove
 $\AgdaFunction{subst}~\sigma~(\AgdaFunction{dual}~(\AgdaInductiveConstructor{rav}~x))
   \equiv
   \AgdaFunction{dual}~(\AgdaFunction{subst}~\sigma~(\AgdaInductiveConstructor{rav}~x))$
-  which is definitionally the same as $\sigma~x \equiv
+  which is definitionally equal to $\sigma~x \equiv
   \AgdaFunction{dual}~(\AgdaFunction{dual}~(\sigma~x))$.
 %
 We could easily prove this equivalence by invoking \AgdaFunction{dual-inv}, but
