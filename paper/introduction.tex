@@ -2,11 +2,11 @@
 \label{sec:introduction}
 
 The Concurrent Calculi Formalisation Benchmark~\citep{CarboneEtAl24} is a
-collection of challenges concerning the mechanisation of formal models of
+collection of challenges concerning the mechanisation of core models of
 concurrent and distributed programming languages.
 %
 These models often make use of distinctive features that set them apart from the
-formal models of sequential programming languages, such as the adoption of
+models of sequential programming languages, such as the adoption of
 substructural (linear, affine) type systems, the dynamic scope of first-class
 channels in systems of communicating processes, the need for coinductive
 definitions and proof methods for describing and reasoning on possibly infinite
@@ -32,9 +32,9 @@ endpoints are meant to be used in complementary ways so as to guarantee the
 absence of communication errors and, to some extent, progress of the
 interaction.
 %
-The linearity challenge is motivated by the observation that the proper
-management of linear resources in a formalisation often requires a large number
-of auxiliary definitions and technical results that divert from the main problem
+The linearity challenge is based on the observation that the proper management
+of linear resources in a formalisation often requires a large number of
+auxiliary definitions and technical results that divert from the main problem
 under study~\cite{CarboneEtAl24}. One of the alleged culprits of such complexity
 is \emph{context splitting}, namely the operation that partitions a typing
 context in such a way that the linear resources described therein end up in only
@@ -53,12 +53,11 @@ type system coincides with the proof system of classical linear logic and that
 features \emph{linear channels} instead of sessions. While a session endpoint
 can be used \emph{multiple times} (sequentially), linear channels must be used
 \emph{exactly once}. \LCC retains the expressiveness of other session calculi
-using \emph{explicit continuations}, as in the well-known encoding of (binary)
-sessions into the linear
-$\pi$-calculus~\citep{KobayashiPierceTurner99,Kobayashi02b,DardhaGiachinoSangiorgi17}:
-each message exchanged on a linear channel may include one or two fresh channels
--- the \emph{continuations} -- on which the rest of the conversation takes
-place.
+thanks to \emph{explicit continuations}, which enable the encoding of (binary)
+sessions is terms of linear
+channels~\citep{Kobayashi02b,DardhaGiachinoSangiorgi17}: each message exchanged
+on a linear channel may include one or two fresh channels -- the
+\emph{continuations} -- on which the rest of the conversation takes place.
 %
 Overall, \LCC is nothing but a low-level version of \CP~\cite{Wadler14} --
 Wadler's calculus of sessions based on classical linear logic -- such that
@@ -67,9 +66,9 @@ sessions can be encoded instead of being featured natively.
 The logical foundations of \LCC and the use of explicit continuations play an
 important role in taming the complexity of the formalisation.
 %
-Using a calculus based on linear logic prevents \emph{by construction} the same
-(sequential) process to own both endpoints of a session. This situation is
-clearly undesirable since it does not correspond to a useful pattern of
+Working with a calculus based on linear logic prevents \emph{by construction}
+the same (sequential) process to own both endpoints of a session. This situation
+is clearly undesirable since it does not correspond to a useful pattern of
 interaction (every meaningful session requires its endpoints to be used by
 parallel processes) and is a potential source of deadlocks.
 %
@@ -102,10 +101,10 @@ The rest of the paper is organised as follows.
 and states the properties of well-typed processes that we formalise and prove,
 namely typing preservation, deadlock freedom and runtime safety.
 %
-\Cref{sec:agda} presents the Agda formalisation and illustrates its key aspects
-with particular emphasis on the representation of channels and of typing
-contexts. We assume that the reader is somewhat familiar about Agda but we
-recall the lesser known definitions from Agda's standard library.
+\Cref{sec:agda} illustrates the key aspects of the Agda formalisation with
+particular emphasis on the representation of channels and of typing contexts. We
+assume that the reader is somewhat familiar about Agda but we recall the lesser
+known definitions from Agda's standard library.
 %
 \Cref{sec:related} discusses related work more in detail by providing a
 qualitative and quantitative comparison between the known formalisations of

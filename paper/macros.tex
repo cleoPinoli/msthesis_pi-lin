@@ -165,7 +165,7 @@
     \right\}
 }
 \newcommand{\Send}[3]{#1\angles{#2}\ifblank{#3}{}{\bracks{#3}}}
-\newcommand{\Fork}[5]{#1\bracks{#2\ifblank{#3}{}{,#3}}.\parens{#4 \parop #5}}
+\newcommand{\Fork}[5]{#1\bracks{#2\ifblank{#3}{}{,#3}}\parens{#4 \parop #5}}
 \renewcommand{\Join}[3]{#1\parens{#2\ifblank{#3}{}{,#3}}}
 \newcommand{\Client}[2]{{?}#1\bracks{#2}}
 \newcommand{\Server}[2]{{!}#1\parens{#2}}
@@ -263,7 +263,7 @@
 \newcommand{\wtl}[3]{#2 \vdash #1 \vartriangleright #3}
 
 \newcommand{\CallRule}{\rulename{call}}
-\newcommand{\LinkRule}{\rulename{link}}
+\newcommand{\LinkRule}{\rulename{ax}}
 \newcommand{\CutRule}{\rulename{cut}}
 \newcommand{\FailRule}{\rulename{$\Top$}}
 \newcommand{\CloseRule}{\rulename{$\One$}}
@@ -274,8 +274,8 @@
 \newcommand{\CaseRule}{\rulename{$\With$}}
 \newcommand{\ForallRule}{\rulename{$\forall$}}
 \newcommand{\ExistsRule}{\rulename{$\exists$}}
-\newcommand{\ServerRule}{\rulename{server}}
-\newcommand{\ClientRule}{\rulename{client}}
+\newcommand{\ServerRule}{\rulename{$\OfCourse$}}
+\newcommand{\ClientRule}{\rulename{$\WhyNot$}}
 \newcommand{\WeakenRule}{\rulename{weaken}}
 \newcommand{\ContractRule}{\rulename{contract}}
 \newcommand{\ChoiceRule}{\rulename{$\Choice[]{}{}$}}

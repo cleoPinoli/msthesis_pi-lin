@@ -2,11 +2,10 @@
 \label{sec:calculus}
 
 In this section we give a cursory presentation of \Calculus starting from its
-types (\Cref{sec:types}), which coincide with classical linear logic
-propositions, then moving on to the syntax of processes (\Cref{sec:syntax}),
-their reduction semantics (\Cref{sec:semantics}), the typing rules
-(\Cref{sec:typing-rules}) and the formulation of the properties ensured by the
-type system (\Cref{sec:properties}).
+types (\Cref{sec:types}) then moving on to the syntax of processes
+(\Cref{sec:syntax}), their reduction semantics (\Cref{sec:semantics}), the
+typing rules (\Cref{sec:typing-rules}) and the formulation of the properties
+ensured by the type system (\Cref{sec:properties}).
 
 As we have anticipated in \Cref{sec:introduction}, \Calculus is closely related
 to \CP~\citep{Wadler14,GayVasconcelos25} except that \Calculus features linear
@@ -36,6 +35,10 @@ $\WhyNot$ describe \emph{shared channels}.
 The multiplicative constants $\Bot$ and $\One$ describe channels used for
 receiving/sending an empty message (without continuations).
 %
+The additive constants describe unusable channels. They can play the role of
+smallest/largest type in type systems that support a notion of
+subtyping~\citep{HornePadovani24}, but will mostly ignore them in this work.
+%
 The additive connectives $A \With B$ and $A \Plus B$ describe  channels used for
 receiving/sending either a continuation of type $A$ or a continuation of type
 $B$. The sender selects one of the two possibilities, while the receiver offers
@@ -44,10 +47,6 @@ both.
 The multiplicative connectives $A \Par B$ and $A \Ten B$ describe channels used
 for receiving/sending two continuations, one of type $A$ and the other of type
 $B$.
-%
-The additive constants can play the role of smallest/largest type in type
-systems that support a notion of subtyping~\citep{HornePadovani24}. We will not
-be using them in this work.
 %
 The quantifiers $\forall X.A$ and $\exists X.A$ describe channels used for
 receiving/sending a type $X$ along with a continuation of type $A$. They are
@@ -58,10 +57,9 @@ $\WhyNot A$ describe shared channels on which servers and clients accept and
 request connections of type $A$.
 
 The notions of \emph{free type variables}, of \emph{duality} and of \emph{type
-substitution} are standard~\cite{Wadler14}. In particular, we write $\fv{A}$ for
-the set of type variables occurring free in $A$, we write $\dual{A}$ for the
-dual of $A$ and $A\subst{B}X$ for the type obtained by replacing the free
-occurrences of $X$ in $A$ with $B$.
+substitution} are standard~\cite{Wadler14}. In particular, we write $\dual{A}$
+for the dual of $A$ and $A\subst{B}X$ for the type obtained by replacing the
+free occurrences of $X$ in $A$ with $B$.
 
 \subsection{Processes}
 \label{sec:syntax}
@@ -97,29 +95,30 @@ over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
 %
 A link $\Link\x\y$ denotes the merging of the channels $x$ and $y$, so that each
 message sent on one of the channels is forwarded to the other. As discussed in
-the literature~\cite{LindleyMorris15}, this form is useful for modeling
-higher-order sessions, that is the exchange of an existing channel on another
+the literature~\cite{LindleyMorris15} and illustrated in \Cref{ex:neg}, this
+form is useful for modeling the exchange of an existing channel on another
 channel.
 %
 The processes $\Wait\x.P$ and $\Close\x$ respectively model the input and output
-of an empty message on the channel $x$. The latter process has no continuation,
-while the former process continues as $P$ once the message has been received.
+of an empty message on the channel $x$. The latter process terminates after the
+message has been sent, while the former process continues as $P$ once the
+message has been received.
 %
 The process $\Fail\x$ can be used to denote a failure concerning the channel
 $x$.
 %
 The process $\Case\x\z{Q_1}{Q_2}$ offers a choice on channel $x$ and continues
-as either $Q_1$ or $Q_2$ with $z$ bound to the received continuation channel
-depending on which branch is selected.
+as either $Q_1$ or $Q_2$ depending on which branch is selected with $z$ bound to
+the received continuation channel.
 %
 The process $\Select\x{\InTag_i}\z.P$ performs a choice (represented by a label
-$\InTag_i$ with $i=1,2$) and sends a fresh continuation $z$ on the channel $x$.
+$\InTag_i$ with $i=1,2$) and sends a fresh continuation channel $z$ on the
+channel $x$.
 %
 The processes $\Join\x\y\z.R$ and $\Fork\x\y\z{P}{Q}$ describe the input/output
 of two fresh continuations channels $y$ and $z$ on the channel $x$. The receiver
 can use $y$ and $z$ in whatever order. The sender forks into $P$ and $Q$, each
-using $y$ and $z$ respectively. These forms are often used in conjunction with
-links to model higher-order sessions.
+using $y$ and $z$ respectively.
 %
 The processes $\Forall\x\X\z.P$ and $\Exists\x{A}\z.P$ describe the input/output
 of a type on the channel $x$ along with a fresh continuation $z$.
@@ -141,7 +140,7 @@ type annotation $A$ when it is irrelevant or clear from the context.
 The notions of free and bound channels are fairly standard, bearing in mind that
 output prefixes bind continuation channels in (some) continuation processes. For
 instance, $\Select\x{\InTag_i}\z.P$ binds $z$ in $P$, while $\Fork\x\y\z{P}{Q}$
-binds $y$ in $P$ but not in $Q$ and $z$ in $Q$ but not in $P$.
+binds $y$ in $P$ but not in $Q$ and binds $z$ in $Q$ but not in $P$.
 %
 We write $\fn{P}$ for the set of channels occurring free in $P$ and we identify
 processes up to renaming of bound channels.
@@ -160,7 +159,7 @@ processes up to renaming of bound channels.
     and the boolean negation function by the process
     \[
         \NotP(x,y) \eqdef
-        \BigCase\x{x'}{
+        \Case\x{x'}{
             \Wait{x'}.\FalseP(y)
         }{
             \Wait{x'}.\TrueP(y)
@@ -299,10 +298,9 @@ processes up to renaming of bound channels.
 \end{table}
 
 The operational semantics of \Calculus is shown in~\Cref{tab:semantics} and is
-given by two relations: a \emph{structural pre-congruence} relation $\pcong$ and
-a \emph{reduction} relation $\red$. Structural pre-congruence relates processes
-that we consider to be essentially indistinguishable. Reduction relates
-processes in which a communication occurs. Let us describe the two relations
+given by two relations: a \emph{structural pre-congruence} relation $\pcong$,
+which relates essentially indistinguishable processes, and a \emph{reduction}
+relation $\red$, which models communications. Let us describe the two relations
 more in detail.
 
 Structural pre-congruence is the least pre-congruence defined by the
@@ -332,35 +330,36 @@ There is no pre-congruence rule asserting that parallel composition is
 associative. While this is a sound property of parallel composition, it turns
 out to be unnecessary for proving the properties of \Calculus that we consider. We
 leave it out in light of the forthcoming formalisation of the calculus, in which
-every simplification is welcome, although standard presentations of classical
-linear logic admit such law~\cite{Wadler14,Doumane17}.
+every simplification is welcome.
 %
-Another rule that deserves attention is \SServer. In this case, a server prefix
-$\Server\y\u$ can be pulled out of a cut only provided that the other process in
-the cut is also a server on the channel restricted by the cut.
+Another rule that deserves attention is \SServer. In this case, a cut can be
+pushed underneath a server prefix $\Server\y\u$ only provided that the other
+process in the cut is also a server on the channel restricted by the cut.
 
-Reduction is defined by the \rulename{r-*} rules.
+Reduction is defined by the \rulename{r-*} rules, most of them coinciding with
+principal cut reductions of linear logic.
 %
-The reduction rules \RLink, \RClose, \RSelect, \RFork, \RExists and \RConnect
-are in one-to-one correspondence with the well-known reductions of session
-calculi and the principal cut reductions of linear logic. These reductions erase
-the topmost cut and replace it with zero, one or two new cuts, depending on the
-number of continuation channels that are exchanged. Note that \RLink eliminates
-a link $\Link\x\y$ by substituting $y$ for $x$ in the scope of $x$ and \RClose
-models the communication of an empty message (without continuations), hence no
-new cut is present in the reduct. \RSelect, \RFork and \RConnect are standard
-and \RExists models the instantiation of a polymorphic variable $X$ as the
-communication of a type $A$. We write $Q\subst{A}\X$ for the process obtained by
-replacing every free occurrence of the type variable $X$ with $A$.
+The rules \RLink, \RClose, \RSelect, \RFork and \RExists erase the topmost cut
+and replace it with zero, one or two new cuts, depending on the number of
+continuation channels that are exchanged.
 %
-The reduction rules \RWeaken and \RContract respectively represent the disposal
-of an unused server and the duplication of a server. In these rules we use some
-convenient (albeit slightly informal) notation for denoting sequences of
-(pairwise distinct) channels and prefixes. In particular, $\seqof\z$ stands for
-a sequence $z_1, \dots, z_n$ of channels, $\Weaken{\seqof\z}.Q$ stands for
-$\Weaken{z_1}\dots\Weaken{z_n}.Q$ and
-$\Contract{\seqof\z}{\seqof\z'}{\seqof\z''}.R$ stands for
-$\Contract{z_1}{z_1'}{z_1''}\dots\Contract{z_n}{z_n'}{z_n''}.R$.
+Note that the rule \RLink eliminates a link $\Link\x\y$ by substituting $y$ for
+$x$ in the scope of $x$ and \RClose models the communication of an empty message
+(without continuations). The rule \RExists models the instantiation of a
+polymorphic variable $X$ as the communication of a type $A$. We write
+$Q\subst{A}\X$ for the process obtained by replacing every free occurrence of
+the type variable $X$ with $A$.
+%
+The rule \RConnect models the connection between a client and a server, whereas
+the rules \RWeaken and \RContract respectively model the disposal of an unused
+server and the duplication of a server. In these rules we use some slightly
+informal notation for denoting sequences of (pairwise distinct) channels and
+prefixes. In particular, $\seqof\z$ stands for a sequence $z_1, \dots, z_n$ of
+channels, $\Weaken{\seqof\z}.Q$ stands for a sequence
+$\Weaken{z_1}\dots\Weaken{z_n}.Q$ of weakening prefixes and
+$\Contract{\seqof\z}{\seqof\z'}{\seqof\z''}.R$ stands for a sequence
+$\Contract{z_1}{z_1'}{z_1''}\dots\Contract{z_n}{z_n'}{z_n''}.R$ of contraction
+prefixes.
 
 The rule~\RCut propagates reductions through cuts and the rule \RCong enables
 reduction up to structural pre-congruence.
@@ -368,16 +367,19 @@ reduction up to structural pre-congruence.
 \begin{example}
     \label{ex:neg}
     %
-    We illustrate an example of higher-order session by modeling an echo server
-    that consumes boolean values and sends them back unchanged. The protocol
-    implemented by the server is described by the type $\OfCourse(\dual\Bool
-    \Par (\Bool \Ten \One))$ where the modality~$\OfCourse$ indicates that the
-    server is able to accept an unbounded number of requests and the type
-    $\dual\Bool \Par (\Bool \Ten \One)$ describes the sequence of actions
-    performed by the server at each connection with a client: the server first
-    consumes a boolean value (say $u$, of type $\dual\Bool$), then produces
-    another boolean value (say $v$, of type $\Bool$) and finally sends an empty
-    message. We can model the server and a possible client thus:
+    In this example we illustrate the role of links for the communication of
+    free channels by modeling an echo server that consumes boolean values and
+    sends them back unchanged.
+    %
+    The protocol of the server we want to model is described by the type
+    $\OfCourse(\dual\Bool \Par (\Bool \Ten \One))$ where the
+    modality~$\OfCourse$ indicates that the server is able to accept an
+    unbounded number of requests and the type $\dual\Bool \Par (\Bool \Ten
+    \One)$ describes the sequence of actions performed by the server at each
+    connection with a client: the server first consumes a boolean value (say
+    $u$, of type $\dual\Bool$), then produces another boolean value (say $v$, of
+    type $\Bool$) and finally sends an empty message. We can model the server
+    and a possible client thus:
     \begin{align*}
         \ServerP(x) & \eqdef
         \Server\x\y.
@@ -405,8 +407,7 @@ reduction up to structural pre-congruence.
     $z$, which represents the result of the interaction.
     %
     If we write $\reds$ for the reflexive, transitive closure of $\red$ it is
-    easy to verify that $\Cut\x{\ClientP(x)}{\ServerP(x)} \red^* \TrueP(z)$,
-    as expected.
+    easy to verify that $\Cut\x{\ClientP(x)}{\ServerP(x)} \red^* \TrueP(z)$.
     %
     \eoe
 \end{example}
@@ -414,15 +415,15 @@ reduction up to structural pre-congruence.
 \subsection{Type System}
 \label{sec:typing-rules}
 
-We use typing contexts (\ie sequents) to keep track of the type of channels.
-Typing contexts are finite maps from channels to types written as $x_1 : A_1,
-\dots, x_n : A_n$ and ranged over by $\ContextC$ and $\ContextD$. We write
-$\ContextC, \ContextD$ for the union of $\ContextC$ and $\ContextD$ when they
-have disjoint domains. We write $\WhyNot\Context$ for some context $\Context =
-x_1 : \WhyNot A_1, \dots, x_n : \WhyNot A_n$ where all the types in its range
-are prefixed by the modality~$\WhyNot$. We call these types \emph{unrestricted}
-because they are used to denote shared channels that can be (explicitly)
-discarded and duplicated.
+We use typing contexts (\ie sequents) to keep track of the type of channels in
+processes. Typing contexts are finite maps from channels to types written as
+$x_1 : A_1, \dots, x_n : A_n$ and ranged over by $\ContextC$ and $\ContextD$. We
+write $\ContextC, \ContextD$ for the union of $\ContextC$ and $\ContextD$ when
+they have disjoint domains. We write $\WhyNot\Context$ for some context
+$\Context = x_1 : \WhyNot A_1, \dots, x_n : \WhyNot A_n$ where all the types in
+its range are prefixed by the modality~$\WhyNot$. We call these types
+\emph{unrestricted} because they are used to denote shared channels that can be
+(explicitly) discarded and duplicated.
 
 \begin{table}[t]
     \caption{Typing rules of \Calculus.}
@@ -486,7 +487,7 @@ discarded and duplicated.
             }{
                 \wtp{\Forall\x\X\y.P}{x : \forall\X.A, \Context}
             }
-            ~X\not\in\fn\Context
+            ~X\not\in\fv\Context
             \and
             \inferrule[\ServerRule]{
                 \wtp{P}{y : A, \WhyNot\Context}
@@ -534,10 +535,13 @@ of classical linear logic.
 %
 The reader may refer to the standard literature on propositions as
 sessions~\citep{Wadler14,LindleyMorris15,GayVasconcelos25} for the
-interpretation of the rules. The only relevant difference with the typing rules
-in these papers is that the premises mentioning the continuation channel $z$
-actually refer to the same channel $x$ on which the process in the conclusion is
-acting.
+interpretation of the rules. The only relevant difference with our typing rules
+is that the premises mentioning the continuation channel $z$ actually refer to
+the same channel $x$ on which the process in the conclusion is acting.
+%
+The side condition $X \not\in \fv\Context$ in the rule \ExistsRule checks that
+the type variable $X$ does not occur free in the types of $\Context$ and
+therefore can be generalised.
 
 % \begin{example}
 %     \label{ex:typing-booleans}
@@ -728,8 +732,9 @@ terminology for referring to processes that are unable to make any progress. A
 simple example of deadlock is the process $\Cut\x{\Close\x}{\Close\x}$. This
 process is unable to reduce (because a process $\Close\x$ is meant to interact
 with a process of the form $\Wait\x.P$) and, more generally, it is unable to
-interact regardless of the context in which it occurs because the sub-processes
-it contains are blocked on the channel $x$ that is restricted by the cut.
+interact regardless of the context in which it is placed because the
+sub-processes it contains are blocked on the channel $x$ that is restricted by
+the cut.
 %
 In general, the property of being a deadlock is not simply the inability to
 reduce: there are irreducible processes that are not a deadlock because they
