@@ -320,13 +320,13 @@ calculus \SCP is marked with {\MAYBE} because, while not directly inspired to
 the linear $\pi$-calculus, it makes use of explicit continuations for defining
 the predicates that check the linear usage of channels. Finally, all the
 approaches based on \GV are also marked with \MAYBE. Officially, \emph{none} of
-these calculi makes use of continuations. However, \GV is designed in such a way
-that each operation acting on a channel $s$ is a function that returns the
-result of the operation (if present) \emph{along with the same channel $s$}. In
-this way, the type of $s$ can be conveniently ``updated'' to take into account
-the effect of the operation. As observed by \citet{Padovani17}, this semantics
-of the communication primitives is virtually indistinguishable from one making
-use of explicit continuation channels.
+these calculi makes use of continuations, but \GV is designed in such a way that
+each operation acting on a channel $s$ is a function that returns the result of
+the operation (if present) \emph{along with the same channel $s$}. In this way,
+the type of $s$ can be conveniently ``updated'' to take into account the effect
+of the operation. As observed by \citet{Padovani17}, this semantics of the
+communication primitives is virtually indistinguishable from one making use of
+explicit continuation channels.
 
 The three middle columns of \Cref{tab:comparison} report the relevant
 qualitative aspects of the formalisations, namely the management of typing

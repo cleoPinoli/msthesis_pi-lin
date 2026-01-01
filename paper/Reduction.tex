@@ -370,7 +370,7 @@ The process $P$ has type
 $\AgdaDatatype{Proc}~(\AgdaFunction{dual}~A~\AgdaInductiveConstructor{∷}~\ContextD)$
 and turns into $P\subst\y\x$ after the reduction. The type
 $\AgdaFunction{dual}~A$ of $x$ in $P$ is the first in the typing context,
-indicating that it is the newest channel that $P$ is aware of. However, after
+indicating that it is the newest channel that $P$ is aware of; however, after
 the reduction, $x$ is replaced by $y$ which is found \emph{somewhere} within
 $\Context$. The exact location of $y$ in $\ContextC$ is encoded in the splitting
 $p$, thus we ``rename'' $x$ into $y$ within $P$ using the permutation
