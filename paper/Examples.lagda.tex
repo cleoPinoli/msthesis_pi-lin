@@ -49,7 +49,8 @@ typing context) and continues as either $P$ or $Q$ depending on whether it
 receives true or false. We use \AgdaFunction{curry∗} (defined in
 \Cref{sec:context-agda}) to curry the constructor
 \AgdaInductiveConstructor{case} so that we can supply its arguments one by one
-saving a few parentheses and reducing clutter.
+saving a few parentheses and reducing clutter (more on this in \Cref{rem:curry}
+at the end of this section).
 
 Next we define a process $\AgdaFunction{Drop}~P$ that consumes a boolean and
 continues as $P$ regardless of its value.
@@ -81,7 +82,7 @@ For the sake of illustration, we have chosen to define the disjunction
 \AgdaFunction{||} from the conjunction \AgdaFunction{\&\&} and negation
 \AgdaFunction{!!} using De Morgan's laws.
 
-To test our definitions we implement a simple evaluator using the deadlock
+To test our definitions, we implement a simple evaluator using the deadlock
 freedom property. We have not proved a termination result, but since linear
 logic enjoys cut elimination we can safely annotate the evaluator as
 terminating.
@@ -132,7 +133,7 @@ Client = curry∗ client ch (< ≫) $
          curry∗ link ch (< > •) ch
 \end{code}
 
-To test our definitions we compose client and server in parallel
+To test our definitions, we compose client and server in parallel
 \begin{code}
 Main : Proc [ 𝔹 ]
 Main = curry∗ cut Client (< •) Server
@@ -141,6 +142,7 @@ and then ask Agda to normalize \AgdaFunction{Main}, which yields
 \AgdaFunction{True} as expected.
 
 \begin{remark}
+    \label{rem:curry}
     Writing processes in Agda would be more pleasant if the constructors of the
     data type \AgdaDatatype{Proc} were naturally curried, instead of currying
     them on demand with \AgdaFunction{curry∗} as we do here.

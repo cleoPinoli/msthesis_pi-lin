@@ -13,7 +13,7 @@ not publicly available any more).
 
 \citet{Thiemann19} formalises a subset of \GV~\citep{GayVasconcelos10}, a
 functional language extended with session communication primitives, along with
-an interpreter. \citet{CicconePadovani20} have taken inspiration from this work
+an interpreter. \citet{CicconePadovani20} have taken inspiration from his work
 to formalise a variant of the linear
 $\pi$-calculus~\cite{KobayashiPierceTurner99} that supports dependent types, so
 as to enable the description of communication protocols whose structure may
@@ -47,7 +47,7 @@ have been adapted from this work of \citet{RouvoetPoulsenKrebbersVisser20}.
 % small-step semantics is defined) and subject reduction is 
 
 \citet{JacobsBalzerKrebbers22} formalise a library of \emph{connectivity graphs}
-for reasoning and enforcing deadlock freedom in a variant of
+for reasoning on and enforcing deadlock freedom in a variant of
 \GV~\citep{GayVasconcelos10,Wadler14}. This is the first formalisation of
 deadlock freedom for a calculus of sessions.
 
@@ -393,7 +393,8 @@ datatypes to be defined and makes some results trivial (\eg
 definitions are also more involved because they incorporate invariants and bits
 of the proofs of typing preservation. We speculate that the effort for
 representing processes, types and typing rules is not substantially impacted
-overall.
+overall, but the data types for representing syntax and semantics of untyped
+processes in extrinsically-typed representations are certainly more readable.
 
 Using the cut in the style of linear logic instead of separate restriction and
 parallel composition simplifies the representation of channels (or session

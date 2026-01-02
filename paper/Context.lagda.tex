@@ -194,7 +194,7 @@ curry∗ F px σ qx = F (px ⟨ σ ⟩ qx)
 To conclude the implementation of typing contexts, we define a predicate
 \AgdaDatatype{Un} that holds for \emph{unrestricted} contexts, those solely made
 of types of the form $?A$. We need this predicate in the definition of a server,
-which must comply with the typing rule \ServerRule in \Cref{tab:typing-rules}.
+which must comply with the typing rule \ServerRule.
 
 \begin{code}
 data Un : Context → Set where
@@ -203,8 +203,8 @@ data Un : Context → Set where
 \end{code}
 
 The empty context is trivially unrestricted. A non-empty context is unrestricted
-if its head has the form $\WhyNot A$ for some $A$ and provided that its tail is
-unrestricted as well.
+if its head has the form $\WhyNot A$ for some $A$ and its tail is unrestricted
+as well.
 %
 It is easy to prove that $\ContextC$ is unrestricted if so are $\ContextD$ and
 $\ContextE$ when $\Splitting\ContextC\ContextD\ContextE$:

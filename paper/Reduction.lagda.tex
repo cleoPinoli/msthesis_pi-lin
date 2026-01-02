@@ -45,7 +45,7 @@ data _↝_ {Γ} : Proc Γ → Proc Γ → Set where
 \end{code}
 
 There is a constructor for each of the reduction rules in \Cref{tab:semantics}.
-Let us comment a representative selection of them.
+Let us comment a few representative cases.
 
 The constructor \AgdaInductiveConstructor{r-link} models the reduction
 $\Cut[A]\x{\Link\x\y}{P} \red P\subst\y\x$ called \RLink in
@@ -80,9 +80,9 @@ The constructor \AgdaInductiveConstructor{r-close} models \RClose:
                 cut (close ch ⟨ p₀ ⟩ wait (ch ⟨ < q₀ ⟩ P)) ↝ P
 \end{code}
 
-While the constructor \AgdaInductiveConstructor{close} implicitly refers to the
-only free channel occurring in a process of the form $\Close\x$, the constructor
-\AgdaInductiveConstructor{wait} uses a splitting proof of the form
+While the process constructor \AgdaInductiveConstructor{close} implicitly refers
+to the only free channel occurring in a process of the form $\Close\x$, the
+constructor \AgdaInductiveConstructor{wait} uses a splitting proof of the form
 $\AgdaInductiveConstructor{<}~q_0$ to make sure that the referenced channel is
 also the restricted one, and therefore matches the one of the
 \AgdaInductiveConstructor{close} process.

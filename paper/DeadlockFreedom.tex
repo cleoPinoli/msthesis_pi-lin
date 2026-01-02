@@ -3398,11 +3398,11 @@ Now deadlock freedom for $P$ can be proved by induction on $P$.
 
 When $P$ is a thread, then it is obviously observable and hence alive. When $P$
 is a cut $\Cut[A]\x{P}{Q}$, \AgdaFunction{deadlock-freedom} is applied
-recursively on $P$ and $Q$. If either of these applications yields a reduction,
-then the whole cut is reducible and therefore alive. If both applications yield
-a thread, then we conclude that the cut is alive first rewriting it into a
-canonical cut with \AgdaFunction{canonical-cut} and then using
-\AgdaFunction{canonical-cut-alive}.
+recursively to $P$ and to $Q$, in turn. If either of these applications yields a
+reduction, then the whole cut is reducible and therefore alive. If both
+applications yield a thread, then we conclude that the cut is alive first
+rewriting it into a canonical cut with \AgdaFunction{canonical-cut} and then
+using \AgdaFunction{canonical-cut-alive}.
 
 \begin{code}[hide]%
 \>[0]\AgdaFunction{deadlock-freedom}\AgdaSpace{}%
