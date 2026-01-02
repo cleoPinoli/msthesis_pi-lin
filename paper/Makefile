@@ -34,7 +34,7 @@ TARGETS = $(MODULES:%=%.tex)
 
 all: $(TARGETS)
 
-PadovaniRaffaelli.zip: $(SOURCES)
+archive.zip: $(SOURCES)
 	zip $@ $^
 
 %.tex: %.lagda.tex
