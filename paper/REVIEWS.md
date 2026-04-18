@@ -68,12 +68,55 @@
 > what extend does a proof environment based on separation logic bear some
 > resemblances to the technical choices you make in this paper?
 >
-> Typos 111: familiar about -> familiar with 180 "for modeling.. another
-> channel.": rephrase 211 "=def" clashes with the line above 353 same structure
-> as 403 "the property... to reduce": rephase 458 to represents 619 inspired
-> from separation logic 801 We conclude this module by proving that... 923
-> comment on a few 953 quantify over them 1278 preserves proves 1424 same type
-> system as CP
+> Typos
+>
+> 111: familiar about -> familiar with
+
+DONE.
+
+> 180 "for modeling.. another channel.": rephrase
+
+DONE.
+
+> 211 "=def" clashes with the line above
+
+DONE.
+
+> 353 same structure as
+
+DONE.
+
+> 403 "the property... to reduce": rephase
+
+DONE.
+
+> 458 to represents
+
+DONE.
+
+> 619 inspired from separation logic
+
+DONE. We have used "by", it seemed more appropriate.
+
+> 801 We conclude this module by proving that...
+
+DONE.
+
+> 923 comment on a few
+
+DONE.
+
+> 953 quantify over them
+
+DONE.
+
+> 1278 preserves proves
+
+DONE.
+
+> 1424 same type system as CP
+
+DONE.
 
 ## REVIEWER 2
 
@@ -190,9 +233,14 @@
 >
 > 49/50: either an an missing before "the need for coinductive..." or a comma
 > missing somewhere in the list, and I'm not parsing it correctly
->
+
+DONE. Added "and". Together with the comma, this should help parsing the last
+element of the list.
+
 > 57: session type system -> session-typed system (same in 1269/1270)
->
+
+DONE.
+
 > 57-63: Don't 1 and 2 somewhat contradict each other? I do understand that
 > calling session endpoints to be linear resources is strictly about forbidding
 > discarding/duplicating them, but in the naive "use exactly once"
@@ -201,46 +249,89 @@
 > exactly once vs use multiple times at updated types is brought back again, so
 > I think it'll be nice to add a sentence immediately after 57-62 that clarifies
 > this part.
->
+
+DONE. We have changed item (1) to make it clear that session endpoints must be
+used *sequentially*. In this sense they are not strictly "linear", although
+"linearity" is often (and ambiguously) used to describe the nature of session
+endpoints. But in the context of this paper (where we work with truly linear
+channels) we agree that it is appropriate to be avoid such kind of ambiguity.
+
 > 79: is -> in. Also, I would suggest breaking up this sentence (76 - 81)
->
+
+TODO
+
 > 81: conversation seems to come out of nowhere... maybe communication is the
 > more accurate term?
->
+
+DONE.
+
 > 96: [therefore its type can be ... ] [the type of the continuation channel is
 > ...]  both are ind. clauses. Personally 94-97 should be broken up, but even if
 > not, [and] should be inserted before therefore + comma should be inserted
 > between: typing context [comma here] and the type of
->
+
+DONE. We have split/rephrased these sentences.
+
 > 97: is -> in
->
+
+DONE (we assume the reviewer meant to suggest a replacement of "is" with "it")
+
 > 98-100: awkward/rephrase
->
+
+DONE. We have rephrased this sentence.
+
 > 105: calculus [comma] and it does so ...
->
+
+DONE.
+
 > 111: about Agda [comma] but we recall ...
->
+
+DONE.
+
 > 122: then moving -> [comma] and then move
->
+
+DONE.
+
 > 144: (table 1, select process term) maybe explicitly state the side condition
 > on i, e.g., "(where i \in \{ 1,2\})
->
+
+DONE.
+
 > 161: but will -> but we will
->
+
+DONE.
+
 > 229: Table 1. [is the symbol here a typo?]
->
+
+ANSWER. No, that's the symbol we have chosen to indicate the end of the example
+(see e.g. Example 2.2).
+
 > 329: in typing rule for \oplus, I'd make it clear i ranges from 1 - 2 (and the
 > rule name should be \oplus_i I guess, not \oplus
->
+
+DONE.
+
 > 403: inability to reduce: there -> inability to reduce; there
->
+
+DONE.
+
 > 457: PreType n to represents -> to represent
->
+
+DONE.
+
 > 457: scope of n quantifiers [comma] and we use ...
->
+
+DONE.
+
 > 1273: inspired to separation logic -> inspired [by] separation logic
 > [comma]
->
+
+DONE.
+
 > 1286: and that is -> and is
->
+
+DONE.
+
 > 1419: resources [comma] and there is no need to ...
+
+DONE.

@@ -312,7 +312,7 @@ the definition of reduction embeds subject reduction (\Cref{thm:red}).
 \end{code}
 
 There is a constructor for each of the reduction rules in \Cref{tab:semantics}.
-Let us comment a few representative cases.
+Let us comment on a few representative cases.
 
 The constructor \AgdaInductiveConstructor{r-link} models the reduction
 $\Cut[A]\x{\Link\x\y}{P} \red P\subst\y\x$ called \RLink in
@@ -424,7 +424,7 @@ $\Context \simeq \AgdaInductiveConstructor{[]} + \Context$. Since the left
 partition is empty, these splittings must be equal and made of a sequence of
 \AgdaInductiveConstructor{>} applications followed by
 \AgdaInductiveConstructor{•}. In general, Agda will not be able to ``see'' that
-they are definitionally equal, hence it is easier to quantify them separately so
+they are definitionally equal, hence it is easier to quantify over them separately so
 that we do not have to prove their equality whenever we wish to apply this
 reduction.
 

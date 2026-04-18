@@ -20,20 +20,20 @@ as to enable the description of communication protocols whose structure may
 depend on the content of messages.
 
 \citet{CastroFerreiraYoshida20} describe EMTST, a library for the formalisation
-of session type systems that includes as case studies the session calculus of
+of session-typed systems that includes as case studies the session calculus of
 \citet{HondaVasconcelosKubo98} (called ``original system'') and a revised
 version of it that is more amenable to be formalised using a locally nameless
 representation of channels.
 
 \citet{RouvoetPoulsenKrebbersVisser20} present a library of abstractions
-inspired to separation logic aiding the formalisation of interpreters for
+inspired by separation logic, aiding the formalisation of interpreters for
 languages with linear resources. One of the presented case studies is the
 formalisation of a fragment of \GV~\citep{GayVasconcelos10,Wadler14}. 
 %
 Unlike the other formalisations we are discussing,
 \citet{RouvoetPoulsenKrebbersVisser20} do not define a small-step semantics for
 \GV but their formalisation is intrinsically typed, hence the interpreter
-preserves proves a form of subject reduction property.
+proves a form of subject reduction property.
 %
 The separating conjunction defined in \Cref{sec:context-agda} and the typing of
 the constructors for the representation of processes in \Cref{sec:process-agda}
@@ -54,7 +54,7 @@ deadlock freedom for a calculus of sessions.
 All the formalisations mentioned so far make use of context splitting. In
 contrast, \citet{ZalakainDardha21} formalise a generalisation of the linear
 $\pi$-calculus which is parametric in a \emph{usage algebra} (to account for
-channel sharing/linearity) and that is based on \emph{leftover
+channel sharing/linearity) and is based on \emph{leftover
 typing}~\cite{Allais17}. 
 %
 Typing judgments have the form $\wtl{P}\ContextC\ContextD$ so that a process $P$
@@ -408,4 +408,4 @@ average size of around 62kb -- are all based on continuations, no matter if they
 are explicit (\LinearPI, \SCP, \LCC) or ``virtual'' (\GV), while the remaining
 ones are 263kb on average. At the very least, the use of continuations enables a
 cleaner management of typing contexts since linear channels are true
-``use-once'' resources and there is no need to update their type.
+``use-once'' resources, and there is no need to update their type.

@@ -8,7 +8,7 @@ concurrent and distributed programming languages.
 These models often make use of distinctive features that set them apart from the
 models of sequential programming languages, such as the adoption of
 substructural (linear, affine) type systems, the dynamic scope of first-class
-channels in systems of communicating processes, the need for coinductive
+channels in systems of communicating processes, and the need for coinductive
 definitions and proof methods for describing and reasoning on possibly infinite
 behaviours.
 %
@@ -23,14 +23,14 @@ challenge}, concerns the formalisation of a \emph{minimal calculus of sessions}.
 Sessions and session
 types~\citep{Honda93,HondaVasconcelosKubo98,HuttelEtAl16,GayVasconcelos25} are
 established abstractions for the static analysis of distributed programs based
-on peer-to-peer communications. Every session type system revolves around three
-key ideas: (1) session endpoints are \emph{linear resources} that cannot be
-discarded or duplicated without compromising some safety and liveness properties
-of a program; (2) the type of a session endpoint is \emph{updated} after each
-use to reflect the state of the protocol it describes; (3) peer session
-endpoints are meant to be used in complementary ways so as to guarantee the
-absence of communication errors and, to some extent, progress of the
-interaction.
+on peer-to-peer communications. Every session-typed system revolves around three
+key ideas: (1) session endpoints \REVISION{can only be used \emph{sequentially}
+and cannot be} discarded or duplicated without compromising some safety and
+liveness properties of a program; (2) the type of a session endpoint is
+\emph{updated} after each use to reflect the state of the protocol it describes;
+(3) peer session endpoints are meant to be used in complementary ways so as to
+guarantee the absence of communication errors and, to some extent, progress of
+the interaction.
 %
 The linearity challenge is based on the observation that the proper management
 of linear resources in a formalisation often requires a large number of
@@ -54,14 +54,15 @@ features \emph{linear channels} instead of sessions. While a session endpoint
 can be used \emph{multiple times} (sequentially), linear channels must be used
 \emph{exactly once}. \LCC retains the expressiveness of other session calculi
 thanks to \emph{explicit continuations}, which enable the encoding of (binary)
-sessions is terms of linear
+sessions in terms of linear
 channels~\citep{Kobayashi02b,DardhaGiachinoSangiorgi17}: each message exchanged
 on a linear channel may include one or two fresh channels -- the
-\emph{continuations} -- on which the rest of the conversation takes place.
+\emph{continuations} -- on which the rest of the communication takes place.
 %
 Overall, \LCC is nothing but a low-level version of \CP~\cite{Wadler14} --
 Wadler's calculus of sessions based on classical linear logic -- such that
-sessions can be encoded instead of being featured natively.
+sessions can be encoded instead of being featured natively.\Luca{Qui fare
+riferimento a Ambramsky e Bellin and Scott}
 
 The logical foundations of \LCC and the use of explicit continuations play an
 important role in taming the complexity of the formalisation.
@@ -79,20 +80,19 @@ polarities~\citep{GayHole05,ZalakainDardha21} or by using different names
 connected by the same binder~\citep{Vasconcelos12,GayVasconcelos25}.
 %
 Using a calculus with linear channels and explicit continuations spares us the
-need to \emph{update} the type of channels in typing contexts. Once a channel
-has been used it is effectively consumed, therefore its type can be
-\emph{removed} from the typing context and the type of the continuation channel
-is \emph{added} back to the typing context. As is turns out, removing and adding
-types is easier than updating them. Even more so considering that the type of
-continuation channels must be added \emph{at the beginning} of a typing context,
-since such channels are fresh by definition.
+need to \emph{update} the type of channels in typing contexts. \REVISION{Once a
+channel has been used it is effectively consumed, and therefore its type is
+\emph{removed} from the typing context. The continuation channel is fresh by
+definition, and therefore its type is \emph{added at the beginning} of the
+typing context. As it turns out, removing and adding types is easier than
+updating them.}
 
 The formalisation of \LCC that we obtain is both the most complete (in terms of
 features supported by the calculus) and the most streamlined (in terms of code
 size) among the known formalisations of session/linear
 calculi~\cite{GotoEtAl16,Thiemann19,CastroFerreiraYoshida20,CicconePadovani20,RouvoetPoulsenKrebbersVisser20,SanoKavanaghPientka23,JacobsBalzerKrebbers22,ZackonEtAl25,ZalakainDardha21}.
 It is also one of only two formalisations that prove the deadlock freedom
-property for a session calculus~\cite{JacobsBalzerKrebbers22} and it does so
+property for a session calculus~\cite{JacobsBalzerKrebbers22}, and it does so
 with substantially less code.
 
 The rest of the paper is organised as follows.
@@ -103,7 +103,7 @@ namely typing preservation, deadlock freedom and runtime safety.
 %
 \Cref{sec:agda} illustrates the key aspects of the Agda formalisation with
 particular emphasis on the representation of channels and of typing contexts. We
-assume that the reader is somewhat familiar about Agda but we recall the lesser
+assume that the reader is somewhat familiar with Agda, but we recall the lesser
 known definitions from Agda's standard library.
 %
 \Cref{sec:related} discusses related work more in detail by providing a
@@ -113,6 +113,6 @@ session/linear calculi.
 \Cref{sec:conclusion} summarises our contributions and discusses ongoing and
 future work.
 
-The formalisation has been checked with Agda 2.8.0 and the code is available on
-in a public repository on GitHub~\cite{PadovaniRaffaelli25}.
+The formalisation has been checked with Agda 2.8.0 and the code is available in
+a public repository on GitHub~\cite{PadovaniRaffaelli25}.
 

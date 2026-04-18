@@ -2,7 +2,7 @@
 \label{sec:calculus}
 
 In this section we give a cursory presentation of \Calculus starting from its
-types (\Cref{sec:types}) then moving on to the syntax of processes
+types (\Cref{sec:types}), then moving on to the syntax of processes
 (\Cref{sec:syntax}), their reduction semantics (\Cref{sec:semantics}), the
 typing rules (\Cref{sec:typing-rules}) and the formulation of the properties
 ensured by the type system (\Cref{sec:properties}).
@@ -37,7 +37,7 @@ receiving/sending an empty message (without continuations).
 %
 The additive constants describe unusable channels. They can play the role of
 smallest/largest type in type systems that support a notion of
-subtyping~\citep{HornePadovani24}, but will mostly ignore them in this work.
+subtyping~\citep{HornePadovani24}, but we will mostly ignore them in this work.
 %
 The additive connectives $A \With B$ and $A \Plus B$ describe  channels used for
 receiving/sending either a continuation of type $A$ or a continuation of type
@@ -75,7 +75,7 @@ free occurrences of $X$ in $A$ with $B$.
                     & | & \Wait\x.P               & \text{wait} \\
                     & | & \Close\x                & \text{close} \\
                     & | & \Case\x\z{P}{Q}         & \text{case} \\
-                    & | & \Select\x{\InTag_i}\z.P & \text{select} \\
+                    & | & \Select\x{\InTag_i}\z.P & \text{select, $i\in\set{1,2}$} \\
                     & | & \Join\x\y\z.P           & \text{join} \\
                     & | & \Fork\x\y\z{P}{Q}       & \text{fork} \\
                     & | & \Forall\x\X\z.P         & \text{for all} \\
@@ -96,8 +96,7 @@ over by $x$, $y$ and $z$, and is shown in~\Cref{tab:syntax}.
 A link $\Link\x\y$ denotes the merging of the channels $x$ and $y$, so that each
 message sent on one of the channels is forwarded to the other. As discussed in
 the literature~\cite{LindleyMorris15} and illustrated in \Cref{ex:neg}, this
-form is useful for modeling the exchange of an existing channel on another
-channel.
+form is useful for sending an existing channel on another channel.
 %
 The processes $\Wait\x.P$ and $\Close\x$ respectively model the input and output
 of an empty message on the channel $x$. The latter process terminates after the
@@ -461,6 +460,7 @@ its range are prefixed by the modality~$\WhyNot$. We call these types
             }{
                 \wtp{\Select\x{\InTag_i}\y.P}{x : A_1 \Plus A_2, \Context}
             }
+            ~i\in\set{1,2}
             \and
             \inferrule[\JoinRule]{
                 \wtp{P}{y : A, z : B, \Context}
@@ -530,7 +530,7 @@ the sequent $\wtp{}\Context$ is derivable and $P$ is a proof term corresponding
 to the derivation for $\wtp{}\Context$.
 %
 The typing rules are shown in \Cref{tab:typing-rules}. They are in one-to-one
-correspondence with -- and have exactly the same structure of -- the proof rules
+correspondence with -- and have exactly the same structure as -- the proof rules
 of classical linear logic.
 %
 The reader may refer to the standard literature on propositions as
@@ -736,14 +736,14 @@ interact regardless of the context in which it is placed because the
 sub-processes it contains are blocked on the channel $x$ that is restricted by
 the cut.
 %
-In general, the property of being a deadlock is not simply the inability to
-reduce: there are irreducible processes that are not a deadlock because they
-would be able to reduce if put into a suitable context. For example, $\Wait\x.P$
-does not reduce, and yet it is not a deadlock because it would be able to make
-progress when composed in parallel with $\Close\x$. Even a process like
-$\Cut\x{\Wait\y.P}{\Wait\z.Q}$ where $x\ne y,z$ cannot be considered a deadlock,
-because the prefixes $\Wait\y$ and $\Wait\z$ could be exposed using \SWait and
-possibly \SComm. Let us make all this more precise.
+In general, \REVISION{a deadlocked process is not simply a process that is
+unable} to reduce; there are irreducible processes that are not a deadlock
+because they would be able to reduce if put into a suitable context. For
+example, $\Wait\x.P$ does not reduce, and yet it is not a deadlock because it
+would be able to make progress when composed in parallel with $\Close\x$. Even a
+process like $\Cut\x{\Wait\y.P}{\Wait\z.Q}$ where $x\ne y,z$ cannot be
+considered a deadlock, because the prefixes $\Wait\y$ and $\Wait\z$ could be
+exposed using \SWait and possibly \SComm. Let us make all this more precise.
 
 We say that $P$ is a \emph{thread} if it is anything but a cut. In other words,
 a thread is either a link or a process that starts with an input/output action
