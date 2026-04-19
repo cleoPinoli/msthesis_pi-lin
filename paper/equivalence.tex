@@ -1,0 +1,49 @@
+\section{On the Equivalence of \LCC and \CP}
+\label{sec:equivalence}
+
+In this section we sketch in a more detailed way the relationship between \LCC
+and \CP.
+
+We take the forms $\Fork\x\y\z{P}{Q}$ and $\Join\x\y\z.P$
+
+In \CP these processes are written as $\Fork\x\y{}{P}{Q}$ and $\Join\x\y{}.R$,
+respectively, and their typing rules are formulated thus
+\[
+    \inferrule[\StandardForkRule]{
+        \wtp{P}{\ContextC, y : A}
+        \\
+        \wtp{Q}{\ContextD, x : B}
+    }{
+        \wtp{\Fork\x\y{}{P}{Q}}{\ContextC, \ContextD, x : A \Ten B}
+    }
+    \qquad
+    \inferrule[\StandardJoinRule]{
+        \wtp{R}{\Context, y : A, x : B}
+    }{
+        \wtp{\Join\x\y{}.R}{\Context, x : A \Par B}
+    }
+\]
+where the role of the continuation channel $z$ is being played by the session
+endpoint $x$.
+
+Every (well-typed) \LCC process
+
+The equivalence between \CP and \LCC can be formally stated as an \emph{adequacy} result:
+
+\newcommand\encode[1]{\varepsilon(#1)}
+\newcommand\decode[1]{\delta(#1)}
+
+\begin{align*}
+    \encode{\Fork\x\y{}{P}{Q}} & = \Fork\x\y\x{\encode{P}}{\encode{Q}} &
+    \encode{\Join\x\y{}.R} & = \Join\x\y\z.\encode{R} \\
+    \decode{\Fork\x\y\z{P}{Q}} & = \Fork\x\y{}{\decode{P}}{\decode{Q\subst\z\x}} &
+    \decode{\Join\x\y\z.R} & = \Join\x\y{}.\decode{R\subst\z\x}
+\end{align*}
+
+\begin{theorem}
+    The following properties hold:
+    \begin{itemize}
+    \item If $\wtcp{\decode{P}}\Context$, then $\wtp{P}\Context$;
+    \item If $\wtp{P}\Context$, then $\wtp{\decode{P}}\Context$.
+    \end{itemize}
+\end{theorem}

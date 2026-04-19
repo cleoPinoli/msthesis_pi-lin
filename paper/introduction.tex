@@ -59,10 +59,16 @@ channels~\citep{Kobayashi02b,DardhaGiachinoSangiorgi17}: each message exchanged
 on a linear channel may include one or two fresh channels -- the
 \emph{continuations} -- on which the rest of the communication takes place.
 %
-Overall, \LCC is nothing but a low-level version of \CP~\cite{Wadler14} --
-Wadler's calculus of sessions based on classical linear logic -- such that
-sessions can be encoded instead of being featured natively.\Luca{Qui fare
-riferimento a Ambramsky e Bellin and Scott}
+\REVISION{Roughly, \LCC stands in between \CP~\cite{Wadler14} -- Wadler's
+calculus of sessions based on classical linear logic -- and the interpretation
+of linear logic proofs as $\pi$-calculus processes studied by
+Abramsky~\citep{Abramsky93} and by Bellin and Scott~\citep{BellinScott94}. While
+\CP features native sessions, \LCC and the interpretation by Abramsky, Bellin
+and Scott~\cite{Abramsky93,BellinScott94} make use of explicit continuations.
+While both \CP and \LCC provide native process forms corresponding to the
+additive connectives of the logic, Abramsky, Bellin and
+Scott~\cite{Abramsky93,BellinScott94} encode them using affine --
+``use-at-most-once'' -- channels.}
 
 The logical foundations of \LCC and the use of explicit continuations play an
 important role in taming the complexity of the formalisation.
@@ -105,6 +111,9 @@ namely typing preservation, deadlock freedom and runtime safety.
 particular emphasis on the representation of channels and of typing contexts. We
 assume that the reader is somewhat familiar with Agda, but we recall the lesser
 known definitions from Agda's standard library.
+%
+\REVISION{\Cref{sec:equivalence} provides a more detailed description of the
+correspondence between \CP and \LCC.}
 %
 \Cref{sec:related} discusses related work more in detail by providing a
 qualitative and quantitative comparison between the known formalisations of

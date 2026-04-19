@@ -259,7 +259,8 @@
 
 \newcommand{\Tag}[1][a]{\mathsf{\color{teal}#1}}
 
-\newcommand{\wtp}[3][]{#2 \vdash\ifblank{#1}{}{^{\color{purple}#1}} #3}
+\newcommand{\wtp}[3][]{#2 \vdash\ifblank{#1}{}{_{#1}} #3}
+\newcommand{\wtcp}[2]{\wtp[\textsc{\upshape cp}]{#1}{#2}}
 \newcommand{\wtl}[3]{#2 \vdash #1 \vartriangleright #3}
 
 \newcommand{\CallRule}{\rulename{call}}
@@ -269,6 +270,8 @@
 \newcommand{\CloseRule}{\rulename{$\One$}}
 \newcommand{\WaitRule}{\rulename{$\Bot$}}
 \newcommand{\ForkRule}{\rulename{$\Ten$}}
+\newcommand{\StandardForkRule}{\rulename{$\Ten$'}}
+\newcommand{\StandardJoinRule}{\rulename{$\Par$'}}
 \newcommand{\JoinRule}{\rulename{$\Par$}}
 \newcommand{\SelectRule}[1][i]{\rulename{$\Plus_{#1}$}}
 \newcommand{\CaseRule}{\rulename{$\With$}}
