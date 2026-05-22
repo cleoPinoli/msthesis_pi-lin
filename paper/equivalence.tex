@@ -2,69 +2,91 @@
 \label{sec:equivalence}
 
 In this section we sketch in a more detailed way the relationship between \LCC
-and \CP. More specifically, we show that there is an isomorphism between
-(well-typed) \CP processes and (well-typed) \LCC processes, up to renaming of
-bound names. Such tight correspondence is essentially the same studied by
-Kobayashi~\cite{Kobayashi02b} and Dardha et al.~\cite{DardhaGiachinoSangiorgi17}
-between session calculi and the linear $\pi$-calculus and by Sano et
-al.~\cite{SanoKavanaghPientka23} between \CP and \SCP.
-%
-For the sake of illustration, we only focus on the process forms corresponding
-to the multiplicative connectives $\Ten$ and $\Par$, leaving the extension to
-the additive connectives as a straightforward exercise.
+and \CP. More specifically, we argue that there is a straightforward isomorphism
+between (well-typed) \CP processes and (well-typed) \LCC processes, up to bound
+names. Such tight correspondence is essentially the same studied by Sano et
+al.~\cite{SanoKavanaghPientka23} between \CP and \SCP and can be traced back to
+the papers by Kobayashi~\cite{Kobayashi02b} and Dardha et
+al.~\cite{DardhaGiachinoSangiorgi17} showing how (binary) sessions can be
+encoded as chains of \emph{linear} channels.
+
+In the rest of this section, we detail this correspondence focusing on the
+multiplicative/additive connectives. The treatment of quantifiers is similar,
+and the other parts of \LCC coincide with those of \CP.
 
 If we let $\ClassicalP$ and $\ClassicalQ$ (in sans-serif font) range over \CP
 processes and write $\wtcp\ClassicalP\Context$ for a \CP typing judgment, in \CP
 the process forms representing input/output operations on sessions are
-$\Join\x\y{}.\ClassicalP$ and $\Fork\x\y{}\ClassicalP\ClassicalQ$ and their
-typing rules are formulated thus:
-\[
+$\Join\x\y{}.\ClassicalP$ and $\Case\x{}\ClassicalP\ClassicalQ$ (for inputs) and
+$\Fork\x\y{}\ClassicalP\ClassicalQ$ and $\Select\x{\InTag_i}{}.\ClassicalP$ (for
+outputs). The key difference between these forms and the corresponding ones in
+\LCC is the \emph{absence} of an explicit continuation channel. Instead, the
+session endpoint $x$ is being used by the continuation processes $\ClassicalQ$
+and $\ClassicalP$ to implement the rest of the session. This is made clear by
+the \CP typing rules for these processes, which we recall below~\cite{Wadler14}:
+\begin{mathpar}
     \inferrule[\StandardForkRule]{
-        \wtcp\ClassicalP{\ContextC, y : A}
+        \wtcp\ClassicalP{y : A, \ContextC}
         \\
-        \wtcp\ClassicalQ{\ContextD, x : B}
+        \wtcp\ClassicalQ{x : B, \ContextD}
     }{
-        \wtcp{\Fork\x\y{}\ClassicalP\ClassicalQ}{\ContextC, \ContextD, x : A \Ten B}
+        \wtcp{\Fork\x\y{}\ClassicalP\ClassicalQ}{x : A \Ten B, \ContextC, \ContextD}
     }
-    \qquad
+    \and
+    \inferrule[\StandardSelectRule]{
+        \wtcp\ClassicalP{x : A_i, \ContextC}
+    }{
+        \wtcp{\Select\x{\InTag_i}{}.\ClassicalP}{x : A_1 \Plus A_2, \ContextC}
+    }
+    ~i\in\set{1,2}
+    \and
     \inferrule[\StandardJoinRule]{
-        \wtcp\ClassicalP{\Context, y : A, x : B}
+        \wtcp\ClassicalP{y : A, x : B, \Context}
     }{
-        \wtcp{\Join\x\y{}.\ClassicalP}{\Context, x : A \Par B}
+        \wtcp{\Join\x\y{}.\ClassicalP}{x : A \Par B, \Context}
     }
-\]
-
-The key difference between these forms and the corresponding ones in \LCC is the
-\emph{absence} of an explicit continuation channel. Instead, the session
-endpoint $x$ is being used by the continuation processes $Q$ and $P$ to
-implement the rest of the session.
+    \and
+    \inferrule[\StandardCaseRule]{
+        \wtcp\ClassicalP{x : A, \Context}
+        \\
+        \wtcp\ClassicalQ{x : B, \Context}
+    }{
+        \wtcp{\Case\x{}\ClassicalP\ClassicalQ}{x : A \With B, \Context}
+    }
+\end{mathpar}
 
 \newcommand\encode[1]{\varepsilon(#1)}
 \newcommand\decode[1]{\delta(#1)}
 
 Every (well-typed) \CP process can be \emph{encoded} into a (well-typed) \LCC
 process by introducing an explicit continuation channel that does not clash with
-other channel names. Since we identify processes up to bound names, we may pick
-as the name of the continuation channel the very same name of the session that
-it continues and express the encoding as a function $\encode\cdot$ that includes
-the following equations:
-\[
-    \encode{\Fork\x\y{}\ClassicalP\ClassicalQ} = \Fork\x\y\x{\encode\ClassicalP}{\encode\ClassicalQ}
-    \qquad
-    \encode{\Join\x\y{}.\ClassicalP} = \Join\x\y\x.\encode\ClassicalP
-\]
+other channel names. In order to express such encoding easily as a function
+$\encode\cdot$, following Sano et al.~\cite{SanoKavanaghPientka23} we pick as
+the name of the continuation channel the very same name of the session that it
+continues. The encoding function is defined by the following equations
+\begin{align*}
+    \encode{\Fork\x\y{}\ClassicalP\ClassicalQ} & = \Fork\x\y\x{\encode\ClassicalP}{\encode\ClassicalQ} \\
+    \encode{\Join\x\y{}.\ClassicalP} & = \Join\x\y\x.\encode\ClassicalP \\
+    \encode{\Select\x{\InTag_i}{}.\ClassicalP} & = \Select\x{\InTag_i}\x.\encode\ClassicalP \\
+    \encode{\Case\x{}\ClassicalP\ClassicalQ} & = \Case\x\x{\encode\ClassicalP}{\encode\ClassicalQ}
+\end{align*}
+and extended homomorphically to the other forms of \CP.
 
 Every (well-typed) \LCC process can be \emph{decoded} into a (well-typed) \CP
 process by renaming each continuation channel so that it matches the name of the
-session it continues:
-\[
-    \decode{\Fork\x\y\z{P}{Q}} = \Fork\x\y{}{\decode{P}}{\decode{Q\subst\z\x}}
-    \qquad
-    \decode{\Join\x\y\z.R} = \Join\x\y{}.\decode{R\subst\z\x}
-\]
+session it continues. The decoding function $\decode\cdot$ is defined by the
+following equations
+\begin{align*}
+    \decode{\Fork\x\y\z{P}{Q}} & = \Fork\x\y{}{\decode{P}}{\decode{Q\subst\x\z}} \\
+    \decode{\Join\x\y\z.P} & = \Join\x\y{}.\decode{P\subst\x\z} \\
+    \decode{\Select\x{\InTag_i}\z.P} & = \Select\x{\InTag_i}{}.\decode{P\subst\x\z} \\
+    \decode{\Case\x\z{P}{Q}} & = \Case\x{}{\decode{P\subst\x\z}}{\decode{Q\subst\x\z}}
+\end{align*}
+and extended homomorphically to the other forms of \LCC.
 
-It is easy to establish that $\encode\cdot$ and $\decode\cdot$ are one the
-inverse of the other and that they preserve typing, in the sense that:
+It is now easy to establish that $\encode\cdot$ and $\decode\cdot$ are one the
+inverse of the other (up to alpha conversion) and that they preserve typing, in
+the sense that:
 \begin{itemize}
 \item If $\wtcp\ClassicalP\Context$, then $\wtp{\encode\ClassicalP}\Context$;
 \item If $\wtp{P}\Context$, then $\wtcp{\decode{P}}\Context$.
