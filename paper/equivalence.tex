@@ -1,14 +1,14 @@
 \section{On the Equivalence of \LCC and \CP}
 \label{sec:equivalence}
 
-In this section we sketch in a more detailed way the relationship between \LCC
-and \CP. More specifically, we argue that there is a straightforward isomorphism
+In \Cref{sec:introduction} we have anticipated that \LCC is a ``linear version''
+of \CP in which sessions are encoded instead of being featured natively. In this
+section we substantiate this claim by sketching a straightforward isomorphism
 between (well-typed) \CP processes and (well-typed) \LCC processes, up to bound
-names. Such tight correspondence is essentially the same studied by Sano et
-al.~\cite{SanoKavanaghPientka23} between \CP and \SCP and can be traced back to
-the papers by Kobayashi~\cite{Kobayashi02b} and Dardha et
-al.~\cite{DardhaGiachinoSangiorgi17} showing how (binary) sessions can be
-encoded as chains of \emph{linear} channels.
+names. Such tight correspondence can be traced back to the papers by
+Kobayashi~\cite{Kobayashi02b} and Dardha et al.~\cite{DardhaGiachinoSangiorgi17}
+showing how (binary) sessions can be encoded as chains of \emph{linear}
+channels.
 
 In the rest of this section, we detail this correspondence focusing on the
 multiplicative/additive connectives. The treatment of quantifiers is similar,
@@ -91,3 +91,8 @@ the sense that:
 \item If $\wtcp\ClassicalP\Context$, then $\wtp{\encode\ClassicalP}\Context$;
 \item If $\wtp{P}\Context$, then $\wtcp{\decode{P}}\Context$.
 \end{itemize}
+
+Note that an \LCC process $P$ and its decoding $\decode{P}$ (or equivalently a
+\CP process $\ClassicalP$ and its encoding $\encode\ClassicalP$) are typed
+\emph{in the same typing context} (up to the name of channels, for typing
+judgments other than the concluding one).

@@ -1816,8 +1816,10 @@ Observability, reducibility and aliveness are defined in the expected way:
 In order to prove that every (well-typed) process is alive, it is convenient to
 define a ``canonical'' form for cuts, that is a form that matches at least one
 of the l.h.s of one of the rules for structural pre-congruence or reduction in
-\Cref{tab:semantics}. This is the notion where the fine-grained classification
-of threads introduced earlier comes into play.
+\Cref{tab:semantics}. This is the point where the fine-grained classification of
+threads introduced earlier \REVISION{pays off: instead of considering all the 21
+forms of cuts that can be rewritten/reduced according to the rules in
+\Cref{tab:semantics}, we only need to consider four major classes of cuts:}
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -1974,9 +1976,9 @@ A \emph{canonical cut} $\Cut[A]\x{P}{Q}$ has one of these forms:
 (\AgdaInductiveConstructor{cc-servers}).
 \end{itemize}
 
-We have to distinguish servers from the other input operations because the
-structural pre-congruence rule \SServer can only be applied when the two
-sub-processes of a cut are both servers.
+\REVISION{Note that we} have to distinguish servers from the other input
+operations because the structural pre-congruence rule \SServer can only be
+applied when the two sub-processes of a cut are both servers.
 
 \begin{code}[hide]%
 \>[0]\AgdaFunction{output-output}\AgdaSpace{}%

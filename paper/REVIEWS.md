@@ -158,7 +158,12 @@ DONE.
 > classification of threads/stuck processes/poised processes in section 3.7, but
 > I'll defer to the authors (or other reviewers) on whether the section as
 > written would be satisfactory for readers familiar with Agda.
->
+
+COMMENT: we have expanded the paragraph right before the definition of the
+CanonicalCut data type to emphasize that the classiciation of processes helps
+reducing the number of cases that must be considered in defining a cut as
+canonical.
+
 > Regarding the contributions:
 >
 > 1) I found the second contribution to be extremely convincing, because the
@@ -222,7 +227,13 @@ DONE.
 > details of the translation[P] is that important (though it may be worth
 > sketching if there is space), but I do think some equivalence result, stated
 > as a theorem, would be very helpful.
->
+
+COMMENT. Following these remarks we have added a new section (section 4 in the
+revised version of the paper) where we sketch the correspondence between LCC and
+CP as suggested by the reviewer. We have also expanded the paragraph conceerning
+SCP in the related work section to pinpoint the key difference between LCC and
+SCP continuations.
+
 > --------------------
 >
 > Below are minor nitpicks/grammar/formatting issues, which can be largely
@@ -258,7 +269,7 @@ channels) we agree that it is appropriate to be avoid such kind of ambiguity.
 
 > 79: is -> in. Also, I would suggest breaking up this sentence (76 - 81)
 
-TODO
+DONE.
 
 > 81: conversation seems to come out of nowhere... maybe communication is the
 > more accurate term?

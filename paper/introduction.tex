@@ -55,13 +55,13 @@ can be used \emph{multiple times} (sequentially), linear channels must be used
 \emph{exactly once}. \LCC retains the expressiveness of other session calculi
 thanks to \emph{explicit continuations}, which enable the encoding of (binary)
 sessions in terms of linear
-channels~\citep{Kobayashi02b,DardhaGiachinoSangiorgi17}: each message exchanged
+channels~\citep{Kobayashi02b,DardhaGiachinoSangiorgi17}. Each message exchanged
 on a linear channel may include one or two fresh channels -- the
 \emph{continuations} -- on which the rest of the communication takes place.
 %
-\REVISION{Roughly, \LCC stands in between \CP~\cite{Wadler14} -- Wadler's
-calculus of sessions based on classical linear logic -- and the interpretation
-of linear logic proofs as $\pi$-calculus processes studied by
+\REVISION{Roughly speaking, \LCC stands in between \CP~\cite{Wadler14} --
+Wadler's calculus of sessions based on classical linear logic -- and the
+interpretation of linear logic proofs as $\pi$-calculus processes studied by
 Abramsky~\citep{Abramsky93} and by Bellin and Scott~\citep{BellinScott94}. While
 \CP features native sessions, \LCC and the interpretation by Abramsky, Bellin
 and Scott~\cite{Abramsky93,BellinScott94} make use of explicit continuations.

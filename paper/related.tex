@@ -81,7 +81,13 @@ on the \emph{explicit naming of continuations} so as to precisely account for
 the number of times a channel is actually used. \citet{SanoKavanaghPientka23} do
 not connect their technique with the continuation-passing encoding of binary
 sessions~\cite{Kobayashi02b,DardhaGiachinoSangiorgi17}, but the analogies are
-evident even though the role of continuations differs.
+evident even though the role of continuations differs. \REVISION{In particular,
+\SCP continuations are \emph{new names} given to existing channels to enable the
+distinction between multiple occurrences of the same (session) channel.
+%
+In contrast, \LCC continuations are \emph{new channels} used to encode the
+session as a chain of linear
+channels~\cite{Kobayashi02b,DardhaGiachinoSangiorgi17}.}
 
 \citet{ZackonEtAl25} describe a typing context management technique where
 channels are associated not just with a type but also with a \emph{tag}, that is
