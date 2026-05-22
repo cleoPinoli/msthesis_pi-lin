@@ -50,7 +50,14 @@
 > this formalisation can lead to the development of generic libraries for formal
 > proof, that could be used to formalise various calculi, including session
 > types and the linearly typed pi-calculus?
->
+
+DONE. We think that our formalisation is really tailored to LCC, we don't see
+substantial parts of the formalisation that could be turned into a library of
+general interest. In fact this is the reason why we provide separate figures in
+Table 5 for those formalisations that include a reusable library. We have added
+these considerations in the concluding section, before we describe how the
+formalisation has been (or can be) extended.
+
 > Along the lines of the previous question, one can remark that like in other
 > works in the field, you adopt a cut rule (739), instead of treating parallel
 > composition independently from restriction.
@@ -58,7 +65,11 @@
 > This fits well with other design choices made in this work. Could this
 > formalisation be adapted to handle parallel composition, thus allowing a more
 > relaxed form of computation (developing further what you write in 1409-1412)?
->
+
+DONE. We have added a discussion concerning unrestricted parallel composition
+(and some of the difficulties it would entail) in the concluding section, where
+we outline some future developments.
+
 > The section about related works should be enriched by discussing existing
 > theorem prover formalisations of linear logic, independently from the link
 > with session types. It could indeed be the case that some technical aspects
@@ -67,7 +78,9 @@
 > discussing is Actris/LinearActris, and more broadly Iris formalisations. To
 > what extend does a proof environment based on separation logic bear some
 > resemblances to the technical choices you make in this paper?
->
+
+TODO
+
 > Typos
 >
 > 111: familiar about -> familiar with
@@ -230,9 +243,9 @@ canonical.
 
 COMMENT. Following these remarks we have added a new section (section 4 in the
 revised version of the paper) where we sketch the correspondence between LCC and
-CP as suggested by the reviewer. We have also expanded the paragraph conceerning
-SCP in the related work section to pinpoint the key difference between LCC and
-SCP continuations.
+CP as suggested by the reviewer. We have also expanded the paragraph concerning
+SCP in the related work section to pinpoint the different roles of continuations
+in LCC and SCP.
 
 > --------------------
 >
