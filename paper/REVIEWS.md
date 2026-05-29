@@ -53,10 +53,10 @@
 
 DONE. We think that our formalisation is really tailored to LCC, we don't see
 substantial parts of the formalisation that could be turned into a library of
-general interest. In fact this is the reason why we provide separate figures in
-Table 5 for those formalisations that include a reusable library. We have added
-these considerations in the concluding section, before we describe how the
-formalisation has been (or can be) extended.
+general interest. In fact this is the reason why we have decided to provide
+separate figures in Table 5 for those formalisations that include a reusable
+library. We have expanded the concluding section, before we describe how the
+formalisation has been (or can be) extended, with some of these considerations.
 
 > Along the lines of the previous question, one can remark that like in other
 > works in the field, you adopt a cut rule (739), instead of treating parallel
@@ -78,6 +78,12 @@ we outline some future developments.
 > discussing is Actris/LinearActris, and more broadly Iris formalisations. To
 > what extend does a proof environment based on separation logic bear some
 > resemblances to the technical choices you make in this paper?
+
+linear logic: studio della metateoria (completeness of focusing, cut
+elimination), no safety, no relationship with process calculus. Allais
+introduces leftover typing, then adopted for session calculi.
+
+relazione con Acrits più debole, non centra con soluzioni al concurrency benchmark
 
 TODO
 
