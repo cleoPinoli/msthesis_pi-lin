@@ -79,13 +79,13 @@ we outline some future developments.
 > what extend does a proof environment based on separation logic bear some
 > resemblances to the technical choices you make in this paper?
 
-linear logic: studio della metateoria (completeness of focusing, cut
-elimination), no safety, no relationship with process calculus. Allais
-introduces leftover typing, then adopted for session calculi.
-
-relazione con Acrits più debole, non centra con soluzioni al concurrency benchmark
-
-TODO
+DONE. We have expanded the final part of the related work section with
+references to formalisations of linear logic and implementations of separation
+logic. We are not sure to fully understand the last question in the reviewer's
+report, since we feel that Actris and LinearActris have a weaker relationship
+with the concurrency benchmark. If the reviewer thinks that comparison with
+these frameworks needs to be detailed further, we will be happy to further
+revise this part of the section.
 
 > Typos
 >

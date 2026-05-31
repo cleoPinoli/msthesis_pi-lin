@@ -416,15 +416,37 @@ ones are 263kb on average. At the very least, the use of continuations enables a
 cleaner management of typing contexts since linear channels are true
 ``use-once'' resources, and there is no need to update their type.
 
-LINEAR LOGIC
+\REVISION{There is a rich literature documenting formalisations of (fragments
+of) linear logic in various proof
+assistants~\cite{KalvalaDePaiva95,PowerWebster99,Allais17,ChaudhuriLimaReis17,ChaudhuriLimaReis19,XavierEtAl18}.
+In these papers, the focus is on the properties of the logic itself rather than
+its interpretation as a model of concurrency. Kalvala and de
+Paiva~\cite{KalvalaDePaiva95} and Power and Webster~\cite{PowerWebster99}
+explore the problem of interactive proof search in Isabelle and Coq,
+respectively. Chaudhuri, Lima and
+Reis~\cite{ChaudhuriLimaReis17,ChaudhuriLimaReis19} and Xavier~et
+al.~\cite{XavierEtAl18} formalise some meta-theory of sequent calculi for linear
+logic, in particular cut elimination and the completeness of focusing. In these
+works, contexts are represented either as lists of propositions (with explicit
+exchange rules) or as multisets (lists up to permutations). The latter
+representation is pretty much the same we adopt in this paper, although in our
+case the \emph{position} of a type/proposition in a typing context implicitly
+carries the binding information of the channel it corresponds to.
+%
+Allais~\cite{Allais17} introduces the technique of \emph{leftovers} to develop
+an Agda formalisation of intuitionistic multiplicative-additive linear logic.
+Sequents have both an \emph{input context} (the overall available resources) and
+an \emph{output context} (the leftovers, or resources that have not been
+consumed), so as to avoid the problem of context splitting altogether. The
+leftovers technique has subsequently inspired the formalisation of the linear
+$\pi$-calculus by Zalakain and Dardha~\cite{ZalakainDardha21}.
 
-\begin{itemize}
-\item \cite{ChaudhuriLimaReis17} discuss representation of sequents and
-    relations among them
-\item \cite{Allais17} introduces leftovers intuitionistic linear logic, then
-    reused in a session type setting by \cite{ZalakainDardha21}
-\item \cite{XavierEtAl18} prove cut elimination and completeness of focusing for
-    first-order linear logic, sequents are represented as lists of propositions
-    with a notion of equivalence based on the number of occurrences of
-    propositions "=mul="
-\end{itemize}
+In this work, following \cite{RouvoetPoulsenKrebbersVisser20}, we have used some
+key concepts of separation logic, namely separating conjunction and the magic
+wand, as tools to streamline the respresentation of processes. Separation logic
+has also been used to develop standalone formal verification frameworks for
+concurrent programs. In particular, Actris~\cite{HinrichsenBengtsonKrebbers20}
+and LinearActris~\cite{JacobsHinrichsenKrebbers24} allow the verification of
+functional properties of programs that mix-and-match various concurrency
+abstractions including shared/mutable state, locks and communication channels
+regulated by session types.}
