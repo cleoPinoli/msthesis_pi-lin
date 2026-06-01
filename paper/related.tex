@@ -81,13 +81,13 @@ on the \emph{explicit naming of continuations} so as to precisely account for
 the number of times a channel is actually used. \citet{SanoKavanaghPientka23} do
 not connect their technique with the continuation-passing encoding of binary
 sessions~\cite{Kobayashi02b,DardhaGiachinoSangiorgi17}, but the analogies are
-evident even though the role of continuations differs. \REVISION{In particular,
+evident even though the role of continuations differs. In particular,
 \SCP continuations are \emph{new names} given to existing channels to enable the
 distinction between multiple occurrences of the same (session) channel.
 %
 In contrast, \LCC continuations are \emph{new channels} used to encode the
 session as a chain of linear
-channels~\cite{Kobayashi02b,DardhaGiachinoSangiorgi17}.}
+channels~\cite{Kobayashi02b,DardhaGiachinoSangiorgi17}.
 
 \citet{ZackonEtAl25} describe a typing context management technique where
 channels are associated not just with a type but also with a \emph{tag}, that is
@@ -416,8 +416,8 @@ ones are 263kb on average. At the very least, the use of continuations enables a
 cleaner management of typing contexts since linear channels are true
 ``use-once'' resources, and there is no need to update their type.
 
-\REVISION{There is a rich literature documenting formalisations of (fragments
-of) linear logic in various proof
+There is a rich literature documenting formalisations of (fragments of) linear
+logic in various proof
 assistants~\cite{KalvalaDePaiva95,PowerWebster99,Allais17,ChaudhuriLimaReis17,ChaudhuriLimaReis19,XavierEtAl18}.
 In these papers, the focus is on the properties of the logic itself rather than
 its interpretation as a model of concurrency. Kalvala and de
@@ -449,4 +449,4 @@ concurrent programs. In particular, Actris~\cite{HinrichsenBengtsonKrebbers20}
 and LinearActris~\cite{JacobsHinrichsenKrebbers24} allow the verification of
 functional properties of programs that mix-and-match various concurrency
 abstractions including shared/mutable state, locks and communication channels
-regulated by session types.}
+regulated by session types.

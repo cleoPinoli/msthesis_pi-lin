@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>POINT-BY-POINT RESPONSE</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<h1 id="point-by-point-response">POINT-BY-POINT RESPONSE</h1>
+<p>Below is the full text of the reviews. We have marked each request of
+modification with DONE/COMMENT/ANSWER and possibly provided details on the
+changes we have done to the paper in response to the request.</p>
+<h2 id="reviewer-1">REVIEWER 1</h2>
+<blockquote>
+<p>This paper presents a formalisation in Agda of the Linear Calculus of
+Continuations (LCC). The principal contribution of this work is to show that
+relying on linear continuations to implement the state-like behaviour of
+session types yields several simplifications in the formalisation of the
+metaproperties of the language. The main design choices of the formalisation
+are as follows. - As mentioned above, exploiting linear continuations instead
+of working with native sessions.  Technically, this intuitively means that at
+each interaction, a new continuation is pushed, instead of having to update
+the type of the channel where interaction takes place. This simplifies greatly
+the handling of typing contexts along the interactions between processes. -
+Working with an intrinsically-typed representation of processes. As a
+consequence of that, when formalising the calculus, Section 2.4 is somehow
+baked into sections 2.2 and 2.3, so that untyped processes are not considered
+at all. In turn, this representation is exploited to represent Pre-Congruence
+and Reduction, which involves some technicalities related to the manipulation
+of (nameless) channels and of the context. A good illustration of how things
+are both clever and a little intricate at the same time is given by the
+explanations of the s-wait and s-fork rules (pages 18-19). - The process
+calculus does not have a primitive notion of parallel composition, but has
+instead cut, that combines parallel composition and restriction.</p>
+<p>As a result of these design choices, the proofs of several properties of typed
+processes turn out to be simple, or even straightforward in some cases. The
+cost of this approach is in terms of readability: the representation of the
+calculus departs in several aspects from how things would be phrased naturally
+when ignoring the task of formalisation. Nevertheless, the authors make a very
+good effort in explaining the formalisation and its intricacies. The paper is
+well organised and clear, which makes it very pleasant to read.</p>
+<p>In the concluding sections of the paper, the authors compare their
+contribution with existing formalisations of sessions, and show what can be
+learnt from this effort. One notable observation is that the handling of
+context splitting, which has been the subject of several investigations, does
+not seem to cause much problems here. Indeed, the solution described in
+Section 3.2 is rather natural, and apparently does not give rise to
+complications.</p>
+<p>I am in favor of acceptance of this paper.</p>
+<p>Below are some suggestions for improvement, that can be taken into account
+before publication.</p>
+<p>This contribution fits well in the landscape of formalisations of session
+types, and is certainly interesting in the context of the Concurrent Calculi
+Formalisation Benchmark. Beyond that, do you think that the approach behind
+this formalisation can lead to the development of generic libraries for formal
+proof, that could be used to formalise various calculi, including session
+types and the linearly typed pi-calculus?</p>
+</blockquote>
+<p>DONE. We think that our formalisation is really tailored to LCC, we don't see
+substantial parts of the formalisation that could be turned into a library of
+general interest. In fact this is the reason why we have decided to provide
+separate figures in Table 5 for those formalisations that include a reusable
+library. We have expanded the concluding section, before we describe how the
+formalisation has been (or can be) extended, with some of these considerations.</p>
+<blockquote>
+<p>Along the lines of the previous question, one can remark that like in other
+works in the field, you adopt a cut rule (739), instead of treating parallel
+composition independently from restriction.</p>
+<p>This fits well with other design choices made in this work. Could this
+formalisation be adapted to handle parallel composition, thus allowing a more
+relaxed form of computation (developing further what you write in 1409-1412)?</p>
+</blockquote>
+<p>DONE. We have added a discussion concerning unrestricted parallel composition
+(and some of the difficulties it would entail) in the concluding section, where
+we outline some future developments.</p>
+<blockquote>
+<p>The section about related works should be enriched by discussing existing
+theorem prover formalisations of linear logic, independently from the link
+with session types. It could indeed be the case that some technical aspects
+related to the handling of the typing environment/of hypotheses and of
+channels/quantifiers are used in both contexts. Another line of works worth
+discussing is Actris/LinearActris, and more broadly Iris formalisations. To
+what extend does a proof environment based on separation logic bear some
+resemblances to the technical choices you make in this paper?</p>
+</blockquote>
+<p>DONE. We have expanded the final part of the related work section with
+references to formalisations of linear logic and implementations of separation
+logic. We are not sure to fully understand the last question in the reviewer's
+report, since we feel that Actris and LinearActris have a weaker relationship
+with the concurrency benchmark. If the reviewer thinks that comparison with
+these frameworks needs to be detailed further, we will be happy to further
+revise this part of the section.</p>
+<blockquote>
+<p>Typos</p>
+<p>111: familiar about -&gt; familiar with</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>180 &quot;for modeling.. another channel.&quot;: rephrase</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>211 &quot;=def&quot; clashes with the line above</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>353 same structure as</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>403 &quot;the property... to reduce&quot;: rephase</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>458 to represents</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>619 inspired from separation logic</p>
+</blockquote>
+<p>DONE. We have used &quot;by&quot;, it seemed more appropriate.</p>
+<blockquote>
+<p>801 We conclude this module by proving that...</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>923 comment on a few</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>953 quantify over them</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>1278 preserves proves</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>1424 same type system as CP</p>
+</blockquote>
+<p>DONE.</p>
+<h2 id="reviewer-2">REVIEWER 2</h2>
+<blockquote>
+<p>A quick last minute note: I ended up writing quite a lot, but to me the only
+fix I believed important enough to mark this submission as &quot;needs revision&quot; is
+the paragraph that ends in &quot;but I do think some equivalence result, stated as
+a theorem, would be very helpful.&quot;  I think as long as that is addressed, all
+my other comments nice-to-haves and nothing mandatory nor grave.</p>
+<hr>
+<p>This paper formalizes an alternative process calculus system, LCC. It supports
+all the connectives in Wadler's CP (the &quot;basic&quot; linear logic constructors +
+first order quantifications + bang). The authors prove subject reduction +
+deadlock freedom and mechanize the system + its proofs in Agda via an
+intrinsic typing encoding with co de Bruijn indices.</p>
+<p>The paper is generally well-written, and the material is presented in a mostly
+gentle manner that makes the high-level details accessible to non-experts.</p>
+<p>The stated contributions/novelties seem to be:</p>
+<ol>
+<li>
+<p>Proposing a new calculus that is better suited for mechanization than CP
+based on the idea of making continuation channels explicit</p>
+</li>
+<li>
+<p>A mechanization of the system + subject reduction + deadlock freedom</p>
+</li>
+</ol>
+<p>Overall, the second contribution seems to support the claim given in the first
+contribution, given that, according to the authors, the mechanization is the
+most complete (most features) and most streamlined (some metric about code
+size being short). But also, the second is a strong contribution in of itself
+given that most other process calculus mechanizations omit the deadlock
+freedom proof.</p>
+<p>Since I don't know Agda, I cannot confidently judge the technical details of
+section 3 (Agda Formalisation), but the code that was shown and its
+discussions seemed to make sense, at least from a total Agda newbie's
+perspective. I didn't quite understand the reason for fine-grained
+classification of threads/stuck processes/poised processes in section 3.7, but
+I'll defer to the authors (or other reviewers) on whether the section as
+written would be satisfactory for readers familiar with Agda.</p>
+</blockquote>
+<p>COMMENT: we have expanded the paragraph right before the definition of the
+CanonicalCut data type to emphasize that the classiciation of processes helps
+reducing the number of cases that must be considered in defining a cut as
+canonical.</p>
+<blockquote>
+<p>Regarding the contributions:</p>
+<ol>
+<li>I found the second contribution to be extremely convincing, because the
+mechanization does seem very elegant and also covers the entire system, as
+opposed to most mechanizations of session types that only covers a subset of
+Wadler's connectives + does not cover deadlock freedom. The related works give
+a fantastic overview of the literature on mechanization of session-typed
+systems.</li>
+</ol>
+<p>My only quip is that authors use file size (after truncation of
+spaces/comments) as their attempt to get some understanding of &quot;complexity&quot; of
+mechanization. Of course, this is not a literature review paper on
+mechanizations, and most other papers use metrics such as lines of code, which
+is just as imperfect (actually, lines of code might be worse as argued by the
+authors), so it will be unfair/hypocritical for me to judge this paper from
+lacking more in-depth comparisons given that it is not the main point of this
+paper.</p>
+<ol start="2">
+<li>However, I found the first contribution to be less convincing (but still
+somewhat convincing) compared to the second contribution. I think part of it
+is that the idea of explicit continuations has been done with SCP, which would
+be the analog of LCC, in Sano OOPSLA'23, though it also included separation of
+linearity checks. They also cover more metatheory (such as &quot;adequacy&quot;, i.e.,
+the equivalence proof of CP and SCP).  Thus, from the theoretical perspective,
+the first contribution, to me, is actually:</li>
+</ol>
+<p>a) extending SCP (minus the linearity predicates) to range over all of CP,
+instead of just the simple connectives</p>
+<p>b) framing the system as one that is suitable for mechanization in the broad
+sense, as opposed to Sano's SCP which was merely a technical device that they
+internally used</p>
+<p>c) giving evidence that this system (or rather, the insight of adding explicit
+continuation bindings) is a good idea when it comes to mechanization</p>
+<p>For me, a is a weak contribution, b is a fairly strong contribution, and c is
+somewhere in between. a) is weak because none of the missing connectives in
+SCP (bang + quantifiers + additive units) offer any new challenges to making
+continuations explicit (I think, but maybe this can be clarified if there was
+some complexity that I'm not seeing). b) is fairly strong because, while it is
+not technical, it is a new perspective in the mechanization space. c) is
+medium because their only metric is the file size post-truncation. I think
+there are many other factors to consider with regards to that metric, for
+example, whether duplication of data structure due to certain abstraction
+styles can matter.</p>
+<p>Also, given that a central point of the first contribution claim is to propose
+LCC as an alternative formulation of CP that is better suited for
+mechanization, I'd have expected some explicit statement that discusses the
+relationship of LCC vs. CP. There are few parts in the paper that informally
+mention the translation between LCC processes and CP processes and the
+equivalence of them. The underlying linear logic structure in both systems
+make them seem, to me, truly equivalent modulo renaming.</p>
+<p>So, is it the case that if P |- Delta in LCC, [P] |- Delta in CP
+and vice versa (for suitable process translation [P]). Assuming that is the
+case, I feel like it is important to state it, because at least the way I read
+it, it seemed like an &quot;obviously desirable&quot; property, and the fact that it is
+missing in the paper sends some mixed signals to me. I don't think the exact
+details of the translation[P] is that important (though it may be worth
+sketching if there is space), but I do think some equivalence result, stated
+as a theorem, would be very helpful.</p>
+</blockquote>
+<p>COMMENT. Following these remarks we have changed the paper as follows:</p>
+<ul>
+<li>we have added a new section (section 4 in the revised version of the paper)
+where we sketch the correspondence between LCC and CP as suggested by the
+reviewer;</li>
+<li>in the introduction, we have provided more details about the role of
+continuations in encoding sessions and also in the original interpretation of
+linear logic proofs as processes;</li>
+<li>we have expanded the paragraph concerning SCP in the related work section to
+pinpoint the different roles of continuations in LCC and SCP.</li>
+</ul>
+<blockquote>
+<hr>
+<p>Below are minor nitpicks/grammar/formatting issues, which can be largely
+ignored. Some of my edits/suggestions are based on me predicting what the
+authors were trying to say, so in case the edits do not make sense for the
+authors, it could still be useful to know where readers can potentially
+misread the paper</p>
+<p>49/50: either an an missing before &quot;the need for coinductive...&quot; or a comma
+missing somewhere in the list, and I'm not parsing it correctly</p>
+</blockquote>
+<p>DONE. Added &quot;and&quot;. Together with the comma, this should help parsing the last
+element of the list.</p>
+<blockquote>
+<p>57: session type system -&gt; session-typed system (same in 1269/1270)</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>57-63: Don't 1 and 2 somewhat contradict each other? I do understand that
+calling session endpoints to be linear resources is strictly about forbidding
+discarding/duplicating them, but in the naive &quot;use exactly once&quot;
+interpretation, the fact that their types are updated and can be used again
+seems to be a bit conflicting. Indeed in line 76, this distinction of use
+exactly once vs use multiple times at updated types is brought back again, so
+I think it'll be nice to add a sentence immediately after 57-62 that clarifies
+this part.</p>
+</blockquote>
+<p>DONE. We have changed item (1) to make it clear that session endpoints must be
+used <em>sequentially</em>. In this sense they are not strictly &quot;linear&quot;, although
+&quot;linearity&quot; is often (and ambiguously) used to describe the nature of session
+endpoints. But in the context of this paper (where we work with truly linear
+channels) we agree that it is appropriate to be avoid such kind of ambiguity.</p>
+<blockquote>
+<p>79: is -&gt; in. Also, I would suggest breaking up this sentence (76 - 81)</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>81: conversation seems to come out of nowhere... maybe communication is the
+more accurate term?</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>96: [therefore its type can be ... ] [the type of the continuation channel is
+...]  both are ind. clauses. Personally 94-97 should be broken up, but even if
+not, [and] should be inserted before therefore + comma should be inserted
+between: typing context [comma here] and the type of</p>
+</blockquote>
+<p>DONE. We have split/rephrased these sentences.</p>
+<blockquote>
+<p>97: is -&gt; in</p>
+</blockquote>
+<p>DONE (we assume the reviewer meant to suggest a replacement of &quot;is&quot; with &quot;it&quot;)</p>
+<blockquote>
+<p>98-100: awkward/rephrase</p>
+</blockquote>
+<p>DONE. We have rephrased this sentence.</p>
+<blockquote>
+<p>105: calculus [comma] and it does so ...</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>111: about Agda [comma] but we recall ...</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>122: then moving -&gt; [comma] and then move</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>144: (table 1, select process term) maybe explicitly state the side condition
+on i, e.g., &quot;(where i <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∈</mo></mrow><annotation encoding="application/x-tex">\in</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mrel">∈</span></span></span></span> { 1,2})</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>161: but will -&gt; but we will</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>229: Table 1. [is the symbol here a typo?]</p>
+</blockquote>
+<p>ANSWER. No, that's the symbol we have chosen to indicate the end of the example
+(see e.g. Example 2.2).</p>
+<blockquote>
+<p>329: in typing rule for <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⊕</mo></mrow><annotation encoding="application/x-tex">\oplus</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">⊕</span></span></span></span>, I'd make it clear i ranges from 1 - 2 (and the
+rule name should be <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>⊕</mo><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\oplus_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mbin">⊕</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> I guess, not <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⊕</mo></mrow><annotation encoding="application/x-tex">\oplus</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">⊕</span></span></span></span></p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>403: inability to reduce: there -&gt; inability to reduce; there</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>457: PreType n to represents -&gt; to represent</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>457: scope of n quantifiers [comma] and we use ...</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>1273: inspired to separation logic -&gt; inspired [by] separation logic
+[comma]</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>1286: and that is -&gt; and is</p>
+</blockquote>
+<p>DONE.</p>
+<blockquote>
+<p>1419: resources [comma] and there is no need to ...</p>
+</blockquote>
+<p>DONE.</p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

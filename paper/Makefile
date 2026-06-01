@@ -26,6 +26,7 @@ SOURCES = \
   introduction.tex \
   calculus.tex \
   agda.tex \
+  equivalence.tex \
   related.tex \
   conclusion.tex \
   $(NULL)

@@ -1,4 +1,8 @@
-# REVIEWS
+# POINT-BY-POINT RESPONSE
+
+Below is the full text of the reviews. We have marked each request of
+modification with DONE/COMMENT/ANSWER and possibly provided details on the
+changes we have done to the paper in response to the request.
 
 ## REVIEWER 1
 
@@ -238,7 +242,7 @@ canonical.
 > equivalence of them. The underlying linear logic structure in both systems
 > make them seem, to me, truly equivalent modulo renaming.
 >
-> So, is it the case that if P |- \Delta in LCC, [P] |- \Delta in CP
+> So, is it the case that if P |- Delta in LCC, [P] |- Delta in CP
 > and vice versa (for suitable process translation [P]). Assuming that is the
 > case, I feel like it is important to state it, because at least the way I read
 > it, it seemed like an "obviously desirable" property, and the fact that it is
@@ -247,11 +251,16 @@ canonical.
 > sketching if there is space), but I do think some equivalence result, stated
 > as a theorem, would be very helpful.
 
-COMMENT. Following these remarks we have added a new section (section 4 in the
-revised version of the paper) where we sketch the correspondence between LCC and
-CP as suggested by the reviewer. We have also expanded the paragraph concerning
-SCP in the related work section to pinpoint the different roles of continuations
-in LCC and SCP.
+COMMENT. Following these remarks we have changed the paper as follows:
+
+* we have added a new section (section 4 in the revised version of the paper)
+  where we sketch the correspondence between LCC and CP as suggested by the
+  reviewer;
+* in the introduction, we have provided more details about the role of
+  continuations in encoding sessions and also in the original interpretation of
+  linear logic proofs as processes;
+* we have expanded the paragraph concerning SCP in the related work section to
+  pinpoint the different roles of continuations in LCC and SCP.
 
 > --------------------
 >
@@ -323,7 +332,7 @@ DONE.
 DONE.
 
 > 144: (table 1, select process term) maybe explicitly state the side condition
-> on i, e.g., "(where i \in \{ 1,2\})
+> on i, e.g., "(where i $\in$ \{ 1,2\})
 
 DONE.
 
@@ -336,8 +345,8 @@ DONE.
 ANSWER. No, that's the symbol we have chosen to indicate the end of the example
 (see e.g. Example 2.2).
 
-> 329: in typing rule for \oplus, I'd make it clear i ranges from 1 - 2 (and the
-> rule name should be \oplus_i I guess, not \oplus
+> 329: in typing rule for $\oplus$, I'd make it clear i ranges from 1 - 2 (and the
+> rule name should be $\oplus_i$ I guess, not $\oplus$
 
 DONE.
 

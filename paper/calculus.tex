@@ -188,9 +188,9 @@ processes up to renaming of bound channels.
     %
     In general, the \CP version of an \Calculus process can be obtained by
     reusing the same channel $x$ in place of the continuation $z$ in
-    \Cref{tab:syntax}. \REVISION{We will make this intuition more precise in
+    \Cref{tab:syntax}. We will make this intuition more precise in
     \Cref{sec:equivalence}, where we informally discuss the equivalence of \CP
-    and \Calculus.}
+    and \Calculus.
     %
     \eoe
 \end{example}
@@ -739,14 +739,14 @@ interact regardless of the context in which it is placed because the
 sub-processes it contains are blocked on the channel $x$ that is restricted by
 the cut.
 %
-In general, \REVISION{a deadlocked process is not simply a process that is
-unable} to reduce; there are irreducible processes that are not a deadlock
-because they would be able to reduce if put into a suitable context. For
-example, $\Wait\x.P$ does not reduce, and yet it is not a deadlock because it
-would be able to make progress when composed in parallel with $\Close\x$. Even a
-process like $\Cut\x{\Wait\y.P}{\Wait\z.Q}$ where $x\ne y,z$ cannot be
-considered a deadlock, because the prefixes $\Wait\y$ and $\Wait\z$ could be
-exposed using \SWait and possibly \SComm. Let us make all this more precise.
+In general, a deadlocked process is not simply a process that is unable to
+reduce; there are irreducible processes that are not a deadlock because they
+would be able to reduce if put into a suitable context. For example, $\Wait\x.P$
+does not reduce, and yet it is not a deadlock because it would be able to make
+progress when composed in parallel with $\Close\x$. Even a process like
+$\Cut\x{\Wait\y.P}{\Wait\z.Q}$ where $x\ne y,z$ cannot be considered a deadlock,
+because the prefixes $\Wait\y$ and $\Wait\z$ could be exposed using \SWait and
+possibly \SComm. Let us make all this more precise.
 
 We say that $P$ is a \emph{thread} if it is anything but a cut. In other words,
 a thread is either a link or a process that starts with an input/output action

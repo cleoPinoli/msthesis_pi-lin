@@ -24,13 +24,13 @@ Sessions and session
 types~\citep{Honda93,HondaVasconcelosKubo98,HuttelEtAl16,GayVasconcelos25} are
 established abstractions for the static analysis of distributed programs based
 on peer-to-peer communications. Every session-typed system revolves around three
-key ideas: (1) session endpoints \REVISION{can only be used \emph{sequentially}
-and cannot be} discarded or duplicated without compromising some safety and
-liveness properties of a program; (2) the type of a session endpoint is
-\emph{updated} after each use to reflect the state of the protocol it describes;
-(3) peer session endpoints are meant to be used in complementary ways so as to
-guarantee the absence of communication errors and, to some extent, progress of
-the interaction.
+key ideas: (1) session endpoints can only be used \emph{sequentially} and cannot
+be discarded or duplicated without compromising some safety and liveness
+properties of a program; (2) the type of a session endpoint is \emph{updated}
+after each use to reflect the state of the protocol it describes; (3) peer
+session endpoints are meant to be used in complementary ways so as to guarantee
+the absence of communication errors and, to some extent, progress of the
+interaction.
 %
 The linearity challenge is based on the observation that the proper management
 of linear resources in a formalisation often requires a large number of
@@ -59,16 +59,16 @@ channels~\citep{Kobayashi02b,DardhaGiachinoSangiorgi17}. Each message exchanged
 on a linear channel may include one or two fresh channels -- the
 \emph{continuations} -- on which the rest of the communication takes place.
 %
-\REVISION{Roughly speaking, \LCC stands in between \CP~\cite{Wadler14} --
-Wadler's calculus of sessions based on classical linear logic -- and the
-interpretation of linear logic proofs as $\pi$-calculus processes studied by
+Roughly speaking, \LCC stands in between \CP~\cite{Wadler14} -- Wadler's
+calculus of sessions based on classical linear logic -- and the interpretation
+of linear logic proofs as $\pi$-calculus processes studied by
 Abramsky~\citep{Abramsky93} and by Bellin and Scott~\citep{BellinScott94}. While
 \CP features native sessions, \LCC and the interpretation by Abramsky, Bellin
 and Scott~\cite{Abramsky93,BellinScott94} make use of explicit continuations.
 While both \CP and \LCC provide native process forms corresponding to the
 additive connectives of the logic, Abramsky, Bellin and
 Scott~\cite{Abramsky93,BellinScott94} encode them using affine --
-``use-at-most-once'' -- channels.}
+``use-at-most-once'' -- channels.
 
 The logical foundations of \LCC and the use of explicit continuations play an
 important role in taming the complexity of the formalisation.
@@ -86,12 +86,12 @@ polarities~\citep{GayHole05,ZalakainDardha21} or by using different names
 connected by the same binder~\citep{Vasconcelos12,GayVasconcelos25}.
 %
 Using a calculus with linear channels and explicit continuations spares us the
-need to \emph{update} the type of channels in typing contexts. \REVISION{Once a
-channel has been used it is effectively consumed, and therefore its type is
+need to \emph{update} the type of channels in typing contexts. Once a channel
+has been used it is effectively consumed, and therefore its type is
 \emph{removed} from the typing context. The continuation channel is fresh by
 definition, and therefore its type is \emph{added at the beginning} of the
 typing context. As it turns out, removing and adding types is easier than
-updating them.}
+updating them.
 
 The formalisation of \LCC that we obtain is at the same time complete (in terms
 of features supported by the calculus) and streamlined (in terms of code size)
@@ -112,8 +112,8 @@ particular emphasis on the representation of channels and of typing contexts. We
 assume that the reader is somewhat familiar with Agda, but we recall the lesser
 known definitions from Agda's standard library.
 %
-\REVISION{\Cref{sec:equivalence} provides a more detailed description of the
-correspondence between \CP and \LCC.}
+\Cref{sec:equivalence} provides a more detailed description of the
+correspondence between \CP and \LCC.
 %
 \Cref{sec:related} discusses related work more in detail and includes a
 qualitative and quantitative comparison between the known formalisations of
