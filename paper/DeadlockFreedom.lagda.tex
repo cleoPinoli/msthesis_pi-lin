@@ -127,7 +127,8 @@ data Thread {Γ} (P : Proc Γ) : Set where
   dserver  : DelayedServer P → Thread P
 \end{code}
 
-Observability, reducibility and aliveness are defined in the expected way:
+Observability, reducibility and aliveness are straightforward formalisations of
+their pen-and-paper version:
 
 \begin{code}
 Observable : ∀{Γ} → Proc Γ → Set

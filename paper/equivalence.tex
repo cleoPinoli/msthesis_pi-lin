@@ -1,3 +1,4 @@
+\REVISION{
 \section{On the Equivalence of \LCC and \CP}
 \label{sec:equivalence}
 
@@ -20,10 +21,11 @@ the process forms representing input/output operations on sessions are
 $\Join\x\y{}.\ClassicalP$ and $\Case\x{}\ClassicalP\ClassicalQ$ (for inputs) and
 $\Fork\x\y{}\ClassicalP\ClassicalQ$ and $\Select\x{\InTag_i}{}.\ClassicalP$ (for
 outputs). The key difference between these forms and the corresponding ones in
-\LCC is the \emph{absence} of an explicit continuation channel. Instead, the
-session endpoint $x$ is being used by the continuation processes $\ClassicalQ$
-and $\ClassicalP$ to implement the rest of the session. This is made clear by
-the \CP typing rules for these processes, which we recall below~\cite{Wadler14}:
+\LCC is the \emph{absence} of an explicit continuation channel. Instead, as we
+have seen in \Cref{ex:booleans}, the session endpoint $x$ is being used by the
+continuation processes $\ClassicalQ$ and $\ClassicalP$ to implement the rest of
+the session. This is made clear by the \CP typing rules for these processes,
+which we recall below~\cite{Wadler14}:
 \begin{mathpar}
     \inferrule[\StandardForkRule]{
         \wtcp\ClassicalP{y : A, \ContextC}
@@ -96,3 +98,4 @@ Note that an \LCC process $P$ and its decoding $\decode{P}$ (or equivalently a
 \CP process $\ClassicalP$ and its encoding $\encode\ClassicalP$) are typed
 \emph{in the same typing context} (up to the name of channels, for typing
 judgments other than the concluding one).
+}
