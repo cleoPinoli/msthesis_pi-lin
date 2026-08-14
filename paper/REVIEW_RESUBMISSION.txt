@@ -1,0 +1,26 @@
+Thank you for the resubmission and incorporating the feedback. My main ask from the previous round was about clarifying the relationship between LCC/CP, and I believe the newly added section 4 along with the anticipating texts beforehand captures that, so I am in favor of accepting this paper.
+
+Below are minor comments in section 4:
+
+1282: If we let P and Q (in sans-serif ...
+I find this sentence long and hard to read... maybe break the sentence up in two?
+
+1288: x is being used by the continuation processes Q and P
+Q and P -> P and Q
+
+1324: It is now easy to establish that [...] are one the inverse of the other
+something like "are inverses of each other"?
+
+----
+I have no issues with the other newly added texts in the submission. I should mention that I found the additional texts at the end of the related work to be useful (esp. the comment on left-over typing), but I'll defer to the reviewer who suggested this addition if they have any further comments. I'll also list below some comments on grammar and style the newly added parts of the paper. As per last time, I defer to the authors/editors if they want to incorporate my suggestions, esp. for stylistic ones:
+
+85: and the interpretation by
+interpretation -> interpretations
+
+1510: [...] is pretty much the same we adopt in this paper
+I personally find pretty much to be a bit too informal, maybe essentially?
+Also, there seems to be something missing between same and we. Something like "same as what we adopt in this paper"?
+
+1556: At the level of calculus and typing [...]
+At the level of the calculus? or
+At the level of the syntax?

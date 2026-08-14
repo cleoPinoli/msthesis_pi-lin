@@ -40,14 +40,14 @@ calculus. In fact, we have already extended \LCC with support for coinductive
 types (these extensions are in \LCC's public
 repository~\cite{PadovaniRaffaelli25}).
 %
-At the level of calculus and of typing rules, the extension of \LCC with the
-so-called \emph{mix rule}, which allows the parallel composition of independent
-processes not sharing any channel, is straightforward. However, this extension
-might require non-trivial changes to the definition and formalisation of
-deadlock freedom (\Cref{sec:deadlock-freedom-agda}) to handle some corner cases
-that are not contemplated in \LCC as it stands. As an example, in a version of
-\LCC with the mix rule, the process $\Close\x \parop \Close\y$ should be
-considered deadlock free even if it does not reduce and is not a thread.
+At the level of the syntax and of the typing rules, the extension of \LCC with
+the so-called \emph{mix rule}, which allows the parallel composition of
+independent processes not sharing any channel, is straightforward. However, this
+extension might require non-trivial changes to the definition and formalisation
+of deadlock freedom (\Cref{sec:deadlock-freedom-agda}) to handle some corner
+cases that are not contemplated in \LCC as it stands. As an example, in a
+version of \LCC with the mix rule, the process $\Close\x \parop \Close\y$ should
+be considered deadlock free even if it does not reduce and is not a thread.
 %
 In the future, it would be interesting
 to formalise the strong normalisation property of \LCC as a consequence of cut

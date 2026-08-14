@@ -14,17 +14,18 @@ In the rest of this section, we detail this correspondence focusing on the
 multiplicative/additive connectives. The treatment of quantifiers is similar,
 and the other parts of \LCC coincide with those of \CP.
 
-If we let $\ClassicalP$ and $\ClassicalQ$ (in sans-serif font) range over \CP
-processes and write $\wtcp\ClassicalP\Context$ for a \CP typing judgment, in \CP
-the process forms representing input/output operations on sessions are
-$\Join\x\y{}.\ClassicalP$ and $\Case\x{}\ClassicalP\ClassicalQ$ (for inputs) and
-$\Fork\x\y{}\ClassicalP\ClassicalQ$ and $\Select\x{\InTag_i}{}.\ClassicalP$ (for
-outputs). The key difference between these forms and the corresponding ones in
-\LCC is the \emph{absence} of an explicit continuation channel. Instead, as we
-have seen in \Cref{ex:booleans}, the session endpoint $x$ is being used by the
-continuation processes $\ClassicalQ$ and $\ClassicalP$ to implement the rest of
-the session. This is made clear by the \CP typing rules for these processes,
-which we recall below~\cite{Wadler14}:
+To avoid ambiguity, we use $\ClassicalP$ and $\ClassicalQ$ (in sans-serif font)
+to range over \CP processes and we write $\wtcp\ClassicalP\Context$ for a \CP
+typing judgment. In \CP, the process forms representing input/output operations
+on sessions are $\Join\x\y{}.\ClassicalP$ and $\Case\x{}\ClassicalP\ClassicalQ$
+(for inputs) and $\Fork\x\y{}\ClassicalP\ClassicalQ$ and
+$\Select\x{\InTag_i}{}.\ClassicalP$ (for outputs). The key difference between
+these forms and the corresponding ones in \LCC is the \emph{absence} of an
+explicit continuation channel. Instead, as we have seen in \Cref{ex:booleans},
+the session endpoint $x$ is being used by the continuation processes
+$\ClassicalP$ and $\ClassicalQ$ to implement the rest of the session. This is
+made clear by the \CP typing rules for these processes, which we recall
+below~\cite{Wadler14}:
 \begin{mathpar}
     \inferrule[\StandardForkRule]{
         \wtcp\ClassicalP{y : A, \ContextC}
@@ -85,9 +86,9 @@ following equations
 \end{align*}
 and extended homomorphically to the other forms of \LCC.
 
-It is now easy to establish that $\encode\cdot$ and $\decode\cdot$ are one the
-inverse of the other (up to alpha conversion) and that they preserve typing, in
-the sense that:
+It is now easy to establish that $\encode\cdot$ and $\decode\cdot$ are inverses
+of each other (up to alpha conversion) and that they preserve typing, in the
+sense that:
 \begin{itemize}
 \item If $\wtcp\ClassicalP\Context$, then $\wtp{\encode\ClassicalP}\Context$;
 \item If $\wtp{P}\Context$, then $\wtcp{\decode{P}}\Context$.
